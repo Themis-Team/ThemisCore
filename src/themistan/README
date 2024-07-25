@@ -1,0 +1,1 @@
+This folder contains the stan and stan_math library used by Themis as well as the requisite drivers needed to patch stan to use the Themis likelihood in sampler_themistan.

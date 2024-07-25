@@ -1,0 +1,8 @@
+STAN_MPI=true
+CXX=$(CC_STAN)
+TBB_CXX_TYPE=gcc
+$(info "INFO THEMISTAN: ----------------------------------------------------------------")
+$(info "INFO THEMISTAN: Compiling Stan with mpi support")
+$(info "INFO THEMISTAN: Found CXX=$(CXX) from CC=$(CC_STAN)")
+$(info "INFO THEMISTAN: Set boost compiler to TBB_CXX_TYPE=$(TBB_CXX_TYPE)")
+$(info "INFO THEMISTAN: ----------------------------------------------------------------")
