@@ -1,0 +1,10 @@
+<map id="analyses/Challenge3/challenge3b_VACP_comparison_mag.cpp" name="analyses/Challenge3/challenge3b_VACP_comparison_mag.cpp">
+<area shape="rect" id="node2" href="$a00378.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="5,212,182,237"/>
+<area shape="rect" id="node3" href="$a00476.html" title="Header file for the Multi&#45;Asymmetric Gaussian image class originally motivated by the model fitting c..." alt="" coords="268,112,480,151"/>
+<area shape="rect" id="node4" href="$a00400.html" title="Header file for the Likelihood class. " alt="" coords="594,212,682,237"/>
+<area shape="rect" id="node5" href="$a00425.html" title="Header file for the likelihood_optimal_gain_correction_visibility_amplitude likelihood class..." alt="" coords="70,105,243,157"/>
+<area shape="rect" id="node6" href="$a00560.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="555,112,721,151"/>
+<area shape="rect" id="node7" href="$a00601.html" title="Header file for various random number generators using the algorithms in &quot;Numerical Recipes in C&quot; by ..." alt="" coords="773,205,924,244"/>
+<area shape="rect" id="node8" href="$a00564.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="746,112,951,151"/>
+<area shape="rect" id="node9" href="$a00605.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="1026,119,1082,144"/>
+</map>

@@ -1,0 +1,9 @@
+<map id="data/data_closure_amplitude.h" name="data/data_closure_amplitude.h">
+<area shape="rect" id="node2" href="$a00322.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="148,252,335,277"/>
+<area shape="rect" id="node3" href="$a00323.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="32,79,208,117"/>
+<area shape="rect" id="node4" href="$a00328.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="430,252,631,277"/>
+<area shape="rect" id="node5" href="$a00365.html" title="Implements datum and data objects containing closure amplitudes. " alt="" coords="283,85,501,111"/>
+<area shape="rect" id="node6" href="$a00404.html" title="Header file for the clsoure Amplitude Likelihood class. " alt="" coords="347,165,495,204"/>
+<area shape="rect" id="node7" href="$a00446.html" title="Header file for visibility ampitude model class. " alt="" coords="525,79,673,117"/>
+<area shape="rect" id="node8" href="$a00573.html" title="main file illustrating read&#45;in of the various EHT observation data " alt="" coords="748,85,884,111"/>
+</map>

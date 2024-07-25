@@ -1,0 +1,5 @@
+<map id="run_optimizer" name="run_optimizer">
+<area shape="rect" id="node2" href="$a00040.html#a0c8dffd8d8e3df06e448abdfaf7b0aab" title="Returns access to the prior vector. " alt="" coords="370,26,498,65"/>
+<area shape="rect" id="node3" href="$a00040.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::likelihood\l::set_mpi_communicator" alt="" coords="155,26,322,65"/>
+<area shape="rect" id="node4" href="$a00126.html#aa78bcf12e55be0a219ef1e1411350101" title="Function to ncapsulate the process of optimization. Returns the maximized likelihood and resets pvec ..." alt="" coords="175,89,302,114"/>
+</map>

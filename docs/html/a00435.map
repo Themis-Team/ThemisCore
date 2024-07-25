@@ -1,0 +1,6 @@
+<map id="model/model_symmetric_gaussian.h" name="model/model_symmetric_gaussian.h">
+<area shape="rect" id="node2" href="$a00235.html" title="Fits a symmetric Gaussian model to simulated closure amplitudes. " alt="" coords="5,92,167,131"/>
+<area shape="rect" id="node3" href="$a00240.html" title="tests/parameterized\l_scattering_model_test.cpp" alt="" coords="191,92,376,131"/>
+<area shape="rect" id="node4" href="$a00241.html" title="Fits a symmetric Gaussian model to visibility amplitude data. " alt="" coords="400,92,575,131"/>
+<area shape="rect" id="node5" href="$a00242.html" title="Fits a symmetric Gaussian model to visibility amplitude data for validation purposes. " alt="" coords="598,92,782,131"/>
+</map>

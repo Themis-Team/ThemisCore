@@ -1,0 +1,19 @@
+<map id="likelihood/likelihood.h" name="likelihood/likelihood.h">
+<area shape="rect" id="node4" href="$a00737.html" title="Header file for the Base Likelihood class. " alt="" coords="1183,169,1306,196"/>
+<area shape="rect" id="node6" href="$a00842.html" title="Header file for prior class. " alt="" coords="549,244,607,271"/>
+<area shape="rect" id="node8" href="$a00770.html" title="Header file for the Gaussian likelihood class. " alt="" coords="2133,87,2279,114"/>
+<area shape="rect" id="node9" href="$a00761.html" title="Header file for the Egg box likelihood class. " alt="" coords="375,87,511,114"/>
+<area shape="rect" id="node10" href="$a00827.html" title="Header file for the Rosenbrock likelihood class. " alt="" coords="536,87,695,114"/>
+<area shape="rect" id="node11" href="$a00773.html" title="Header file for the Egg box likelihood class. Ref: https://mathworld.wolfram.com/GriewankFunction.html. " alt="" coords="719,87,866,114"/>
+<area shape="rect" id="node12" href="$a00740.html" title="Header file for the Egg box likelihood class. Ref: https://mathworld.wolfram.com/LorentzianFunction.html. " alt="" coords="890,87,1026,114"/>
+<area shape="rect" id="node13" href="$a00776.html" title="Header file for the Egg box likelihood class. Ref: https://mathworld.wolfram.com/LorentzianFunction.html. " alt="" coords="1283,87,1433,114"/>
+<area shape="rect" id="node14" href="$a00839.html" title="Header file for the Visibility Amplitude Likelihood class. " alt="" coords="1927,80,2058,121"/>
+<area shape="rect" id="node15" href="$a00788.html" title="Header file for the Marginalized Visibility Amplitude Likelihood class. " alt="" coords="1747,80,1903,121"/>
+<area shape="rect" id="node16" href="$a00752.html" title="Header file for the Closure Phase Likelihood class. " alt="" coords="1458,80,1583,121"/>
+<area shape="rect" id="node17" href="$a00782.html" title="Header file for the Marginalized Closure Phase Likelihood class. " alt="" coords="1051,80,1207,121"/>
+<area shape="rect" id="node18" href="$a00767.html" title="Header file for the flux likelihood class. " alt="" coords="1607,87,1722,114"/>
+<area shape="rect" id="node19" href="$a00860.html" title="Header file for transform_base class. " alt="" coords="223,244,346,271"/>
+<area shape="rect" id="node20" href="$a00863.html" title="Header file for transform_fixed class. " alt="" coords="223,169,346,196"/>
+<area shape="rect" id="node21" href="$a00866.html" title="Header file for transform_logarithmic class. " alt="" coords="371,169,529,196"/>
+<area shape="rect" id="node22" href="$a00872.html" title="Header file for transform_none class. " alt="" coords="26,169,149,196"/>
+</map>

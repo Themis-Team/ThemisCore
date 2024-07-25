@@ -1,0 +1,5 @@
+<map id="model/model_image_fixed_lightcurve.h" name="model/model_image_fixed_lightcurve.h">
+<area shape="rect" id="node2" href="$a00959.html" title="Header file for the model_image_fixed_lightcurve class, which renormalizes the visibilities by a fixe..." alt="" coords="5,95,179,136"/>
+<area shape="rect" id="node3" href="$a01454.html" title="Reads in some data and a light curve and generates some output data. " alt="" coords="203,102,368,129"/>
+<area shape="rect" id="node4" href="$a01466.html" title="Reads in some data and a light curve and generates some output data with uncertainty prescriptions..." alt="" coords="392,102,565,129"/>
+</map>

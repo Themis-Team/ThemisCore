@@ -1,0 +1,8 @@
+<map id="model/model_image_sed_fitted_riaf.h" name="model/model_image_sed_fitted_riaf.h">
+<area shape="rect" id="node2" href="$a00641.html" title="Example illustrating the creationg of a RIAF model. " alt="" coords="5,95,163,136"/>
+<area shape="rect" id="node3" href="$a00659.html" title="Example illustrating the use of the RIAF model. " alt="" coords="187,95,330,136"/>
+<area shape="rect" id="node4" href="$a01073.html" title="test model_image_score clas by mcmc runs with gain calibration " alt="" coords="354,95,521,136"/>
+<area shape="rect" id="node5" href="$a01547.html" title="To be added. " alt="" coords="545,95,679,136"/>
+<area shape="rect" id="node6" href="$a01550.html" title="Validation test for the RIAF model with visibility amplitude and closure pahase data ..." alt="" coords="703,95,823,136"/>
+<area shape="rect" id="node7" href="$a01553.html" title="Test main file for the RIAF model with visibility amplitude data. " alt="" coords="847,95,1001,136"/>
+</map>

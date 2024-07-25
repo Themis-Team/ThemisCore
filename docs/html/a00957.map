@@ -1,0 +1,7 @@
+<map id="model/model_image_diffractive_scattering_screen.h" name="model/model_image_diffractive_scattering_screen.h">
+<area shape="rect" id="node2" href="$a00926.html" title="Header file for image model class. " alt="" coords="81,95,192,121"/>
+<area shape="rect" id="node4" href="$a01499.html" title="Header file for a general purpose 2D interpolator class that implements a variety of interpolation sc..." alt="" coords="30,169,145,196"/>
+<area shape="rect" id="node6" href="$a01505.html" title="Header file for a general purpose Gaussian Quadrature class that implements a variety of integration ..." alt="" coords="540,95,635,121"/>
+<area shape="rect" id="node9" href="$a01493.html" title="Header file for a multipurpose linear interpolation function. " alt="" coords="401,95,515,121"/>
+<area shape="rect" id="node10" href="$a01523.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="268,95,325,121"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="run_optimizer" name="run_optimizer">
+<area shape="rect" id="node2" href="$a00037.html#a0c8dffd8d8e3df06e448abdfaf7b0aab" title="Returns access to the prior vector. " alt="" coords="497,19,625,57"/>
+<area shape="rect" id="node3" href="$a00118.html#a12369273ac754b298ae6e9bb0e16136d" title="Function to generate a random starting point given the bounds on the prior. Assumes an arctan distrib..." alt="" coords="306,25,449,51"/>
+<area shape="rect" id="node4" href="$a00118.html#a95b4910d9c9bdcd1b315cef085dec231" title="Function to run the optimizer, takes a likelihood object, vector of priors, name of an optimizer outp..." alt="" coords="155,76,258,101"/>
+</map>

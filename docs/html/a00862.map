@@ -1,0 +1,8 @@
+<map id="likelihood/transform_base.h" name="likelihood/transform_base.h">
+<area shape="rect" id="node2" href="$a00728.html" title="Header file for the Likelihood class. " alt="" coords="102,191,247,218"/>
+<area shape="rect" id="node3" href="$a00863.html" title="Header file for transform_fixed class. " alt="" coords="27,95,162,136"/>
+<area shape="rect" id="node4" href="$a00866.html" title="Header file for transform_logarithmic class. " alt="" coords="186,95,321,136"/>
+<area shape="rect" id="node5" href="$a00872.html" title="Header file for transform_none class. " alt="" coords="345,95,479,136"/>
+<area shape="rect" id="node6" href="$a01358.html" title="Implementation file for the sampler_automated_factor_slice_sampler_MCMC. " alt="" coords="406,184,629,225"/>
+<area shape="rect" id="node7" href="$a00869.html" title="Header file for transform_logit class. " alt="" coords="555,95,690,136"/>
+</map>

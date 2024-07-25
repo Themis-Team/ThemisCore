@@ -1,0 +1,7 @@
+<map id="model/model_movie.h" name="model/model_movie.h">
+<area shape="rect" id="node2" href="$a01181.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="5,80,192,121"/>
+<area shape="rect" id="node3" href="$a01187.html" title="Header file for creating a movie object for orbiting spot based on model_image_orbiting_spot and Brod..." alt="" coords="216,80,403,121"/>
+<area shape="rect" id="node4" href="$a01190.html" title="Header file for refractively scattering a model_movie using model_image_refractive_scattering. " alt="" coords="427,80,626,121"/>
+<area shape="rect" id="node5" href="$a01196.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="651,80,845,121"/>
+<area shape="rect" id="node6" href="$a01202.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot_johannse..." alt="" coords="869,80,1064,121"/>
+</map>

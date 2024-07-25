@@ -1,0 +1,12 @@
+<map id="model_visibility_amplitude" name="model_visibility_amplitude">
+<area shape="rect" id="node2" href="$a00062.html" title="model_movie\&lt; model\l_image_orbiting_spot \&gt;" alt="" coords="259,5,420,44"/>
+<area shape="rect" id="node3" href="$a00062.html" title="model_movie\&lt; model\l_image_shearing_spot \&gt;" alt="" coords="256,68,423,107"/>
+<area shape="rect" id="node4" href="$a00040.html" title="Defines a binary model based of two Gaussians. This is an explicit model based on the model_visibilit..." alt="" coords="264,131,415,156"/>
+<area shape="rect" id="node5" href="$a00043.html" title="Defines a parameterized diffractive scattering model. " alt="" coords="230,180,450,219"/>
+<area shape="rect" id="node6" href="$a00044.html" title="Defines the interface for models that generate scattered visibilities. " alt="" coords="247,243,432,281"/>
+<area shape="rect" id="node7" href="$a00047.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="289,305,390,331"/>
+<area shape="rect" id="node8" href="$a00062.html" title="Defines the interface for models that generate movie data with a collection of utility functions that..." alt="" coords="265,355,414,393"/>
+<area shape="rect" id="node9" href="$a00065.html" title="Defines an image and flux model based on the RIAF models employed in Broderick, Fish, Doeleman and Loeb (2011) and Broderick et al. (2016), permitting greater freedom to modify the underlying semi&#45;analytic accretion flow structure. " alt="" coords="298,417,381,443"/>
+<area shape="rect" id="node10" href="$a00067.html" title="Defines a symmetric Gaussian model based on the model_visibility_amplitude and model_closure_phase cl..." alt="" coords="246,467,433,492"/>
+<area shape="rect" id="node11" href="$a00069.html" title="Defines an interface for reading in a vrt2 image library (i.e., a collection of pmap files with a sin..." alt="" coords="274,516,405,541"/>
+</map>

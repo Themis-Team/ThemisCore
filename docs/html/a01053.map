@@ -1,0 +1,9 @@
+<map id="model/model_image_refractive_scattering.h" name="model/model_image_refractive_scattering.h">
+<area shape="rect" id="node2" href="$a00926.html" title="Header file for image model class. " alt="" coords="293,95,403,121"/>
+<area shape="rect" id="node4" href="$a01289.html" title="Header file for visibility ampitude model class. " alt="" coords="462,169,647,196"/>
+<area shape="rect" id="node5" href="$a00890.html" title="Header file for closure phase model class. " alt="" coords="23,169,182,196"/>
+<area shape="rect" id="node6" href="$a00884.html" title="Header file for visibility ampitude model class. " alt="" coords="258,169,438,196"/>
+<area shape="rect" id="node7" href="$a01505.html" title="Header file for a general purpose Gaussian Quadrature class that implements a variety of integration ..." alt="" coords="693,95,787,121"/>
+<area shape="rect" id="node10" href="$a01493.html" title="Header file for a multipurpose linear interpolation function. " alt="" coords="812,95,927,121"/>
+<area shape="rect" id="node11" href="$a01523.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="559,95,617,121"/>
+</map>

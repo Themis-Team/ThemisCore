@@ -1,0 +1,21 @@
+THEMIS
+
+Copyright 2016-2017 The Themis Development Team (the "Authors").
+This product is part of the software developed by the EHT Initiative at the Perimeter Institute for Theoretical Physics.
+
+Software and documentation (the "Software") is made available throughout the Event Horizon Telescope Collaboration (the "Collaboration") pursuant to the Collaboration Memorandum and Data Analysis Policy. Permission is hereby granted, free of charge, to any member of the Collaboration to use, copy, modify, merge, and distribute within the Collaboration, the Software subject to the following conditions:
+
+1. The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+2. The Software and Software source code is made available to any member of the Collaboration upon request.
+
+3. These conditions attach to any subsequent software that includes substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+

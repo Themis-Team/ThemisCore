@@ -1,0 +1,141 @@
+#!/bin/bash
+
+# Script to generate objects.inv for cross-linking with Sphix generated
+# documentation by other projects.
+#
+# Script adapted from:
+# https://docs.typo3.org/typo3cms/extensions/sphinx/2.5.1/AdvancedUsersManual/AdvancedCrossLinks/Index.html
+#
+# Requires:
+#  xmlstarlet
+#  php
+#
+# Doxyfile must have:
+#  GENERATE_XML   =   YES
+
+
+SOURCE_DIR=./xml
+OUTPUT_DIR=./html
+PROJECT="<name of the project>"
+VERSION="<version>"
+
+# BEWARE: Header is actually needed by Intersphinx!!! (1st line to be exact)
+cat > $OUTPUT_DIR/objects.inv <<EOT
+# Sphinx inventory version 2
+# Project: $PROJECT
+# Version: $VERSION
+# The remainder of this file is compressed using zlib.
+EOT
+
+TMPFILE=`mktemp /tmp/sphinx-objects-inv.XXXXXX` || exit 1
+
+# A few general anchors as specified by:
+# - Intersphinx
+# cat >> $TMPFILE <<EOT
+# modindex std:label -1 annotated.html# Classes
+# genindex std:label -1 classes.html# Class Index
+# EOT
+# - Doxygen
+# cat >> $TMPFILE <<EOT
+# namespaces std:label -1 namespaces.html# Namespaces
+# hierarchy std:label -1 hierarchy.html# Class Hierarchy
+# functions std:label -1 functions.html# Class Members
+# functions-func std:label -1 functions_func.html# Functions
+# variables std:label -1 functions_vars.html# Variables
+# pages std:label -1 pages.html# Related Pages
+# EOT
+# #deprecated std:label -1 deprecated.html# Deprecated List
+# #todo std:label -1 todo.html# Todo List
+# #test std:label -1 test.html# Test List
+# #examples std:label -1 examples.html# Examples
+
+# - TYPO3 Documentation Team
+# cat >> $TMPFILE <<EOT
+# start std:label -1 index.html# $PROJECT
+# EOT
+	   
+
+for XML in $(find $SOURCE_DIR -type f -name \*.xml); # | grep "/classes");
+#for XML in "xml/a00047.xml" "xml/a00002.xml";
+do
+    echo "Processing $XML"
+
+    if [[ "$XML" == "./xml/index.xml" ]] ; then
+ 	echo "This is the index.xml file, which I will now skip." $XML
+ 	continue
+    fi
+    
+     # Is this a class?
+     if grep -q 'kind="class"' $XML; then
+ 	echo "I found a class in" $XML
+ 	CLASS_INTERNAL_NAME=$(cat $XML | xmlstarlet sel -t -v "//doxygen/compounddef/compoundname")
+ 	echo "  I think its name is :" $CLASS_INTERNAL_NAME
+
+	FILE=$(cat $XML | xmlstarlet sel -t -v "//doxygen/compounddef/@id")
+	LABEL_CLASS_NAME=$CLASS_INTERNAL_NAME
+	
+	# Pseudo anchor for the whole class
+	ANCHOR=$CLASS_INTERNAL_NAME
+	echo "$ANCHOR cpp:class 1 $FILE.html# $LABEL_CLASS_NAME" >> $TMPFILE
+
+	for ID in $(cat $XML | xmlstarlet sel -t -v "//doxygen/compounddef//memberdef[@kind='function']/@id");
+	do
+            # Beware there's a "_1" (for colon) at the beginning of the anchor
+            METHOD_ANCHOR=$(echo $ID | sed "s/^${FILE}_1//")
+            METHOD=$(cat $XML | xmlstarlet sel -t -v "//doxygen/compounddef//memberdef[@id='$ID']/name")
+            if [ -n "$METHOD" ]; then
+		# Pseudo anchor for the method
+		ANCHOR2="$ANCHOR::$METHOD"
+		echo "$ANCHOR2 cpp:function 1 $FILE.html#$METHOD_ANCHOR $LABEL_CLASS_NAME::$METHOD" >> $TMPFILE
+            fi
+	done
+    fi
+done
+#     if grep -q 'kind="namespace"' $XML; then
+# 	echo "I found a namespace in" $XML
+# 	NAMESPACE_INTERNAL_NAME=$(cat $XML | xmlstarlet sel -t -v "//doxygen/compounddef/compoundname")
+# 	echo "  I think its name is :" $NAMESPACE_INTERNAL_NAME
+#     fi
+
+
+    
+    
+    
+#     # File=$(cat $XML | xmlstarlet sel -t -v "//doxygen/compounddef/@id")
+#     # CLASS_INTERNAL_NAME=$(cat $XML \
+#     #     | xmlstarlet sel -t -v "//doxygen/compounddef/compoundname")
+#     # CLASS_NAME="${CLASS_INTERNAL_NAME//::/\\}"
+#     # if [[ "$CLASS_NAME" == *\\* ]]; then
+#     #     LABEL_CLASS_NAME="\\$CLASS_NAME"
+#     # else
+#     #     LABEL_CLASS_NAME="$CLASS_NAME"
+#     # fi
+
+#     # # Pseudo anchor for the whole class
+#     # ANCHOR=$(echo "$CLASS_NAME" | tr '[A-Z]' '[a-z]')
+#     # echo "$ANCHOR std:label -1 $FILE.html# $LABEL_CLASS_NAME" >> $TMPFILE
+
+#     # for ID in $(cat $XML \
+#     #     | xmlstarlet sel -t -v "//doxygen/compounddef//memberdef[@kind='function']/@id");
+#     # do
+#     #     # Beware there's a "1" (for colon) at the beginning of the anchor
+#     #     METHOD_ANCHOR=$(echo $ID | sed "s/^${FILE}_1//")
+#     #     METHOD=$(cat $XML \
+#     #         | xmlstarlet sel -t -v "//doxygen/compounddef//memberdef[@id='$ID']/name")
+#     #     if [ -n "$METHOD" ]; then
+#     #         # Pseudo anchor for the method
+#     #         ANCHOR2=$(echo "$ANCHOR::$METHOD" | tr '[A-Z]' '[a-z]')
+#     #         echo -n "$ANCHOR2 std:label -1 $FILE.html#$METHOD_ANCHOR " >> $TMPFILE
+#     #         echo "$LABEL_CLASS_NAME::$METHOD()" >> $TMPFILE
+#     #     fi
+#     # done
+# done
+
+
+cp $TMPFILE ./human_readable_objects.inv
+
+# Compress the index
+php -r "echo gzcompress(file_get_contents('$TMPFILE'));" >> $OUTPUT_DIR/objects.inv
+rm $TMPFILE
+
+echo "Success! html/objects.inv should now be generated and ready for use."

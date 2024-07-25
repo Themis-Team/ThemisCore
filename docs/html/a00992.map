@@ -1,0 +1,8 @@
+<map id="model/model_image_polynomial_variable.h" name="model/model_image_polynomial_variable.h">
+<area shape="rect" id="node2" href="$a00234.html" title="Driver file for 3c279 analysis with time&#45;variable geometric models: Large assymmetric Gaussian backgr..." alt="" coords="5,92,162,131"/>
+<area shape="rect" id="node3" href="$a00346.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="186,92,363,131"/>
+<area shape="rect" id="node4" href="$a00370.html" title="Driver file for J1924 analysis with time&#45;variable geometric models: Large assymmetric Gaussian backgr..." alt="" coords="387,92,543,131"/>
+<area shape="rect" id="node5" href="$a00383.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="567,92,782,131"/>
+<area shape="rect" id="node6" href="$a00405.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="806,92,943,131"/>
+<area shape="rect" id="node7" href="$a00534.html" title="Implements the model_image_polynomial_variable class, which generates a variable model by permitting ..." alt="" coords="967,92,1179,131"/>
+</map>

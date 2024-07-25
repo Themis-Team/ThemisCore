@@ -1,0 +1,8 @@
+<map id="RandomNumberGenerator" name="RandomNumberGenerator">
+<area shape="rect" id="node2" href="$a00035.html" title="GaussianRandomNumberGenerator\l\&lt; Themis::Ran2RNG \&gt;" alt="" coords="248,5,483,44"/>
+<area shape="rect" id="node3" href="$a00035.html" title="Defines unit variance, zero mean Gaussian random variable template. " alt="" coords="233,68,499,93"/>
+<area shape="rect" id="node4" href="$a00062.html" title="The Park and Miller &quot;Minimal Standard&quot; (a la NR). " alt="" coords="290,117,441,143"/>
+<area shape="rect" id="node5" href="$a00127.html" title="Defines a random number generator with a Poisson distribution. " alt="" coords="237,167,494,192"/>
+<area shape="rect" id="node6" href="$a00134.html" title="The L&#39;Ecuyer with Bays&#45;Durham shuffle (a la NR) " alt="" coords="324,216,407,241"/>
+<area shape="rect" id="node7" href="$a00146.html" title="A wrapper for the system supplied generator. " alt="" coords="292,265,439,291"/>
+</map>

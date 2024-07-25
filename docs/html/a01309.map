@@ -1,0 +1,9 @@
+<map id="model/uncertainty_visibility.h" name="model/uncertainty_visibility.h">
+<area shape="rect" id="node2" href="$a00806.html" title="Header file for the likelihood_optimal_complex_gain_visibility likelihood class. " alt="" coords="5,80,164,136"/>
+<area shape="rect" id="node3" href="$a01466.html" title="Reads in some data and a light curve and generates some output data with uncertainty prescriptions..." alt="" coords="425,184,598,211"/>
+<area shape="rect" id="node4" href="$a00833.html" title="Header file for the Visibility Likelihood class. " alt="" coords="240,87,375,129"/>
+<area shape="rect" id="node5" href="$a01304.html" title="Implementation file for the uncertainty_visibility class. " alt="" coords="399,95,603,121"/>
+<area shape="rect" id="node6" href="$a01313.html" title="Header file for uncertainty model class approprirate for complex visibilities that adds a floor and f..." alt="" coords="627,87,806,129"/>
+<area shape="rect" id="node7" href="$a01319.html" title="Header file for uncertainty model class approprirate for complex visibilities that adds a floor and f..." alt="" coords="830,87,1009,129"/>
+<area shape="rect" id="node8" href="$a01325.html" title="Header file for uncertainty model class approprirate for complex visibilities that adds a floor and f..." alt="" coords="1033,87,1211,129"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="model/model_visibility_galactic_center_diffractive_scattering_screen.h" name="model/model_visibility_galactic_center_diffractive_scattering_screen.h">
+<area shape="rect" id="node2" href="$a00346.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="5,112,182,151"/>
+<area shape="rect" id="node3" href="$a00350.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="205,112,382,151"/>
+<area shape="rect" id="node4" href="$a00351.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="405,112,606,151"/>
+<area shape="rect" id="node5" href="$a00354.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="630,112,807,151"/>
+<area shape="rect" id="node6" href="$a00608.html" title="implementation file for galactic center diffractive scattering interface. " alt="" coords="831,105,1014,157"/>
+</map>

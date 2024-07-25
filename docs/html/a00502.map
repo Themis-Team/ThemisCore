@@ -1,0 +1,11 @@
+<map id="likelihood_base" name="likelihood_base">
+<area shape="rect" id="node2" href="$a00030.html" title="Defines a class that constructs a closure amplitude likelihood object. " alt="" coords="183,5,310,44"/>
+<area shape="rect" id="node3" href="$a00031.html" title="Defines a class that constructs a closure phase likelihood object. " alt="" coords="183,68,310,107"/>
+<area shape="rect" id="node4" href="$a00032.html" title="Defines the egg box likelihood. " alt="" coords="183,131,311,156"/>
+<area shape="rect" id="node5" href="$a00033.html" title="Defines a class that constructs a flux likelihood object. " alt="" coords="194,180,299,205"/>
+<area shape="rect" id="node6" href="$a00034.html" title="Defines a class that constructs a fractional polarization likelihood object. " alt="" coords="177,229,316,268"/>
+<area shape="rect" id="node7" href="$a00035.html" title="Defines a class that constructs a likelihood object for a gaussian distribution. " alt="" coords="178,292,315,317"/>
+<area shape="rect" id="node8" href="$a00036.html" title="Defines a class that constructs a marginalized closure phase likelihood object. " alt="" coords="167,341,327,380"/>
+<area shape="rect" id="node9" href="$a00037.html" title="Defines a class that constructs a marginalized visibility amplitude likelihood object. " alt="" coords="167,404,327,443"/>
+<area shape="rect" id="node10" href="$a00038.html" title="Defines a class that constructs a visibility amplitude likelihood object. " alt="" coords="181,467,312,505"/>
+</map>

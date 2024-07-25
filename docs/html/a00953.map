@@ -1,0 +1,48 @@
+<map id="model/model_image.h" name="model/model_image.h">
+<area shape="rect" id="node2" href="$a00344.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="2387,172,2574,197"/>
+<area shape="rect" id="node3" href="$a00346.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="337,165,513,204"/>
+<area shape="rect" id="node4" href="$a00347.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="737,165,913,204"/>
+<area shape="rect" id="node5" href="$a00350.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="537,165,713,204"/>
+<area shape="rect" id="node6" href="$a00351.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="936,165,1137,204"/>
+<area shape="rect" id="node7" href="$a00359.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="1161,165,1337,204"/>
+<area shape="rect" id="node8" href="$a00360.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="1561,165,1737,204"/>
+<area shape="rect" id="node9" href="$a00361.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="1361,165,1537,204"/>
+<area shape="rect" id="node10" href="$a00362.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="2161,172,2363,197"/>
+<area shape="rect" id="node11" href="$a00363.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="1761,165,1937,204"/>
+<area shape="rect" id="node12" href="$a00364.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="1961,165,2137,204"/>
+<area shape="rect" id="node13" href="$a00508.html" title="Implements image model class. " alt="" coords="2828,85,2995,111"/>
+<area shape="rect" id="node14" href="$a00511.html" title="Header file for the model_image_adaptive_splined_raster image class. " alt="" coords="600,79,799,117"/>
+<area shape="rect" id="node15" href="$a00513.html" title="Header file for astroray driver. " alt="" coords="3019,85,3226,111"/>
+<area shape="rect" id="node16" href="$a00515.html" title="Header file for the asymmetric Gaussian image class. " alt="" coords="1439,79,1656,117"/>
+<area shape="rect" id="node17" href="$a00517.html" title="Header file for the Geometric Crescent Model Image class. " alt="" coords="3250,85,3461,111"/>
+<area shape="rect" id="node18" href="$a00519.html" title="Header file for the Gaussian image class. " alt="" coords="3485,85,3698,111"/>
+<area shape="rect" id="node19" href="$a00521.html" title="Header file for the extended RIAF image model class with mass scaling. " alt="" coords="3721,79,3915,117"/>
+<area shape="rect" id="node20" href="$a00523.html" title="Header file for the shearing spot model class. " alt="" coords="3939,79,4132,117"/>
+<area shape="rect" id="node21" href="$a00525.html" title="Header file for grtrans driver. " alt="" coords="4156,85,4357,111"/>
+<area shape="rect" id="node22" href="$a00527.html" title="Header file for ipole driver. " alt="" coords="4381,85,4569,111"/>
+<area shape="rect" id="node23" href="$a00529.html" title="Header file for the Multi&#45;Asymmetric Gaussian image class originally motivated by the model fitting c..." alt="" coords="4594,79,4771,117"/>
+<area shape="rect" id="node24" href="$a00531.html" title="Header file for the Multi&#45;Gaussian image class originally motivated by the model fitting challenge 2 ..." alt="" coords="4795,85,5036,111"/>
+<area shape="rect" id="node25" href="$a00533.html" title="Header file for the shearing spot model class. " alt="" coords="5060,79,5253,117"/>
+<area shape="rect" id="node26" href="$a00535.html" title="Header file for the model_image_polynomial_variable class, which generates a variable model by permit..." alt="" coords="26,79,239,117"/>
+<area shape="rect" id="node27" href="$a00539.html" title="Header file for the model_image_raster image class. " alt="" coords="2283,85,2476,111"/>
+<area shape="rect" id="node28" href="$a00541.html" title="Header file for refractive scattering interface. " alt="" coords="5278,79,5481,117"/>
+<area shape="rect" id="node29" href="$a00543.html" title="Header file for the extended RIAF image model class. " alt="" coords="5505,85,5683,111"/>
+<area shape="rect" id="node30" href="$a00545.html" title="Header file for the Geometric Ring Model Image class. " alt="" coords="5707,85,5889,111"/>
+<area shape="rect" id="node31" href="$a00547.html" title="Header file for score model class. " alt="" coords="5914,85,6106,111"/>
+<area shape="rect" id="node32" href="$a00549.html" title="Header file for SED&#45;fitted RIAF model class. " alt="" coords="6130,79,6301,117"/>
+<area shape="rect" id="node33" href="$a00551.html" title="Header file for SED&#45;fitted RIAF model class. " alt="" coords="6325,79,6495,117"/>
+<area shape="rect" id="node34" href="$a00553.html" title="Header file for SED&#45;fitted RIAF model class with Johannsen metric. " alt="" coords="6520,79,6690,117"/>
+<area shape="rect" id="node35" href="$a00555.html" title="Header file for the shearing spot model class. " alt="" coords="6714,79,6914,117"/>
+<area shape="rect" id="node36" href="$a00557.html" title="Header file for the shearing spot model class. " alt="" coords="6938,79,7138,117"/>
+<area shape="rect" id="node37" href="$a00559.html" title="Header file for the Geometric Slashed Ring Model Image class. " alt="" coords="7162,79,7357,117"/>
+<area shape="rect" id="node38" href="$a00561.html" title="Header file for model_image_smooth. " alt="" coords="2500,85,2704,111"/>
+<area shape="rect" id="node39" href="$a00563.html" title="Header file for the model_image_splined_raster image class. " alt="" coords="1173,79,1364,117"/>
+<area shape="rect" id="node40" href="$a00565.html" title="Header file for the model_image_sum class, which sums different model images, generating a convenient..." alt="" coords="1680,85,1865,111"/>
+<area shape="rect" id="node41" href="$a00567.html" title="Header file for the symmetric Gaussian image class. " alt="" coords="315,79,524,117"/>
+<area shape="rect" id="node42" href="$a00569.html" title="Header file for the model_image_upsample image class. " alt="" coords="1991,85,2208,111"/>
+<area shape="rect" id="node43" href="$a00571.html" title="Header file for the model_image_vrt2_pmap image class. " alt="" coords="7381,79,7552,117"/>
+<area shape="rect" id="node44" href="$a00573.html" title="Header file for the Geometric Slashed Ring Model Image class. " alt="" coords="7575,85,7771,111"/>
+<area shape="rect" id="node45" href="$a00575.html" title="Header file for the geometric nine&#45;parameter eccentric slashed ring (xsringauss) model image class..." alt="" coords="925,85,1149,111"/>
+<area shape="rect" id="node46" href="$a00576.html" title="Header file for the model movie class. " alt="" coords="7794,85,7946,111"/>
+<area shape="rect" id="node47" href="$a00593.html" title="Header file for a polarized image model class with a constant polarization applied to a model image..." alt="" coords="7971,79,8180,117"/>
+</map>

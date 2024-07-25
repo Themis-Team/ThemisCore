@@ -1,0 +1,5 @@
+<map id="model/model_polarized_image_adaptive_splined_raster.h" name="model/model_polarized_image_adaptive_splined_raster.h">
+<area shape="rect" id="node2" href="$a00401.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="5,117,180,158"/>
+<area shape="rect" id="node3" href="$a00404.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities..." alt="" coords="204,117,379,158"/>
+<area shape="rect" id="node4" href="$a01217.html" title="Implements the model_polarized_image_splined_raster image class. " alt="" coords="403,109,571,165"/>
+</map>

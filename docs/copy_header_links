@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Get list of markdown files
+cd markdown
+MD_FILES=$(ls *.md | grep -v README.md)
+
+# Move to html directory
+cd ../html
+
+# Make temporary version of pages.html without the footer
+footer_start=$(grep -n 'div id="footer"' ./pages.html | sed -e 's/:/ /' | awk {'print $1'})
+head -n+$footer_start ./pages.html > tmp
+
+# Run over the markdown files and ...
+#echo "Generating internal links for html header:"
+echo "Generating .html files from markdown folder files"
+for MD_FILE in $MD_FILES; do
+
+    # html file name
+    HTML_FILE=$(echo $MD_FILE | sed -e 's/\.md/\.html/')
+
+    # Find headings
+    name=$(head -n1 ../markdown/$MD_FILE | sed -e 's/{#.*//' | sed -e 's/[[:space:]]*$//')
+
+    # Find files that have the headings in them
+    INT_HTML_FILE=$(grep -e "$name" tmp | tail -n 1 | sed 's/.*href="//' | sed 's/html".*/html/')
+    echo "  " $INT_HTML_FILE "->" $HTML_FILE
+
+    # Make the appropriate symbolic link
+    if [ -f $HTML_FILE ]; then
+      rm $HTML_FILE
+    fi
+    cp $INT_HTML_FILE $HTML_FILE
+    #ln -s $INT_HTML_FILE $HTML_FILE 
+
+done
+
+# Cleanup
+rm tmp

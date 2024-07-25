@@ -1,0 +1,7 @@
+<map id="model/model_image_gaussian.h" name="model/model_image_gaussian.h">
+<area shape="rect" id="node2" href="$a00662.html" title="Example of fitting a Gaussian image model to visibility amplitude data. " alt="" coords="5,80,151,121"/>
+<area shape="rect" id="node3" href="$a00971.html" title="Implements the asymmetric Gaussian image class. " alt="" coords="175,87,397,114"/>
+<area shape="rect" id="node4" href="$a01421.html" title="Check FFTs by comparing analytical to numerical visibilities in Gaussian model. " alt="" coords="422,87,585,114"/>
+<area shape="rect" id="node5" href="$a01424.html" title="Fits a Gaussian model to visibility amplitude data. " alt="" coords="609,80,758,121"/>
+<area shape="rect" id="node6" href="$a01427.html" title="Fits Gaussian model to visibility amplitude data. " alt="" coords="782,80,966,121"/>
+</map>

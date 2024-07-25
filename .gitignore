@@ -1,0 +1,70 @@
+# Tilde files
+*~
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+
+# Latex files (produced by the documentation)
+*.aux
+*.out
+*.gz
+*.log
+
+# Emacs Stuff
+\#*\#
+.\#*
+
+# Backups
+*.#*
+*#
+*.bak
+
+# Mac .DS_Store files
+.DS_Store
+
+# Python compile bytecode files
+__pycache__/
+*.pyc
+
+# Makefile configuration file
+src/Makefile.config
+
+# FFTW folder with access to local fftw library
+FFTW
+
+# Installation stuff in VRT2
+src/VRT2/include/
+src/VRT2/lib/
+
+# Development directory
+src/sandbox/*
+
+# Binary files generated during compilation
+bin/examples/
+bin/sandbox/
+bin/tests/
+bin/validation/
+
+# Data files in analysis folder
+analysis/*.d
+analysis/*.dat
+analysis/*.pdf
+
+# Output html files in documentation folder
+#docs/html/
+

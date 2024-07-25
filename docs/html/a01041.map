@@ -1,0 +1,6 @@
+<map id="model/model_image_upsample.h" name="model/model_image_upsample.h">
+<area shape="rect" id="node2" href="$a00362.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="5,85,207,111"/>
+<area shape="rect" id="node3" href="$a00363.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="231,79,407,117"/>
+<area shape="rect" id="node4" href="$a00364.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="431,79,607,117"/>
+<area shape="rect" id="node5" href="$a00568.html" title="Implements the model_image_upsample image class. " alt="" coords="631,85,863,111"/>
+</map>

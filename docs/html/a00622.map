@@ -1,0 +1,6 @@
+<map id="prior_base" name="prior_base">
+<area shape="rect" id="node2" href="$a00073.html" title="Defines the gaussian prior class. " alt="" coords="5,79,114,104"/>
+<area shape="rect" id="node3" href="$a00074.html" title="Defines the linear(flat) prior class. " alt="" coords="138,79,226,104"/>
+<area shape="rect" id="node4" href="$a00075.html" title="Defines a prior that is uniform in log space. " alt="" coords="250,79,370,104"/>
+<area shape="rect" id="node5" href="$a00076.html" title="Defines the no&#45;prior class. " alt="" coords="395,79,480,104"/>
+</map>

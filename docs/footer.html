@@ -1,0 +1,39 @@
+<!--END GENERATE_TREEVIEW-->
+<!--BEGIN !GENERATE_TREEVIEW-->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer">
+  <div class="container">
+  <div class='row text-muted'>
+    <div class='footer-row col-md-8'>Copyright &copy; 2020 <a href='Developers.html'>Themis Development Team.</a> All Rights Reserved. </div>
+    <div class='footer-row col-md-1'><a href='Developers.html'>Contact</a></div>
+
+  </div>
+  </div>
+  </div>
+
+  <script>
+    $(function(){
+        $('.cse-search').change(function(){
+            $('.adjust-right li.active').focus();
+		});
+		$('.cse-search').on('click', function(){
+			if($(this).hasClass('active')){
+				$(this).removeClass('active');
+				$('.google-cse').slideUp();
+			} else {
+				$(this).addClass('active');
+				$('.google-cse').hide().removeClass('hide').slideDown();
+			}
+		});
+	});
+  </script>
+
+  <!--END !GENERATE_TREEVIEW-->
+</body>
+</html>

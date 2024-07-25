@@ -1,0 +1,9 @@
+<map id="model/model_image_crescent.h" name="model/model_image_crescent.h">
+<area shape="rect" id="node2" href="$a00626.html" title="To be added. " alt="" coords="5,80,195,121"/>
+<area shape="rect" id="node3" href="$a00947.html" title="Implements Geometric Crescent Model Image class. " alt="" coords="219,87,439,114"/>
+<area shape="rect" id="node4" href="$a01415.html" title="Fits a symmetric Gaussian model to simulated closure amplitudes. " alt="" coords="464,80,624,121"/>
+<area shape="rect" id="node5" href="$a01433.html" title="tests/parameterized\l_scattering_model_test.cpp" alt="" coords="649,80,831,121"/>
+<area shape="rect" id="node6" href="$a01472.html" title="Tests the visibility construction for simple models. " alt="" coords="855,87,1011,114"/>
+<area shape="rect" id="node7" href="$a01529.html" title="Fits a crescent model to visibility amplitude data for validation purposes. " alt="" coords="1036,80,1199,121"/>
+<area shape="rect" id="node8" href="$a01535.html" title="Fits a crescent model to visibility amplitude data using the deo tempering sampler with the stan expl..." alt="" coords="1223,80,1449,121"/>
+</map>

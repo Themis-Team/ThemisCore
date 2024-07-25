@@ -1,0 +1,7 @@
+<map id="model/model_galactic_center_diffractive_scattering_screen.h" name="model/model_galactic_center_diffractive_scattering_screen.h">
+<area shape="rect" id="node2" href="$a00431.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="5,117,180,158"/>
+<area shape="rect" id="node3" href="$a00554.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="205,117,341,158"/>
+<area shape="rect" id="node4" href="$a00557.html" title="Driver file for SgrA analysis with Broderick et al. 2016 RIAF model which is static. " alt="" coords="365,109,503,165"/>
+<area shape="rect" id="node5" href="$a00560.html" title="Driver file for SgrA analysis with Broderick et al. 2016 RIAF model + shearing hotspot. " alt="" coords="528,109,695,165"/>
+<area shape="rect" id="node6" href="$a00917.html" title="implementation file for galactic center diffractive scattering interface. " alt="" coords="719,109,912,165"/>
+</map>

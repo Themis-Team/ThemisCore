@@ -1,0 +1,71 @@
+Installation Instructions
+**********************************
+
+Full details can be found in the Themis documentation, found in docs/Mainpage.html, on the Getting Started page.  This includes most up-to-date list of the versions of libraries with which Themis has been tested, makefile configuration options, and make options.
+
+
+In Brief
+==================================
+Installing Themis has three steps:
+1. Installing necessary libraries (see Prerequisites).
+2. Creating an appropriate Makefile.config file.
+3. make all
+
+
+Prerequisites
+==================================
+For a full, current description of the system requirements of Themis, see the documentation in docs/.  To make Themis executables, you will need
+
+1. Make 
+2. A C++ compiler (e.g., gcc, icpc, clang, etc.).
+3. MPI installed
+4. FFTW v3.0
+
+To remake the documentation you will also need
+
+5. Doxygen 1.8.5 or later
+6. Graphviz
+
+Nearly all of these can be installed most conveniently with your local package manager (yum, dnf, apt-get, brew, macports, etc.).
+
+
+Configuring Make (Makefile.config)
+==================================
+Because the different external components vary in type and location on individual systems it is necessary to configure the compilation process. In Themis this is accomplished via the presence of a Makefile.config file, to be located in Themis/src; examples can be found in the config/ directory (e.g., config/Makefile.config.Procyon). This file defines:
+
+1. The MPI C++ compiler to use by defining the variable CC.
+2. The appropriate compiler flags to use by defining the variable CC_FLAGS. These should enable C++11 directives (e.g., the *-std=c+0x* flag for gcc, or *-std=c++11* for icpc, etc.). They should also include the optimal set of compiler optimization (e.g., *-O3 -mtune=native -march=native -ffast-math* for gcc).
+3. The absolute path of the directory containing fftw3.h by defining the variable FFTW_INCLUDE_DIR.
+4. The absolute path of the directory containing libfftw3.a by defining the variable FFTW_LIB_DIR.
+
+In the absence of Makefile.config, make will make some, likely poor, default choices that will typically fail on most systems (primarily the FFTW include and library directories, which are then assumed to be located in Themis/FFTW/include and Themis/FFTW/lib). Make will report if it can find a Makefile.config, and the values of CC, CC_FLAGS, FFTW_INCLUDE_DIR, FFTW_LIB_DIR that will be used.
+
+
+Make
+==================================
+To make all of the components required for the executables in the src/tests/, src/examples/, and src/validation/ directories, in src/ simply run:
+
+$ make all
+
+This will run
+
+$ make vrt2lib
+$ make subdirs
+$ make examples
+$ make tests
+$ make validation
+
+which makes the VRT2 ray tracing and radiative transfer library, the various components of Themis, and all of the executables in examples, tests, and validation.  You can make a single executable by name, e.g.,
+
+$ make tests/gaussian_blob
+
+Note the lack of the file extension ".cpp".
+
+For more make options see the documentation in the docs/ directory.
+
+Executables will be found in the matching subdirectory of bin/ and may be run via the appropriate mpirun command, e.g., for OpenMPI,
+
+$ mpirun -np <# of procs> <executable>
+
+Happy Themising!
+

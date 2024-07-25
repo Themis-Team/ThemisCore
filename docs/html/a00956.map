@@ -1,0 +1,10 @@
+<map id="model/model_image_adaptive_splined_raster.h" name="model/model_image_adaptive_splined_raster.h">
+<area shape="rect" id="node2" href="$a00346.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="5,92,182,131"/>
+<area shape="rect" id="node3" href="$a00347.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="205,92,382,131"/>
+<area shape="rect" id="node4" href="$a00350.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="405,92,582,131"/>
+<area shape="rect" id="node5" href="$a00351.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="605,92,806,131"/>
+<area shape="rect" id="node6" href="$a00359.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="829,92,1006,131"/>
+<area shape="rect" id="node7" href="$a00360.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="1029,92,1206,131"/>
+<area shape="rect" id="node8" href="$a00361.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="1229,92,1406,131"/>
+<area shape="rect" id="node9" href="$a00510.html" title="Implements the model_image_splined_raster image class. " alt="" coords="1430,92,1629,131"/>
+</map>

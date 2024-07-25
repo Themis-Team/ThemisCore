@@ -1,0 +1,8 @@
+<map id="likelihood/likelihood_optimal_complex_gain_visibility.h" name="likelihood/likelihood_optimal_complex_gain_visibility.h">
+<area shape="rect" id="node2" href="$a00346.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="5,112,182,151"/>
+<area shape="rect" id="node3" href="$a00347.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="205,112,382,151"/>
+<area shape="rect" id="node4" href="$a00350.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="405,112,582,151"/>
+<area shape="rect" id="node5" href="$a00351.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="605,112,806,151"/>
+<area shape="rect" id="node6" href="$a00468.html" title="Implementation file for the likelihood_optimal_complex_gain_visibility likelihood class..." alt="" coords="830,105,991,157"/>
+<area shape="rect" id="node7" href="$a00683.html" title="Test rig for developing and testing the likelihood_small_gain_correction_visibility_amplitude class..." alt="" coords="1015,112,1161,151"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="sampling/sampler_MCMC_base.h" name="sampling/sampler_MCMC_base.h">
+<area shape="rect" id="node2" href="$a01361.html" title="Header file for a generic single factor slice sampler used in Themis. This uses slice sampling to exp..." alt="" coords="5,95,215,136"/>
+<area shape="rect" id="node3" href="$a01358.html" title="Implementation file for the sampler_automated_factor_slice_sampler_MCMC. " alt="" coords="71,184,293,225"/>
+<area shape="rect" id="node4" href="$a01364.html" title="Header file for sampler_deo_tempering_MCMC class. " alt="" coords="290,95,442,136"/>
+<area shape="rect" id="node5" href="$a01385.html" title="Implementation file for the abstract mcmc base class. " alt="" coords="466,95,639,136"/>
+<area shape="rect" id="node6" href="$a01394.html" title="Header file stan sampler used in Themis. " alt="" coords="664,95,873,136"/>
+<area shape="rect" id="node7" href="$a01391.html" title="Implementation file for the sampler_stan_adapt_dense_e_nuts_MCMC. " alt="" coords="676,184,899,225"/>
+<area shape="rect" id="node8" href="$a01400.html" title="Header file stan sampler used in Themis. " alt="" coords="948,95,1147,136"/>
+<area shape="rect" id="node9" href="$a01397.html" title="Implementation file for the sampler_stan_adapt_diag_e_nuts_MCMC. " alt="" coords="1009,184,1221,225"/>
+</map>

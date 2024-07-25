@@ -1,0 +1,6 @@
+<map id="model_riaf" name="model_riaf">
+<area shape="rect" id="node2" href="$a00121.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="5,5,182,31"/>
+<area shape="rect" id="node3" href="$a00065.html" title="Defines the interface for models that generate closure phase data appropriate for comparison with dat..." alt="" coords="206,5,357,31"/>
+<area shape="rect" id="node4" href="$a00064.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="381,5,555,31"/>
+<area shape="rect" id="node5" href="$a00069.html" title="Defines the interface for models that generate flux data appropriate for comparison with datum_flux..." alt="" coords="579,5,664,31"/>
+</map>

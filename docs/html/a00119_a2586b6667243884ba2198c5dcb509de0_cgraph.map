@@ -1,0 +1,4 @@
+<map id="run_optimizer" name="run_optimizer">
+<area shape="rect" id="node2" href="$a00039.html#a0c8dffd8d8e3df06e448abdfaf7b0aab" title="Returns access to the prior vector. " alt="" coords="347,5,475,44"/>
+<area shape="rect" id="node3" href="$a00119.html#a12369273ac754b298ae6e9bb0e16136d" title="Function to generate a random starting point given the bounds on the prior. Assumes an arctan distrib..." alt="" coords="155,37,299,63"/>
+</map>

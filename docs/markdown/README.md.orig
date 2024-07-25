@@ -1,0 +1,52 @@
+# THEMIS {#mainpage}
+
+@section table-of-contents Table of contents
+
+- [Quick start](#quick-start)
+- [Bugs and feature requests](#bugs-and-feature-request)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Creators](#creators)
+- [Copyright and license](#copyright-and-license)
+
+@section quick-start Quick start
+
+There are two options available:
+
+- [Download the latest release.](https://github.com/PerimeterInstitute/Themis/archive/master.zip)
+- Clone the repo: `git clone https://github.com/PerimeterInstitute/Themis.git`
+
+Read the [Getting started page](@ref GetStarted) for information on the framework contents, templates and examples, and more.
+
+
+@section bugs-and-feature-request Bugs and feature requests
+
+Have a bug or a feature request? Please first read the [issue guidelines](_blank) and search for existing and closed issues. If your problem or idea is not addressed yet, [please open a new issue](https://github.com/PerimeterInstitute/Themis/issues/new).
+
+@section documentation Documentation
+
+Themis' documentation, included in this repo in the docs directory, is built with [Doxygen](http://www.doxygen.org/) and publicly hosted on ... at <http://www.eventhorizontelescope.org/>. The docs may also be run locally.
+
+Additionally, the general features of Themis will be described in the [Themis Code paper](../../publications/ms.pdf) (Under preparation)
+
+
+@section contributing Contributing
+
+Please contribute!  Themis only works if many people participate in its development.  However, to ensure that Themis continues to be broadly accessible, we do have standards for code structure and documentation that can be found in detail on the [Contributing page](@ref Contribute).
+
+
+@section creators Creators
+
+**Avery E. Broderick**, abroderick@perimeterinstitute.ca
+
+**Mansour Karami**, mkarami@perimeterinstitute.ca
+
+**Roman Gold**, rgold@perimeterinstitute.ca
+
+**Jorge A. Preciado**, jpreciado@perimeterinstitute.ca
+
+
+@section copyright-and-license Copyright and license
+
+Code and documentation copyright 2016-2017 the [Themis Authors](http://www.eventhorizontelescope.org/collaborators/index.html).  Themis is available throughout the EHTC as described in the Memorandum of Collaboration and Data Analysis Policy.  It is not currently publically available, and sharing beyond the EHTC is expressly forbidden.
+

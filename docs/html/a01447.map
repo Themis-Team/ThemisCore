@@ -1,0 +1,12 @@
+<map id="model_visibility" name="model_visibility">
+<area shape="rect" id="node2" href="$a00105.html" title="model_movie\&lt; model\l_image_general_riaf\l_shearing_spot \&gt;" alt="" coords="211,5,360,57"/>
+<area shape="rect" id="node3" href="$a00105.html" title="model_movie\&lt; model\l_image_orbiting_spot \&gt;" alt="" coords="206,81,366,120"/>
+<area shape="rect" id="node4" href="$a00105.html" title="model_movie\&lt; model\l_image_refractive_scattering \&gt;" alt="" coords="184,144,388,183"/>
+<area shape="rect" id="node5" href="$a00105.html" title="model_movie\&lt; model\l_image_shearing_spot \&gt;" alt="" coords="202,207,370,245"/>
+<area shape="rect" id="node6" href="$a00105.html" title="model_movie\&lt; model\l_image_shearing_spot\l_johannsen \&gt;" alt="" coords="208,269,364,321"/>
+<area shape="rect" id="node7" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="235,345,336,371"/>
+<area shape="rect" id="node8" href="$a00105.html" title="Defines the interface for models that generate movie data with a collection of utility functions that..." alt="" coords="211,395,360,433"/>
+<area shape="rect" id="node9" href="$a00112.html" title="Defines an interface for models that generate polarized image data with a collection of utility funct..." alt="" coords="204,457,367,483"/>
+<area shape="rect" id="node10" href="$a00119.html" title="Defines a symmetric Gaussian model based on the model_visibility_amplitude and model_closure_phase cl..." alt="" coords="192,507,379,532"/>
+<area shape="rect" id="node11" href="$a00122.html" title="Blurs the visibilities of the input model according to the diffractive scattering kernel with default..." alt="" coords="164,556,407,595"/>
+</map>

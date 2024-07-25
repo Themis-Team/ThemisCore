@@ -1,0 +1,10 @@
+<map id="data/data_visibility.h" name="data/data_visibility.h">
+<area shape="rect" id="node2" href="$a00375.html" title="Implements datum and data objects containing visibilities. " alt="" coords="5,85,160,111"/>
+<area shape="rect" id="node3" href="$a00423.html" title="Header file for the likelihood_optimal_complex_gain_visibility likelihood class. " alt="" coords="235,165,397,217"/>
+<area shape="rect" id="node4" href="$a00607.html" title="Test rig for developing and testing the likelihood_small_gain_correction_visibility_amplitude class..." alt="" coords="243,265,389,304"/>
+<area shape="rect" id="node5" href="$a00430.html" title="Header file for the Visibility Likelihood class. " alt="" coords="421,172,557,211"/>
+<area shape="rect" id="node6" href="$a00548.html" title="Header file for visibility model class. " alt="" coords="287,85,448,111"/>
+<area shape="rect" id="node7" href="$a00481.html" title="Implements the model_image_polynomial_variable class, which generates a variable model by permitting ..." alt="" coords="523,79,736,117"/>
+<area shape="rect" id="node8" href="$a00509.html" title="Implements the model_image_sum class, which sums different model images, generating a convenient way ..." alt="" coords="759,85,958,111"/>
+<area shape="rect" id="node9" href="$a00537.html" title="Implements the model_polarized_image_sum class, which sums different model images, generating a convenient way to create multi&#45;component image models from single image components. " alt="" coords="982,79,1141,117"/>
+</map>
