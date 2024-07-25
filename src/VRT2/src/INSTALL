@@ -1,0 +1,13 @@
+To install VRT2 (always locally) in src run
+
+make
+make install
+
+All of the object files are removed with
+
+make clean
+
+The library and include files in ../lib and ../include are removed with
+
+make distclean
+

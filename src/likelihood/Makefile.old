@@ -1,0 +1,28 @@
+appname := myapp
+
+CXX := mpicxx
+CXXFLAGS := -std=c++11 -I../model -I../data -I../sampling -I./likelihood -I../util 
+IFLAGS=-I../model -I../data -I../sampling -I./likelihood -I../util 
+
+#srcfiles := $(shell find . -name "*.cpp")
+srcfiles = main_test.cpp likelihood.cpp  ../data/*.cpp likelihood_base.cpp ../util/*.cpp ../sampling/sampler_affine_invariant_tempered_MCMC.cpp likelihood_visibility_amplitude.cpp likelihood_marginalized_visibility_amplitude.cpp likelihood_closure_phase.cpp #../sampling/sampler_grid_search.cpp
+objects  := $(patsubst %.cpp, %.o, $(srcfiles))
+
+all: $(appname)
+
+$(appname): $(objects)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(IFLAGS) -o $(appname) $(objects) $(LDLIBS)
+
+depend: .depend
+
+.depend: $(srcfiles)
+	rm -f ./.depend
+	$(CXX) $(CXXFLAGS) -MM $^>>./.depend;
+
+clean:
+	rm -f $(objects)
+
+dist-clean: clean
+	rm -f *~ .depend
+
+include .depend

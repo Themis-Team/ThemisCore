@@ -1,0 +1,19 @@
+Provides Vacuum Ray Tracing and Radiative Transfer (VRT2) library.
+See INSTALL for installation instructions (make; make install).
+Currently only local installations are supported.
+
+To use VRT2 functions, include vrt2.h and link to libvrt2.a, i.e., an
+implementation file, f.cpp, might look like:
+
+#include "vrt2.h"
+
+void func()
+{
+  VRT2::Kerr g(1,0.5);
+}
+
+which can be compiled via
+
+> g++ -I.../vrt2/include -L.../vrt2/lib f.cpp -lvrt2
+
+

@@ -1,0 +1,32 @@
+## Defines four critical inputs to the Makefile that typically vary with
+## machine: the local MPI C++ compiler, the appropriate optimization flags,
+## and the location of the FFTW headers and libraries.
+##
+## Once you have defined an appropriate configuration for your system,
+## please consider making a copy of your Makefile.config in the config
+## directory with the relevant system name appended, e.g.,
+## Makefile.config.titan or Makefile.config.orca.  The local Makefile.config
+## should *never* be tracked by git, however, the config directory shares
+## the various config files with other Themis users.
+
+## The desired MPI C++ compiler
+CC=env OMPI_CXX=icpc mpicxx
+#CC=env OMPI_CXX=g++-7 mpicxx
+#CC=mpicxx
+
+## The appropriate list of C++ compiler flags.  Note that some C++11 features
+## must be enabled, e.g., with the -std=c++0x flag for gcc
+#CC_FLAGS=-Wall -O3 -mtune=native -march=native -Ofast -std=c++0x
+#CC_FLAGS=-Wall -O3 -mtune=native -march=native -Ofast -std=c++0x -fopenmp -DOPENMP_PRAGMA_VECTORIZE
+CC_FLAGS=-Wall -O3 -mtune=native -march=native -Ofast -std=c++1y -fopenmp -DOPENMP_PRAGMA_VECTORIZE -DBOYER_LINDQUIST_LIKE_METRIC
+#CC_FLAGS=-Wall -O3 -mtune=native -march=native -Ofast -std=c++0x -fopenmp -DOPENMP_PRAGMA_VECTORIZE -DBOYER_LINDQUIST_LIKE_METRIC -DUSE_FAST_MATH
+
+## The absolute location of the FFTW header files.  This is where the
+## header file fftw3.h can be found.
+FFTW_INCLUDE_DIR=$(shell pwd)/../FFTW/include
+
+## The absolute location of the FFTW library files.  This is where the
+## library file libfftw3.a can be found.
+FFTW_LIB_DIR=$(shell pwd)/../FFTW/lib
+
+
