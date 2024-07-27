@@ -1,4 +1,3 @@
-<map id="model/model_image_sed_fitted_riaf.h" name="model/model_image_sed_fitted_riaf.h">
-<area shape="rect" id="node5" href="$a00926.html" title="Header file for image model class. " alt="" coords="177,95,288,121"/>
-<area shape="rect" id="node7" href="$a01523.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="44,95,101,121"/>
+<map id="likelihood/likelihood_cauchy.h" name="likelihood/likelihood_cauchy.h">
+<area shape="rect" id="node2" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="5,96,171,123"/>
 </map>

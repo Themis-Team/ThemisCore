@@ -1,3 +1,4 @@
-<map id="model_image_ring" name="model_image_ring">
-<area shape="rect" id="node2" href="$a00065.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="20,5,122,31"/>
+<map id="model/model_image_adaptive_splined_raster.cpp" name="model/model_image_adaptive_splined_raster.cpp">
+<area shape="rect" id="node2" href="$a00545.html" title="Header file for the model_image_adaptive_splined_raster image class. " alt="" coords="5,97,179,138"/>
+<area shape="rect" id="node3" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="203,104,265,131"/>
 </map>

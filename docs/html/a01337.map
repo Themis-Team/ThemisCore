@@ -1,3 +1,4 @@
-<map id="model_image_polynomial_variable" name="model_image_polynomial_variable">
-<area shape="rect" id="node2" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="41,5,142,31"/>
+<map id="model/model_movie_refractive_scattering.h" name="model/model_movie_refractive_scattering.h">
+<area shape="rect" id="node2" href="$a00636.html" title="Header file for the model movie class. " alt="" coords="281,104,404,131"/>
+<area shape="rect" id="node5" href="$a00587.html" title="Header file for refractive scattering interface. " alt="" coords="25,97,207,138"/>
 </map>

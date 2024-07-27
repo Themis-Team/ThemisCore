@@ -1,3 +1,4 @@
-<map id="model_visibility_galactic_center_diffractive_scattering_screen::_P_phi" name="model_visibility_galactic_center_diffractive_scattering_screen::_P_phi">
-<area shape="rect" id="node2" href="$a00037.html" title="Defines a general purpose 1D Gaussian quadrature class that implements a variety of weighting schemes..." alt="" coords="64,5,142,31"/>
+<map id="sampling/sampler_stan_adapt_diag_e_nuts_MCMC.cpp" name="sampling/sampler_stan_adapt_diag_e_nuts_MCMC.cpp">
+<area shape="rect" id="node2" href="$a00719.html" title="Header file stan sampler used in Themis. " alt="" coords="848,97,1014,138"/>
+<area shape="rect" id="node14" href="$a00715.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="723,195,894,221"/>
 </map>

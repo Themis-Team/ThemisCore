@@ -1,7 +1,9 @@
-<map id="tests/gaussian_image_comparison_numerical.cpp" name="tests/gaussian_image_comparison_numerical.cpp">
-<area shape="rect" id="node2" href="$a00421.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="5,179,182,204"/>
-<area shape="rect" id="node4" href="$a00519.html" title="Header file for the Gaussian image class. " alt="" coords="257,99,430,124"/>
-<area shape="rect" id="node5" href="$a00503.html" title="Header file for ensemble averaged scattering interface. " alt="" coords="454,92,640,131"/>
-<area shape="rect" id="node6" href="$a00444.html" title="Header file for the Likelihood class. " alt="" coords="746,179,834,204"/>
-<area shape="rect" id="node8" href="$a00619.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="664,92,830,131"/>
+<map id="likelihood/transform_base.h" name="likelihood/transform_base.h">
+<area shape="rect" id="node2" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="111,195,277,221"/>
+<area shape="rect" id="node3" href="$a00514.html" title="Header file for transform_fixed class. " alt="" coords="28,97,183,138"/>
+<area shape="rect" id="node4" href="$a00515.html" title="Header file for transform_logarithmic class. " alt="" coords="207,97,361,138"/>
+<area shape="rect" id="node5" href="$a00517.html" title="Header file for transform_none class. " alt="" coords="385,97,540,138"/>
+<area shape="rect" id="node7" href="$a00516.html" title="Header file for transform_logit class. " alt="" coords="615,97,769,138"/>
+<area shape="rect" id="node8" href="$a00697.html" title="optimizing/optimizer\l_laplace.cpp" alt="" coords="724,187,881,229"/>
+<area shape="rect" id="node6" href="$a00705.html" title="Implementation file for the sampler_automated_factor_slice_sampler_MCMC. " alt="" coords="458,187,696,229"/>
 </map>

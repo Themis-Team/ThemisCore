@@ -1,3 +1,9 @@
-<map id="model_image_refractive_scattering::_P_phi" name="model_image_refractive_scattering::_P_phi">
-<area shape="rect" id="node2" href="$a00037.html" title="Defines a general purpose 1D Gaussian quadrature class that implements a variety of weighting schemes..." alt="" coords="48,5,126,31"/>
+<map id="model/model_polarized_image.h" name="model/model_polarized_image.h">
+<area shape="rect" id="node4" href="$a00525.html" title="Header file for crosshand visibilities model class. " alt="" coords="41,104,263,131"/>
+<area shape="rect" id="node6" href="$a00647.html" title="model_polarization\l_fraction.h" alt="" coords="449,97,595,138"/>
+<area shape="rect" id="node7" href="$a00676.html" title="Header file for visibility model class. " alt="" coords="289,104,425,131"/>
+<area shape="rect" id="node8" href="$a00678.html" title="Header file for visibility ampitude model class. " alt="" coords="619,104,830,131"/>
+<area shape="rect" id="node9" href="$a00523.html" title="Header file for closure phase model class. " alt="" coords="855,104,1029,131"/>
+<area shape="rect" id="node10" href="$a00521.html" title="Header file for visibility ampitude model class. " alt="" coords="1054,104,1257,131"/>
+<area shape="rect" id="node11" href="$a00759.html" title="Header file for a general purpose 2D interpolator class that implements a variety of interpolation sc..." alt="" coords="1331,104,1459,131"/>
 </map>

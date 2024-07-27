@@ -1,3 +1,11 @@
-<map id="model_image_general_riaf_shearing_spot" name="model_image_general_riaf_shearing_spot">
-<area shape="rect" id="node2" href="$a00067.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="31,5,133,31"/>
+<map id="model/model_image_diffractive_scattering_screen.h" name="model/model_image_diffractive_scattering_screen.h">
+<area shape="rect" id="node2" href="$a00242.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss.cpp" alt="" coords="5,96,237,152"/>
+<area shape="rect" id="node3" href="$a00243.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va.cpp" alt="" coords="261,96,493,152"/>
+<area shape="rect" id="node4" href="$a00244.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va00.cpp" alt="" coords="517,96,749,152"/>
+<area shape="rect" id="node5" href="$a00245.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va311.cpp" alt="" coords="773,96,1005,152"/>
+<area shape="rect" id="node6" href="$a00246.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va311sim.cpp" alt="" coords="1029,96,1261,152"/>
+<area shape="rect" id="node7" href="$a00247.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va_model3.cpp" alt="" coords="1285,96,1517,152"/>
+<area shape="rect" id="node8" href="$a00248.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va_model4.cpp" alt="" coords="1541,96,1773,152"/>
+<area shape="rect" id="node9" href="$a00249.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va_single.cpp" alt="" coords="1797,96,2029,152"/>
+<area shape="rect" id="node10" href="$a00552.html" title="implementation file for a variable diffractive scattering screen interface, based on model_vsibility_..." alt="" coords="2053,103,2283,145"/>
 </map>

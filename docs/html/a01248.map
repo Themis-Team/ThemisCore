@@ -1,4 +1,3 @@
-<map id="model/model_polarized_movie.h" name="model/model_polarized_movie.h">
-<area shape="rect" id="node5" href="$a00896.html" title="Header file for crosshand visibilities model class. " alt="" coords="120,169,319,196"/>
-<area shape="rect" id="node7" href="$a01214.html" title="Header file for polarized image model class. " alt="" coords="135,95,304,121"/>
+<map id="model/model_image_polynomial_variable.h" name="model/model_image_polynomial_variable.h">
+<area shape="rect" id="node2" href="$a00543.html" title="Header file for image model class. " alt="" coords="12,96,135,123"/>
 </map>

@@ -1,9 +1,6 @@
-<map id="model/model_image_multigaussian.h" name="model/model_image_multigaussian.h">
-<area shape="rect" id="node2" href="$a00116.html" title="Example of fitting a multi&#45;Gaussian image model to visibility amplitude and closure phase data accord..." alt="" coords="5,87,236,129"/>
-<area shape="rect" id="node3" href="$a00119.html" title="Generates test data comprised of multiple Gaussians, modeling elements of challenge 2 for testing the..." alt="" coords="261,80,423,136"/>
-<area shape="rect" id="node4" href="$a00122.html" title="Example of fitting a multi&#45;Gaussian image model to test visibility amplitude and closure phase data..." alt="" coords="447,87,607,129"/>
-<area shape="rect" id="node5" href="$a00125.html" title="Example of fitting a multi&#45;Gaussian image model to visibility amplitude and closure phase data accord..." alt="" coords="632,87,871,129"/>
-<area shape="rect" id="node6" href="$a00128.html" title="Example of fitting a multi&#45;Gaussian image model to visibility amplitude and closure phase data accord..." alt="" coords="895,80,1053,136"/>
-<area shape="rect" id="node7" href="$a00650.html" title="Example of fitting a multi&#45;Gaussian image model to visibility amplitude and closure phase data accord..." alt="" coords="1077,87,1260,129"/>
-<area shape="rect" id="node8" href="$a01019.html" title="Implements the multi&#45;Gaussian image class originally motivated by model fitting challenge 2 within th..." alt="" coords="1285,95,1535,121"/>
+<map id="data/data_polarization_fraction.h" name="data/data_polarization_fraction.h">
+<area shape="rect" id="node2" href="$a00427.html" title="Implements a fractional polarization data class. " alt="" coords="5,97,173,138"/>
+<area shape="rect" id="node3" href="$a00498.html" title="Header file for the Fractional Polarization Likelihood class. " alt="" coords="190,187,364,229"/>
+<area shape="rect" id="node4" href="$a00647.html" title="model/model_polarization\l_fraction.h" alt="" coords="248,97,440,138"/>
+<area shape="rect" id="node5" href="$a00726.html" title="main file illustrating read&#45;in of the various EHT observation data " alt="" coords="465,104,615,131"/>
 </map>

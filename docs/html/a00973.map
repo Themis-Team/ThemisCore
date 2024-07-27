@@ -1,3 +1,7 @@
-<map id="model/model_image_general_riaf_shearing_spot.h" name="model/model_image_general_riaf_shearing_spot.h">
-<area shape="rect" id="node2" href="$a00509.html" title="Header file for image model class. " alt="" coords="65,92,177,117"/>
+<map id="analyses/ProjectSpecific/M87/GRMHDScore/score_many_vacp_nogain.cpp" name="analyses/ProjectSpecific/M87/GRMHDScore/score_many_vacp_nogain.cpp">
+<area shape="rect" id="node2" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="5,200,203,227"/>
+<area shape="rect" id="node4" href="$a00593.html" title="Header file for score model class. " alt="" coords="416,200,581,227"/>
+<area shape="rect" id="node6" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="605,200,704,227"/>
+<area shape="rect" id="node8" href="$a00711.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="375,110,593,151"/>
+<area shape="rect" id="node9" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="227,200,289,227"/>
 </map>

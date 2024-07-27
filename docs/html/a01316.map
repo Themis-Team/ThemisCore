@@ -1,3 +1,7 @@
-<map id="model_image_general_riaf" name="model_image_general_riaf">
-<area shape="rect" id="node2" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="44,5,146,31"/>
+<map id="model/model_image_vae_interpolated_riaf.h" name="model/model_image_vae_interpolated_riaf.h">
+<area shape="rect" id="node2" href="$a00418.html" title="Driver file to run MCMC parameter estimation on Sgr A* using variational autoencoder models trained o..." alt="" coords="5,97,184,138"/>
+<area shape="rect" id="node3" href="$a00741.html" title="tests/test_scatt_vae\l_riaf_afss.cpp" alt="" coords="209,97,361,138"/>
+<area shape="rect" id="node4" href="$a00746.html" title="tests/test_vae_riaf.cpp" alt="" coords="386,104,555,131"/>
+<area shape="rect" id="node5" href="$a00747.html" title="tests/test_vae_riaf\l_afss.cpp" alt="" coords="579,97,721,138"/>
+<area shape="rect" id="node6" href="$a00748.html" title="tests/test_vae_riaf\l_nuts.cpp" alt="" coords="746,97,888,138"/>
 </map>

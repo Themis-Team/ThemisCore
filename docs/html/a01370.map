@@ -1,3 +1,4 @@
-<map id="model_image_shearing_spot" name="model_image_shearing_spot">
-<area shape="rect" id="node2" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="51,5,152,31"/>
+<map id="model/model_polarized_movie.h" name="model/model_polarized_movie.h">
+<area shape="rect" id="node2" href="$a00664.html" title="Header file for creating a movie object for gaussian spot based on model_image_gaussian_spot. " alt="" coords="5,97,187,138"/>
+<area shape="rect" id="node3" href="$a00666.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="211,97,391,138"/>
 </map>

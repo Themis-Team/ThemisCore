@@ -1,3 +1,5 @@
-<map id="model/model_image_xsring_ellip.h" name="model/model_image_xsring_ellip.h">
-<area shape="rect" id="node2" href="$a01163.html" title="Implements the geometric eight&#45;parameter slashed elliptical ring (xsring) model image class..." alt="" coords="5,95,185,136"/>
+<map id="model/model_crosshand_visibilities_galactic_center_diffractive_scattering_screen.h" name="model/model_crosshand_visibilities_galactic_center_diffractive_scattering_screen.h">
+<area shape="rect" id="node2" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="5,133,203,189"/>
+<area shape="rect" id="node3" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="227,141,487,182"/>
+<area shape="rect" id="node4" href="$a00526.html" title="implementation file for galactic center diffractive scattering interface. " alt="" coords="511,126,725,197"/>
 </map>

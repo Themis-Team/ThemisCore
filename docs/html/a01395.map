@@ -1,4 +1,4 @@
-<map id="sampling/sampler_stan_adapt_dense_e_nuts_MCMC.h" name="sampling/sampler_stan_adapt_dense_e_nuts_MCMC.h">
-<area shape="rect" id="node8" href="$a00728.html" title="Header file for the Likelihood class. " alt="" coords="126,184,213,211"/>
-<area shape="rect" id="node26" href="$a01388.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="40,102,203,129"/>
+<map id="model/model_visibility_galactic_center_diffractive_scattering_screen.cpp" name="model/model_visibility_galactic_center_diffractive_scattering_screen.cpp">
+<area shape="rect" id="node2" href="$a00680.html" title="Header file for diffractive scattering interface. " alt="" coords="5,109,219,165"/>
+<area shape="rect" id="node4" href="$a00752.html" title="Provides a list of constants (in cgs) to be used throughout Themis. " alt="" coords="330,124,427,151"/>
 </map>

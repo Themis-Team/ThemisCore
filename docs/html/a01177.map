@@ -1,7 +1,7 @@
-<map id="model/model_movie.h" name="model/model_movie.h">
-<area shape="rect" id="node2" href="$a01181.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="5,80,192,121"/>
-<area shape="rect" id="node3" href="$a01187.html" title="Header file for creating a movie object for orbiting spot based on model_image_orbiting_spot and Brod..." alt="" coords="216,80,403,121"/>
-<area shape="rect" id="node4" href="$a01190.html" title="Header file for refractively scattering a model_movie using model_image_refractive_scattering. " alt="" coords="427,80,626,121"/>
-<area shape="rect" id="node5" href="$a01196.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="651,80,845,121"/>
-<area shape="rect" id="node6" href="$a01202.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot_johannse..." alt="" coords="869,80,1064,121"/>
+<map id="model/model_flux.h" name="model/model_flux.h">
+<area shape="rect" id="node2" href="$a00481.html" title="Header file for the flux likelihood class. " alt="" coords="5,81,160,122"/>
+<area shape="rect" id="node3" href="$a00532.html" title="Implements flux model class. " alt="" coords="185,88,351,115"/>
+<area shape="rect" id="node4" href="$a00535.html" title="Header file for extended force free image+flux model class. " alt="" coords="376,81,557,122"/>
+<area shape="rect" id="node5" href="$a00668.html" title="Header file for extended RIAF image+flux model class. " alt="" coords="582,88,729,115"/>
+<area shape="rect" id="node6" href="$a00670.html" title="Header file for extended RIAF image+flux model wrapper class. " alt="" coords="608,171,816,197"/>
 </map>

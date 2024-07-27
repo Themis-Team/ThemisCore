@@ -1,3 +1,6 @@
-<map id="model/model_image_vrt2_pmap.cpp" name="model/model_image_vrt2_pmap.cpp">
-<area shape="rect" id="node2" href="$a00571.html" title="Header file for the model_image_vrt2_pmap image class. " alt="" coords="5,92,188,117"/>
+<map id="examples/force_free_jet_fitting_vis.cpp" name="examples/force_free_jet_fitting_vis.cpp">
+<area shape="rect" id="node2" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="5,195,203,221"/>
+<area shape="rect" id="node4" href="$a00597.html" title="Header file for SED&#45;fitted force free jet model. " alt="" coords="459,187,641,229"/>
+<area shape="rect" id="node6" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="336,195,435,221"/>
+<area shape="rect" id="node7" href="$a00704.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="279,97,463,138"/>
 </map>

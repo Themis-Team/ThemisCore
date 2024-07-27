@@ -1,4 +1,7 @@
-<map id="model/model_movie_general_riaf_shearing_spot.h" name="model/model_movie_general_riaf_shearing_spot.h">
-<area shape="rect" id="node2" href="$a00560.html" title="Driver file for SgrA analysis with Broderick et al. 2016 RIAF model + shearing hotspot. " alt="" coords="5,95,172,151"/>
-<area shape="rect" id="node3" href="$a01178.html" title="Implements extended shearing spot movie class. " alt="" coords="197,102,383,143"/>
+<map id="model/model_galactic_center_diffractive_scattering_screen.h" name="model/model_galactic_center_diffractive_scattering_screen.h">
+<area shape="rect" id="node2" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="5,109,195,165"/>
+<area shape="rect" id="node3" href="$a00409.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="219,117,419,158"/>
+<area shape="rect" id="node4" href="$a00410.html" title="Driver file for SgrA analysis with Broderick et al. 2016 RIAF model which is static. " alt="" coords="443,109,621,165"/>
+<area shape="rect" id="node5" href="$a00411.html" title="Driver file for SgrA analysis with Broderick et al. 2016 RIAF model + shearing hotspot. " alt="" coords="646,109,855,165"/>
+<area shape="rect" id="node6" href="$a00536.html" title="implementation file for galactic center diffractive scattering interface. " alt="" coords="879,109,1093,165"/>
 </map>

@@ -1,3 +1,4 @@
-<map id="model/model_vrt2_library.h" name="model/model_vrt2_library.h">
-<area shape="rect" id="node2" href="$a00610.html" title="Implements the asymmetric model_vrt2_library image class. " alt="" coords="5,79,201,104"/>
+<map id="likelihood/likelihood_marginalized_closure_phase.h" name="likelihood/likelihood_marginalized_closure_phase.h">
+<area shape="rect" id="node2" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="5,124,171,151"/>
+<area shape="rect" id="node3" href="$a00485.html" title="Implementation file for the Marginalized Closure Phase Likelihood class. " alt="" coords="196,109,364,165"/>
 </map>

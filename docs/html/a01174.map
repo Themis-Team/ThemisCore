@@ -1,36 +1,31 @@
-<map id="model/model_image_xsringauss.h" name="model/model_image_xsringauss.h">
-<area shape="rect" id="node2" href="$a00107.html" title="Driver file for 3c279 analysis with geometric models: Large assymmetric Gaussian background one or mo..." alt="" coords="5,80,160,121"/>
-<area shape="rect" id="node3" href="$a00110.html" title="Driver file for 3c279 analysis with time&#45;variable geometric models: Large assymmetric Gaussian backgr..." alt="" coords="184,80,339,121"/>
-<area shape="rect" id="node4" href="$a00113.html" title="Driver file for 3c279 analysis of HI+LO with geometric models: Large assymmetric Gaussian background ..." alt="" coords="363,80,517,121"/>
-<area shape="rect" id="node5" href="$a00311.html" title="Driver file for Challenge J+ analysis with smoothed xsringauss model. " alt="" coords="542,80,685,121"/>
-<area shape="rect" id="node6" href="$a00362.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="709,80,883,121"/>
-<area shape="rect" id="node7" href="$a00365.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="907,80,1082,121"/>
-<area shape="rect" id="node8" href="$a00371.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="1106,80,1281,121"/>
-<area shape="rect" id="node9" href="$a00380.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="1305,80,1479,121"/>
-<area shape="rect" id="node10" href="$a00383.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="1503,80,1718,121"/>
-<area shape="rect" id="node11" href="$a00389.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="1742,80,1917,121"/>
-<area shape="rect" id="node12" href="$a00392.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="1941,80,2139,121"/>
-<area shape="rect" id="node13" href="$a00401.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="2163,80,2338,121"/>
-<area shape="rect" id="node14" href="$a00416.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="2362,80,2537,121"/>
-<area shape="rect" id="node15" href="$a00419.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="2561,80,2735,121"/>
-<area shape="rect" id="node16" href="$a00422.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="2759,80,2934,121"/>
-<area shape="rect" id="node17" href="$a00428.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="2958,80,3133,121"/>
-<area shape="rect" id="node18" href="$a00431.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="3157,80,3331,121"/>
-<area shape="rect" id="node19" href="$a00446.html" title="Driver file for J1924 analysis with geometric models: Large assymmetric Gaussian background one or mo..." alt="" coords="3356,80,3508,121"/>
-<area shape="rect" id="node20" href="$a00449.html" title="Driver file for J1924 analysis with time&#45;variable geometric models: Large assymmetric Gaussian backgr..." alt="" coords="3532,80,3687,121"/>
-<area shape="rect" id="node21" href="$a00452.html" title="Driver file for J1924 analysis of HI+LO with geometric models: Large assymmetric Gaussian background ..." alt="" coords="3711,80,3863,121"/>
-<area shape="rect" id="node22" href="$a00455.html" title="Driver file for M87 analysis with the concordance crescent model: Large symmetric Gaussian background..." alt="" coords="3887,80,4051,121"/>
-<area shape="rect" id="node23" href="$a00458.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="4075,80,4239,121"/>
-<area shape="rect" id="node24" href="$a00461.html" title="Driver file for M87 analysis with the concordance crescent model: Large symmetric Gaussian background..." alt="" coords="4263,80,4427,121"/>
-<area shape="rect" id="node25" href="$a00464.html" title="Driver file for M87 analysis with the concordance crescent model: Large symmetric Gaussian background..." alt="" coords="4451,80,4615,121"/>
-<area shape="rect" id="node26" href="$a00467.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="4639,87,4841,114"/>
-<area shape="rect" id="node27" href="$a00470.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="4865,80,5041,121"/>
-<area shape="rect" id="node28" href="$a00473.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="5065,80,5241,121"/>
-<area shape="rect" id="node29" href="$a00476.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="5265,80,5441,121"/>
-<area shape="rect" id="node30" href="$a00479.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="5465,80,5641,121"/>
-<area shape="rect" id="node31" href="$a00482.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="5665,87,5860,114"/>
-<area shape="rect" id="node32" href="$a00485.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="5885,80,6054,121"/>
-<area shape="rect" id="node33" href="$a00488.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="6078,80,6290,121"/>
-<area shape="rect" id="node34" href="$a00554.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="6313,80,6449,121"/>
-<area shape="rect" id="node35" href="$a01169.html" title="Implements the geometric nine&#45;parameter eccentric slashed ring (xsringauss) model image class..." alt="" coords="6474,87,6707,114"/>
+<map id="model/model_ensemble_averaged_scattered_image.h" name="model/model_ensemble_averaged_scattered_image.h">
+<area shape="rect" id="node2" href="$a00263.html" title="analyses/ProjectSpecific\l/M87/Challenge4/a/ch4_crescent.cpp" alt="" coords="5,97,264,138"/>
+<area shape="rect" id="node3" href="$a00264.html" title="analyses/ProjectSpecific\l/M87/Challenge4/b/ch4_crescent.cpp" alt="" coords="288,97,547,138"/>
+<area shape="rect" id="node4" href="$a00386.html" title="analyses/ProjectSpecific\l/M87/GRMHDScore/score_vacp.cpp" alt="" coords="571,97,817,138"/>
+<area shape="rect" id="node5" href="$a00434.html" title="Example demonstrating how to drive the external raditaive transfer code ASTRORAY. ..." alt="" coords="843,97,1035,138"/>
+<area shape="rect" id="node6" href="$a00265.html" title="examples/ch4_crescent.cpp" alt="" coords="1059,104,1261,131"/>
+<area shape="rect" id="node7" href="$a00437.html" title="examples/crescent_image\l_comparison_deoafss.cpp" alt="" coords="1286,97,1479,138"/>
+<area shape="rect" id="node8" href="$a00438.html" title="examples/crescent_image\l_comparison_deostan.cpp" alt="" coords="1503,97,1696,138"/>
+<area shape="rect" id="node9" href="$a00442.html" title="Example presented to the EHT collaboration in 2018 that highlights how to use different models..." alt="" coords="1721,104,1961,131"/>
+<area shape="rect" id="node10" href="$a00454.html" title="Example demonstrating how to drive the external radiative transfer code IPOLE. " alt="" coords="1987,97,2157,138"/>
+<area shape="rect" id="node11" href="$a00456.html" title="Example demonstrating how to drive the external radiative transfer code RAPTOR. " alt="" coords="2182,97,2359,138"/>
+<area shape="rect" id="node12" href="$a00458.html" title="Example illustrating the use of the RIAF model. " alt="" coords="2384,97,2544,138"/>
+<area shape="rect" id="node13" href="$a00459.html" title="Example of fitting a Gaussian image model to visibility amplitude data. " alt="" coords="2569,97,2727,138"/>
+<area shape="rect" id="node14" href="$a00530.html" title="Header file for ensemble averaged scattering interface. " alt="" coords="2751,97,2984,138"/>
+<area shape="rect" id="node15" href="$a00720.html" title="Fit an asymmetric Gaussian model to visibility amplitude data. " alt="" coords="3009,97,3209,138"/>
+<area shape="rect" id="node16" href="$a00725.html" title="Fits a symmetric Gaussian model to simulated closure amplitudes. " alt="" coords="3235,97,3413,138"/>
+<area shape="rect" id="node17" href="$a00728.html" title="Fits a Gaussian model to visibility amplitude data. " alt="" coords="3438,97,3601,138"/>
+<area shape="rect" id="node18" href="$a00729.html" title="Fits Gaussian model to visibility amplitude data. " alt="" coords="3626,97,3829,138"/>
+<area shape="rect" id="node19" href="$a00731.html" title="tests/parameterized\l_scattering_model_test.cpp" alt="" coords="3854,97,4055,138"/>
+<area shape="rect" id="node20" href="$a00735.html" title="Fits a symmetric Gaussian model to visibility amplitude data. " alt="" coords="4079,97,4272,138"/>
+<area shape="rect" id="node21" href="$a00739.html" title="Reads in some data and a light curve and generates some output data. " alt="" coords="4297,104,4479,131"/>
+<area shape="rect" id="node22" href="$a00749.html" title="Tests the visibility construction for simple models. " alt="" coords="4504,104,4677,131"/>
+<area shape="rect" id="node23" href="$a00721.html" title="Fits an asymmetric Gaussian model to visibility amplitude data for validation purposes. " alt="" coords="4701,97,4947,138"/>
+<area shape="rect" id="node24" href="$a00771.html" title="Fits a crescent model to visibility amplitude data for validation purposes. " alt="" coords="4971,97,5151,138"/>
+<area shape="rect" id="node25" href="$a00772.html" title="validation/crescent\l_image_comparison_stan.cpp" alt="" coords="5175,97,5389,138"/>
+<area shape="rect" id="node26" href="$a00773.html" title="Fits a crescent model to visibility amplitude data using the deo tempering sampler with the stan expl..." alt="" coords="5415,97,5668,138"/>
+<area shape="rect" id="node27" href="$a00779.html" title="To be added. " alt="" coords="5692,97,5844,138"/>
+<area shape="rect" id="node28" href="$a00780.html" title="Validation test for the RIAF model with visibility amplitude and closure pahase data ..." alt="" coords="5868,97,6004,138"/>
+<area shape="rect" id="node29" href="$a00781.html" title="Test main file for the RIAF model with visibility amplitude data. " alt="" coords="6028,97,6204,138"/>
+<area shape="rect" id="node30" href="$a00736.html" title="Fits a symmetric Gaussian model to visibility amplitude data for validation purposes. " alt="" coords="6228,97,6425,138"/>
 </map>

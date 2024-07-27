@@ -1,3 +1,10 @@
-<map id="Ran2RNG" name="Ran2RNG">
-<area shape="rect" id="node2" href="$a00135.html" title="Defines an interface for random number generators. " alt="" coords="5,5,185,31"/>
+<map id="tests/test_vae_riaf_afss.cpp" name="tests/test_vae_riaf_afss.cpp">
+<area shape="rect" id="node2" href="$a00627.html" title="Header file for variational auto&#45;encoder interpolated RIAF model class. " alt="" coords="5,97,232,138"/>
+<area shape="rect" id="node3" href="$a00503.html" title="Header file for the Visibility Likelihood class. " alt="" coords="447,104,605,131"/>
+<area shape="rect" id="node6" href="$a00494.html" title="Header file for the likelihood_optimal_complex_gain_visibility likelihood class. " alt="" coords="630,97,823,138"/>
+<area shape="rect" id="node8" href="$a00500.html" title="Modifies the likelihood according to a power tempering scheme. " alt="" coords="1271,187,1485,213"/>
+<area shape="rect" id="node10" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="309,104,371,131"/>
+<area shape="rect" id="node11" href="$a00764.html" title="a number of utilities made so that we can read in data consistently across models ..." alt="" coords="899,104,997,131"/>
+<area shape="rect" id="node14" href="$a00707.html" title="Header file for sampler_deo_tempering_MCMC class. " alt="" coords="1449,97,1628,138"/>
+<area shape="rect" id="node17" href="$a00706.html" title="Header file for a generic single factor slice sampler used in Themis. This uses slice sampling to exp..." alt="" coords="1174,97,1372,138"/>
 </map>

@@ -1,4 +1,7 @@
-<map id="model/model_movie_orbiting_spot.h" name="model/model_movie_orbiting_spot.h">
-<area shape="rect" id="node2" href="$a00533.html" title="Header file for the shearing spot model class. " alt="" coords="79,92,231,131"/>
-<area shape="rect" id="node6" href="$a00576.html" title="Header file for the model movie class. " alt="" coords="255,99,367,124"/>
+<map id="examples/scattered_gaussian_fitting.cpp" name="examples/scattered_gaussian_fitting.cpp">
+<area shape="rect" id="node2" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="67,187,265,213"/>
+<area shape="rect" id="node4" href="$a00561.html" title="Header file for the Gaussian image class. " alt="" coords="27,104,214,131"/>
+<area shape="rect" id="node5" href="$a00531.html" title="Header file for ensemble averaged scattering interface. " alt="" coords="239,97,442,138"/>
+<area shape="rect" id="node6" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="647,187,746,213"/>
+<area shape="rect" id="node8" href="$a00704.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="517,97,701,138"/>
 </map>

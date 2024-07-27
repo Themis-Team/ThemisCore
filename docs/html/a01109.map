@@ -1,3 +1,10 @@
-<map id="optimizing/optimizer_simplex.h" name="optimizing/optimizer_simplex.h">
-<area shape="rect" id="node2" href="$a00616.html" title="Implementation file for the optimizer_simplex class. " alt="" coords="5,92,144,131"/>
+<map id="likelihood/likelihood_optimal_complex_gain_constrained_crosshand_visibilities.h" name="likelihood/likelihood_optimal_complex_gain_constrained_crosshand_visibilities.h">
+<area shape="rect" id="node2" href="$a00225.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_deostan.cpp" alt="" coords="5,133,195,189"/>
+<area shape="rect" id="node3" href="$a00226.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_hilo.cpp" alt="" coords="219,133,408,189"/>
+<area shape="rect" id="node4" href="$a00227.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_dense.cpp" alt="" coords="432,133,643,189"/>
+<area shape="rect" id="node5" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="667,133,865,189"/>
+<area shape="rect" id="node6" href="$a00229.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_slice.cpp" alt="" coords="891,133,1080,189"/>
+<area shape="rect" id="node7" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="1105,141,1364,182"/>
+<area shape="rect" id="node8" href="$a00491.html" title="Implementation file for the likelihood_optimal_complex_gain_constrained_crosshand_visibilities likeli..." alt="" coords="1389,126,1568,197"/>
+<area shape="rect" id="node9" href="$a00774.html" title="Test rig for developing and testing the likelihood_small_gain_correction_visibility_amplitude class..." alt="" coords="1592,141,1755,182"/>
 </map>

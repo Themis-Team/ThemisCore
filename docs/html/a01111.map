@@ -1,4 +1,6 @@
-<map id="sampling/sampler_affine_invariant_tempered_MCMC.h" name="sampling/sampler_affine_invariant_tempered_MCMC.h">
-<area shape="rect" id="node4" href="$a00677.html" title="Header file for various random number generators using the algorithms in &quot;Numerical Recipes in C&quot; by ..." alt="" coords="236,92,387,131"/>
-<area shape="rect" id="node5" href="$a00444.html" title="Header file for the Likelihood class. " alt="" coords="54,99,212,124"/>
+<map id="likelihood/likelihood_optimal_complex_gain_visibility.h" name="likelihood/likelihood_optimal_complex_gain_visibility.h">
+<area shape="rect" id="node5" href="$a00471.html" title="Header file for the Base Likelihood class. " alt="" coords="32,109,168,136"/>
+<area shape="rect" id="node7" href="$a00430.html" title="Header file for datum and data objects containing visibilities. " alt="" coords="424,184,548,211"/>
+<area shape="rect" id="node8" href="$a00676.html" title="Header file for visibility model class. " alt="" coords="242,109,378,136"/>
+<area shape="rect" id="node9" href="$a00688.html" title="Header file for uncertainty model class approprirate for crosshand visibilities. " alt="" coords="403,109,572,136"/>
 </map>

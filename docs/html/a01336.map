@@ -1,9 +1,4 @@
-<map id="model_polarized_image" name="model_polarized_image">
-<area shape="rect" id="node8" href="$a00111.html" title="Defines a class that takes a model_image and applies a constant polarization, returning a model_polar..." alt="" coords="455,136,617,175"/>
-<area shape="rect" id="node2" href="$a00064.html" title="Defines the interface for models that generate the full complex crosshand visibility data appropriate..." alt="" coords="5,5,196,31"/>
-<area shape="rect" id="node3" href="$a00109.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="34,55,167,93"/>
-<area shape="rect" id="node4" href="$a00116.html" title="Defines the interface for models that generate complex visibility data appropriate for comparison wit..." alt="" coords="45,117,156,143"/>
-<area shape="rect" id="node5" href="$a00117.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="12,167,189,192"/>
-<area shape="rect" id="node6" href="$a00063.html" title="Defines the interface for models that generate closure phase data appropriate for comparison with dat..." alt="" coords="25,216,176,241"/>
-<area shape="rect" id="node7" href="$a00062.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="14,265,187,291"/>
+<map id="model/model_movie_orbiting_spot.h" name="model/model_movie_orbiting_spot.h">
+<area shape="rect" id="node2" href="$a00449.html" title="Example illustrating the creation of a orbiting spot movie model. " alt="" coords="5,97,200,138"/>
+<area shape="rect" id="node3" href="$a00639.html" title="Implements orbiting spot movie class. " alt="" coords="225,97,439,138"/>
 </map>

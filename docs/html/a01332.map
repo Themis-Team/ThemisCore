@@ -1,4 +1,4 @@
-<map id="optimizing/optimizer_kickout_powell.h" name="optimizing/optimizer_kickout_powell.h">
-<area shape="rect" id="node5" href="$a01511.html" title="Header file for various random number generators using the algorithms in &quot;Numerical Recipes in C&quot; by ..." alt="" coords="311,95,459,136"/>
-<area shape="rect" id="node6" href="$a00728.html" title="Header file for the Likelihood class. " alt="" coords="78,102,235,129"/>
+<map id="model/model_movie_general_riaf_shearing_spot.h" name="model/model_movie_general_riaf_shearing_spot.h">
+<area shape="rect" id="node2" href="$a00636.html" title="Header file for the model movie class. " alt="" coords="25,104,147,131"/>
+<area shape="rect" id="node5" href="$a00565.html" title="Header file for the shearing spot model class. " alt="" coords="223,97,389,138"/>
 </map>

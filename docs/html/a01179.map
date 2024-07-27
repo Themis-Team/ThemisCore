@@ -1,3 +1,7 @@
-<map id="model/model_movie_general_riaf_shearing_spot.cpp" name="model/model_movie_general_riaf_shearing_spot.cpp">
-<area shape="rect" id="node2" href="$a01181.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="5,95,153,136"/>
+<map id="model/model_force_free_jet.h" name="model/model_force_free_jet.h">
+<area shape="rect" id="node2" href="$a00557.html" title="Header file for force free jet model. " alt="" coords="26,97,210,138"/>
+<area shape="rect" id="node6" href="$a00678.html" title="Header file for visibility ampitude model class. " alt="" coords="642,104,853,131"/>
+<area shape="rect" id="node7" href="$a00523.html" title="Header file for closure phase model class. " alt="" coords="877,104,1051,131"/>
+<area shape="rect" id="node8" href="$a00521.html" title="Header file for visibility ampitude model class. " alt="" coords="285,104,487,131"/>
+<area shape="rect" id="node9" href="$a00533.html" title="Header file for flux model class. " alt="" coords="511,104,618,131"/>
 </map>

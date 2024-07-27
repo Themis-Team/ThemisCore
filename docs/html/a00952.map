@@ -1,9 +1,9 @@
-<map id="model/model_image_crescent.h" name="model/model_image_crescent.h">
-<area shape="rect" id="node2" href="$a00626.html" title="To be added. " alt="" coords="5,80,195,121"/>
-<area shape="rect" id="node3" href="$a00947.html" title="Implements Geometric Crescent Model Image class. " alt="" coords="219,87,439,114"/>
-<area shape="rect" id="node4" href="$a01415.html" title="Fits a symmetric Gaussian model to simulated closure amplitudes. " alt="" coords="464,80,624,121"/>
-<area shape="rect" id="node5" href="$a01433.html" title="tests/parameterized\l_scattering_model_test.cpp" alt="" coords="649,80,831,121"/>
-<area shape="rect" id="node6" href="$a01472.html" title="Tests the visibility construction for simple models. " alt="" coords="855,87,1011,114"/>
-<area shape="rect" id="node7" href="$a01529.html" title="Fits a crescent model to visibility amplitude data for validation purposes. " alt="" coords="1036,80,1199,121"/>
-<area shape="rect" id="node8" href="$a01535.html" title="Fits a crescent model to visibility amplitude data using the deo tempering sampler with the stan expl..." alt="" coords="1223,80,1449,121"/>
+<map id="analyses/ProjectSpecific/M87/ChallengeJ/im2/WSB/chj_ssra1dir/chj_ssra1.cpp" name="analyses/ProjectSpecific/M87/ChallengeJ/im2/WSB/chj_ssra1dir/chj_ssra1.cpp">
+<area shape="rect" id="node2" href="$a00631.html" title="Header file for the Geometric Slashed Ring Model Image class. " alt="" coords="5,124,176,151"/>
+<area shape="rect" id="node3" href="$a00549.html" title="Implements wavelength&#45;dependent, asymmetric Gaussian image class. " alt="" coords="201,117,396,158"/>
+<area shape="rect" id="node4" href="$a00619.html" title="Header file for the model_image_sum class, which sums different model images, generating a convenient..." alt="" coords="421,124,579,151"/>
+<area shape="rect" id="node5" href="$a00611.html" title="Header file for model_image_smooth. " alt="" coords="604,124,783,151"/>
+<area shape="rect" id="node6" href="$a00711.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="807,117,1025,158"/>
+<area shape="rect" id="node7" href="$a00496.html" title="Header file for the likelihood_optimal_gain_correction_visibility_amplitude likelihood class..." alt="" coords="1049,109,1241,165"/>
+<area shape="rect" id="node8" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="1266,124,1328,151"/>
 </map>

@@ -1,3 +1,4 @@
-<map id="model_image_raster" name="model_image_raster">
-<area shape="rect" id="node2" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="26,5,127,31"/>
+<map id="model/model_movie_shearing_spot_johannsen.h" name="model/model_movie_shearing_spot_johannsen.h">
+<area shape="rect" id="node2" href="$a00636.html" title="Header file for the model movie class. " alt="" coords="25,104,147,131"/>
+<area shape="rect" id="node5" href="$a00607.html" title="Header file for the shearing spot model class. " alt="" coords="223,97,397,138"/>
 </map>

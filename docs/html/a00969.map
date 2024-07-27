@@ -1,4 +1,8 @@
-<map id="model/model_image_fourier_variable.h" name="model/model_image_fourier_variable.h">
-<area shape="rect" id="node2" href="$a00926.html" title="Header file for image model class. " alt="" coords="5,95,116,121"/>
-<area shape="rect" id="node4" href="$a00842.html" title="Header file for prior class. " alt="" coords="191,95,250,121"/>
+<map id="analyses/ProjectSpecific/M87/GRMHDScore/score_many_vacp_gain_prior.cpp" name="analyses/ProjectSpecific/M87/GRMHDScore/score_many_vacp_gain_prior.cpp">
+<area shape="rect" id="node2" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="408,221,606,248"/>
+<area shape="rect" id="node4" href="$a00593.html" title="Header file for score model class. " alt="" coords="631,221,797,248"/>
+<area shape="rect" id="node6" href="$a00496.html" title="Header file for the likelihood_optimal_gain_correction_visibility_amplitude likelihood class..." alt="" coords="706,109,898,165"/>
+<area shape="rect" id="node7" href="$a00711.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="26,214,245,255"/>
+<area shape="rect" id="node8" href="$a00755.html" title="Header file for a utility class that generates an approximation of the systemtic error as measured by..." alt="" coords="419,124,579,151"/>
+<area shape="rect" id="node9" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="269,221,331,248"/>
 </map>

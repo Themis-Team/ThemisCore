@@ -1,7 +1,3 @@
-<map id="model/model_riaf.h" name="model/model_riaf.h">
-<area shape="rect" id="node2" href="$a01058.html" title="Header file for the extended RIAF image model class. " alt="" coords="26,80,160,107"/>
-<area shape="rect" id="node6" href="$a01289.html" title="Header file for visibility ampitude model class. " alt="" coords="562,80,747,107"/>
-<area shape="rect" id="node7" href="$a00890.html" title="Header file for closure phase model class. " alt="" coords="771,80,930,107"/>
-<area shape="rect" id="node8" href="$a00884.html" title="Header file for visibility ampitude model class. " alt="" coords="236,80,416,107"/>
-<area shape="rect" id="node9" href="$a00914.html" title="Header file for flux model class. " alt="" coords="441,80,537,107"/>
+<map id="model/model_image_riaf.h" name="model/model_image_riaf.h">
+<area shape="rect" id="node2" href="$a00543.html" title="Header file for image model class. " alt="" coords="190,80,313,107"/>
 </map>

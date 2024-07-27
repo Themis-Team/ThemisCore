@@ -1,4 +1,7 @@
-<map id="model/model_polarized_image_shearing_spot.h" name="model/model_polarized_image_shearing_spot.h">
-<area shape="rect" id="node2" href="$a01235.html" title="Implements Shearing spot image class. " alt="" coords="5,95,183,136"/>
-<area shape="rect" id="node3" href="$a01253.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="207,95,370,136"/>
+<map id="model/model_image_multi_asymmetric_gaussian.h" name="model/model_image_multi_asymmetric_gaussian.h">
+<area shape="rect" id="node2" href="$a00262.html" title="analyses/ProjectSpecific\l/M87/Challenge3/challenge3b\l_VACP_comparison_mag.cpp" alt="" coords="5,96,219,152"/>
+<area shape="rect" id="node3" href="$a00574.html" title="Implements the multi&#45;Asymmetric Gaussian image class originally motivated by model fitting challenge ..." alt="" coords="243,103,441,145"/>
+<area shape="rect" id="node4" href="$a00734.html" title="tests/sum_test.cpp" alt="" coords="466,111,611,137"/>
+<area shape="rect" id="node5" href="$a00740.html" title="tests/test_multi_asymmetric\l_gaussian.cpp" alt="" coords="635,103,844,145"/>
+<area shape="rect" id="node6" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="869,111,1013,137"/>
 </map>

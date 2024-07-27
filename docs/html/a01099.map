@@ -1,6 +1,5 @@
-<map id="model/model_vrt2_library.h" name="model/model_vrt2_library.h">
-<area shape="rect" id="node2" href="$a00607.html" title="Header file for visibility ampitude model class. " alt="" coords="5,79,193,104"/>
-<area shape="rect" id="node4" href="$a00497.html" title="Header file for closure phase model class. " alt="" coords="216,79,379,104"/>
-<area shape="rect" id="node5" href="$a00495.html" title="Header file for visibility ampitude model class. " alt="" coords="403,79,587,104"/>
-<area shape="rect" id="node6" href="$a00571.html" title="Header file for the model_image_vrt2_pmap image class. " alt="" coords="713,79,896,104"/>
+<map id="likelihood/likelihood_marginalized_closure_phase.h" name="likelihood/likelihood_marginalized_closure_phase.h">
+<area shape="rect" id="node3" href="$a00471.html" title="Header file for the Base Likelihood class. " alt="" coords="344,109,480,136"/>
+<area shape="rect" id="node5" href="$a00422.html" title="Header file for datum and data objects containing closure phases. " alt="" coords="5,184,168,211"/>
+<area shape="rect" id="node6" href="$a00523.html" title="Header file for closure phase model class. " alt="" coords="43,109,217,136"/>
 </map>

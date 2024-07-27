@@ -1,12 +1,11 @@
-<map id="optimizing/optimizer_kickout_powell.h" name="optimizing/optimizer_kickout_powell.h">
-<area shape="rect" id="node2" href="$a00346.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="5,92,182,131"/>
-<area shape="rect" id="node3" href="$a00347.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="205,92,382,131"/>
-<area shape="rect" id="node4" href="$a00350.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="405,92,582,131"/>
-<area shape="rect" id="node5" href="$a00351.html" title="Generic driver for image reconstruction with Themis with complex visibilities. " alt="" coords="605,92,806,131"/>
-<area shape="rect" id="node6" href="$a00354.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="830,92,1007,131"/>
-<area shape="rect" id="node7" href="$a00355.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities..." alt="" coords="1031,92,1207,131"/>
-<area shape="rect" id="node8" href="$a00359.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="1231,92,1407,131"/>
-<area shape="rect" id="node9" href="$a00612.html" title="Implementation file for the optimizer_kickout_powell class. " alt="" coords="1431,92,1572,131"/>
-<area shape="rect" id="node10" href="$a00683.html" title="Test rig for developing and testing the likelihood_small_gain_correction_visibility_amplitude class..." alt="" coords="1595,92,1741,131"/>
-<area shape="rect" id="node11" href="$a00687.html" title="Test rig for developing and testing the likelihood_small_gain_correction_visibility_amplitude class..." alt="" coords="1765,92,1910,131"/>
+<map id="likelihood/likelihood_marginalized_visibility_amplitude.h" name="likelihood/likelihood_marginalized_visibility_amplitude.h">
+<area shape="rect" id="node2" href="$a00243.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va.cpp" alt="" coords="5,109,237,165"/>
+<area shape="rect" id="node3" href="$a00244.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va00.cpp" alt="" coords="261,109,493,165"/>
+<area shape="rect" id="node4" href="$a00245.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va311.cpp" alt="" coords="517,109,749,165"/>
+<area shape="rect" id="node5" href="$a00246.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va311sim.cpp" alt="" coords="773,109,1005,165"/>
+<area shape="rect" id="node6" href="$a00247.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va_model3.cpp" alt="" coords="1029,109,1261,165"/>
+<area shape="rect" id="node7" href="$a00248.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va_model4.cpp" alt="" coords="1285,109,1517,165"/>
+<area shape="rect" id="node8" href="$a00249.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va_single.cpp" alt="" coords="1541,109,1773,165"/>
+<area shape="rect" id="node9" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="1798,124,1964,151"/>
+<area shape="rect" id="node10" href="$a00487.html" title="Implementation file for the Marginalized Visibility Amplitude Likelihood class. " alt="" coords="1989,109,2165,165"/>
 </map>

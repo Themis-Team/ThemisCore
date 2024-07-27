@@ -1,3 +1,4 @@
-<map id="model_crosshand_visibilities" name="model_crosshand_visibilities">
-<area shape="rect" id="node2" href="$a00112.html" title="Defines an interface for models that generate polarized image data with a collection of utility funct..." alt="" coords="19,79,182,104"/>
+<map id="model/model_image_sed_fitted_riaf_johannsen.h" name="model/model_image_sed_fitted_riaf_johannsen.h">
+<area shape="rect" id="node2" href="$a00602.html" title="Implements SED&#45;fitted RIAF model class with Johannsen metric. " alt="" coords="5,97,197,138"/>
+<area shape="rect" id="node3" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="222,104,367,131"/>
 </map>

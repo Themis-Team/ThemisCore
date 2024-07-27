@@ -1,21 +1,21 @@
-<map id="likelihood_base" name="likelihood_base">
-<area shape="rect" id="node2" href="$a00042.html" title="Defines the Lorentzian likelihood. " alt="" coords="197,5,324,31"/>
-<area shape="rect" id="node3" href="$a00043.html" title="Defines a class that constructs a closure amplitude likelihood object. " alt="" coords="197,55,324,93"/>
-<area shape="rect" id="node4" href="$a00044.html" title="Defines a class that constructs a closure phase likelihood object. " alt="" coords="197,117,324,156"/>
-<area shape="rect" id="node5" href="$a00045.html" title="Defines a class that constructs a visibility amplitude likelihood object. " alt="" coords="187,180,333,219"/>
-<area shape="rect" id="node6" href="$a00046.html" title="Defines the egg box likelihood. " alt="" coords="196,243,324,268"/>
-<area shape="rect" id="node7" href="$a00047.html" title="Defines a class that constructs a flux likelihood object. " alt="" coords="208,292,313,317"/>
-<area shape="rect" id="node8" href="$a00048.html" title="Defines a class that constructs a likelihood object for a Nd gaussian distribution with diagonal cova..." alt="" coords="191,341,329,367"/>
-<area shape="rect" id="node9" href="$a00049.html" title="Defines the egg box likelihood. " alt="" coords="191,391,329,416"/>
-<area shape="rect" id="node10" href="$a00050.html" title="Defines the Lorentzian likelihood. " alt="" coords="189,440,331,465"/>
-<area shape="rect" id="node11" href="$a00051.html" title="Defines a class that constructs a marginalized closure phase likelihood object. " alt="" coords="180,489,340,528"/>
-<area shape="rect" id="node12" href="$a00052.html" title="Defines a class that constructs a marginalized visibility amplitude likelihood object. " alt="" coords="180,552,340,591"/>
-<area shape="rect" id="node13" href="$a00053.html" title="Defines a class that constructs a flux likelihood object. " alt="" coords="193,615,328,653"/>
-<area shape="rect" id="node14" href="$a00054.html" title="Defines a likelihood that non&#45;linearly optimizes over gain corrections with a Gaussian prior..." alt="" coords="167,677,354,729"/>
-<area shape="rect" id="node15" href="$a00055.html" title="Defines a likelihood that non&#45;linearly optimizes over gain corrections with a Gaussian prior..." alt="" coords="178,753,342,792"/>
-<area shape="rect" id="node16" href="$a00056.html" title="Defines a likelihood that non&#45;linearly optimizes over gain corrections with a Gaussian prior..." alt="" coords="174,816,347,868"/>
-<area shape="rect" id="node17" href="$a00057.html" title="Defines a class that constructs a fractional polarization likelihood object. " alt="" coords="184,892,337,931"/>
-<area shape="rect" id="node18" href="$a00059.html" title="Defines the egg box likelihood. " alt="" coords="185,955,335,980"/>
-<area shape="rect" id="node19" href="$a00060.html" title="Defines a class that constructs a visibility amplitude likelihood object. " alt="" coords="195,1004,325,1029"/>
-<area shape="rect" id="node20" href="$a00061.html" title="Defines a class that constructs a visibility amplitude likelihood object. " alt="" coords="195,1053,325,1092"/>
+<map id="model/model_image_fixed_lightcurve.h" name="model/model_image_fixed_lightcurve.h">
+<area shape="rect" id="node2" href="$a00208.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_complex_config&#45;opt&#45;noise.cpp" alt="" coords="5,96,229,152"/>
+<area shape="rect" id="node3" href="$a00214.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_complex_logconfig&#45;opt&#45;noise.cpp" alt="" coords="254,96,497,152"/>
+<area shape="rect" id="node4" href="$a00215.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_complex_noise.cpp" alt="" coords="523,96,712,152"/>
+<area shape="rect" id="node5" href="$a00220.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_complex_opt&#45;noise.cpp" alt="" coords="736,96,925,152"/>
+<area shape="rect" id="node6" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="949,103,1192,145"/>
+<area shape="rect" id="node7" href="$a00407.html" title="analyses/ProjectSpecific\l/SgrA/GRMHDScore/sgra_grmhd\l_avg_score.cpp" alt="" coords="1216,96,1443,152"/>
+<area shape="rect" id="node8" href="$a00408.html" title="analyses/ProjectSpecific\l/SgrA/GRMHDScore/sgra_grmhd\l_avg_score_fixedmass.cpp" alt="" coords="1467,96,1693,152"/>
+<area shape="rect" id="node9" href="$a00412.html" title="analyses/ProjectSpecific\l/SgrA/sgra_mring_cvis_vargains.cpp" alt="" coords="1717,103,1973,145"/>
+<area shape="rect" id="node10" href="$a00413.html" title="analyses/ProjectSpecific\l/SgrA/sgra_mring_gfloor\l_cvis_vargains.cpp" alt="" coords="1997,96,2176,152"/>
+<area shape="rect" id="node11" href="$a00414.html" title="analyses/ProjectSpecific\l/SgrA/sgra_mring_stretch\l_cvis_vargains.cpp" alt="" coords="2201,96,2385,152"/>
+<area shape="rect" id="node12" href="$a00415.html" title="analyses/ProjectSpecific\l/SgrA/sgra_mring_stretch\l_gfloor_cvis_vargains.cpp" alt="" coords="2411,96,2600,152"/>
+<area shape="rect" id="node13" href="$a00416.html" title="analyses/ProjectSpecific\l/SgrA/sgra_mringfloor_cvis\l_vargains.cpp" alt="" coords="2624,96,2819,152"/>
+<area shape="rect" id="node14" href="$a00417.html" title="analyses/ProjectSpecific\l/SgrA/sgra_mringfloor_stretch\l_cvis_vargains.cpp" alt="" coords="2843,96,3057,152"/>
+<area shape="rect" id="node15" href="$a00554.html" title="Header file for the model_image_fixed_lightcurve class, which renormalizes the visibilities by a fixe..." alt="" coords="3083,103,3277,145"/>
+<area shape="rect" id="node16" href="$a00737.html" title="tests/symmetric_gaussian\l_noise_model.cpp" alt="" coords="3302,103,3495,145"/>
+<area shape="rect" id="node17" href="$a00739.html" title="Reads in some data and a light curve and generates some output data. " alt="" coords="3519,111,3701,137"/>
+<area shape="rect" id="node18" href="$a00744.html" title="Reads in some data and a light curve and generates some output data with uncertainty prescriptions..." alt="" coords="3727,111,3916,137"/>
+<area shape="rect" id="node19" href="$a00777.html" title="Reads in level0 uncertainty test data (Gaussain errors added directly to complex visibilities) and fi..." alt="" coords="3940,103,4111,145"/>
+<area shape="rect" id="node20" href="$a00778.html" title="validation/noise_paper\l_level0_mring.cpp" alt="" coords="4135,103,4305,145"/>
 </map>

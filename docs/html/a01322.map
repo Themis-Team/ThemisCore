@@ -1,3 +1,8 @@
-<map id="model_image_grtrans" name="model_image_grtrans">
-<area shape="rect" id="node2" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="30,5,131,31"/>
+<map id="model/model_image_xsring.h" name="model/model_image_xsring.h">
+<area shape="rect" id="node2" href="$a00354.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l/chj_ssrdir/chj_ssr.cpp" alt="" coords="5,80,192,136"/>
+<area shape="rect" id="node3" href="$a00355.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l_nos/chj_ssrdir/chj_ssr.cpp" alt="" coords="217,80,409,136"/>
+<area shape="rect" id="node4" href="$a00361.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_ssra1dir/chj_ssra1.cpp" alt="" coords="434,80,629,136"/>
+<area shape="rect" id="node5" href="$a00362.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_ssra2dir/chj_ssra2.cpp" alt="" coords="654,80,849,136"/>
+<area shape="rect" id="node6" href="$a00630.html" title="Implements Slashed Ring Model Image class. " alt="" coords="874,95,1104,121"/>
+<area shape="rect" id="node7" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="1129,95,1273,121"/>
 </map>

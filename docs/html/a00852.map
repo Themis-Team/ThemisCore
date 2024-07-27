@@ -1,3 +1,10 @@
-<map id="likelihood/prior_linear.h" name="likelihood/prior_linear.h">
-<area shape="rect" id="node5" href="$a00845.html" title="Header file for prior_base class. " alt="" coords="55,80,149,107"/>
+<map id="analyses/ProjectSpecific/M87/Challenge3/challenge3b_VACP_comparison_mag.cpp" name="analyses/ProjectSpecific/M87/Challenge3/challenge3b_VACP_comparison_mag.cpp">
+<area shape="rect" id="node2" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="5,221,203,248"/>
+<area shape="rect" id="node3" href="$a00575.html" title="Header file for the Multi&#45;Asymmetric Gaussian image class originally motivated by the model fitting c..." alt="" coords="291,117,528,158"/>
+<area shape="rect" id="node4" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="645,221,744,248"/>
+<area shape="rect" id="node5" href="$a00496.html" title="Header file for the likelihood_optimal_gain_correction_visibility_amplitude likelihood class..." alt="" coords="75,109,267,165"/>
+<area shape="rect" id="node6" href="$a00704.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="603,117,787,158"/>
+<area shape="rect" id="node8" href="$a00711.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="811,117,1029,158"/>
+<area shape="rect" id="node9" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="1105,124,1167,151"/>
+<area shape="rect" id="node7" href="$a00763.html" title="Header file for various random number generators using the algorithms in &quot;Numerical Recipes in C&quot; by ..." alt="" coords="837,214,1003,255"/>
 </map>

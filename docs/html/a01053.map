@@ -1,9 +1,7 @@
-<map id="model/model_image_refractive_scattering.h" name="model/model_image_refractive_scattering.h">
-<area shape="rect" id="node2" href="$a00926.html" title="Header file for image model class. " alt="" coords="293,95,403,121"/>
-<area shape="rect" id="node4" href="$a01289.html" title="Header file for visibility ampitude model class. " alt="" coords="462,169,647,196"/>
-<area shape="rect" id="node5" href="$a00890.html" title="Header file for closure phase model class. " alt="" coords="23,169,182,196"/>
-<area shape="rect" id="node6" href="$a00884.html" title="Header file for visibility ampitude model class. " alt="" coords="258,169,438,196"/>
-<area shape="rect" id="node7" href="$a01505.html" title="Header file for a general purpose Gaussian Quadrature class that implements a variety of integration ..." alt="" coords="693,95,787,121"/>
-<area shape="rect" id="node10" href="$a01493.html" title="Header file for a multipurpose linear interpolation function. " alt="" coords="812,95,927,121"/>
-<area shape="rect" id="node11" href="$a01523.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="559,95,617,121"/>
+<map id="examples/multi&#45;gaussian_mc_fe_wg_challenge2.cpp" name="examples/multi&#45;gaussian_mc_fe_wg_challenge2.cpp">
+<area shape="rect" id="node2" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="5,104,203,131"/>
+<area shape="rect" id="node3" href="$a00422.html" title="Header file for datum and data objects containing closure phases. " alt="" coords="228,104,391,131"/>
+<area shape="rect" id="node4" href="$a00577.html" title="Header file for the Multi&#45;Gaussian image class originally motivated by the model fitting challenge 2 ..." alt="" coords="415,104,637,131"/>
+<area shape="rect" id="node5" href="$a00704.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="663,97,847,138"/>
+<area shape="rect" id="node7" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="954,104,1016,131"/>
 </map>

@@ -1,3 +1,4 @@
-<map id="model/model_image_symmetric_gaussian.h" name="model/model_image_symmetric_gaussian.h">
-<area shape="rect" id="node2" href="$a00509.html" title="Header file for image model class. " alt="" coords="69,92,181,117"/>
+<map id="examples/eggbox_mcmc_sampling.cpp" name="examples/eggbox_mcmc_sampling.cpp">
+<area shape="rect" id="node2" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="31,187,129,213"/>
+<area shape="rect" id="node5" href="$a00704.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="77,97,261,138"/>
 </map>

@@ -1,5 +1,4 @@
-<map id="validation/rosenbrock_mcmc_sampling.cpp" name="validation/rosenbrock_mcmc_sampling.cpp">
-<area shape="rect" id="node2" href="$a00444.html" title="Header file for the Likelihood class. " alt="" coords="305,192,393,217"/>
-<area shape="rect" id="node5" href="$a00624.html" title="Header file for sampler_differential_evolution_deo_tempered_MCMC class. " alt="" coords="261,92,437,144"/>
-<area shape="rect" id="node6" href="$a00626.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="31,99,237,137"/>
+<map id="model/model_galactic_center_diffractive_scattering_screen.cpp" name="model/model_galactic_center_diffractive_scattering_screen.cpp">
+<area shape="rect" id="node2" href="$a00537.html" title="Header file for diffractive scattering interface. " alt="" coords="5,109,173,165"/>
+<area shape="rect" id="node4" href="$a00752.html" title="Provides a list of constants (in cgs) to be used throughout Themis. " alt="" coords="285,124,381,151"/>
 </map>
