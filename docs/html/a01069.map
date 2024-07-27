@@ -1,3 +1,19 @@
-<map id="model/model_polarized_image_adaptive_splined_raster.cpp" name="model/model_polarized_image_adaptive_splined_raster.cpp">
-<area shape="rect" id="node2" href="$a00591.html" title="Header file for the model_polarized_image_adaptive_splined_raster image class. " alt="" coords="5,105,186,144"/>
+<map id="likelihood/likelihood.h" name="likelihood/likelihood.h">
+<area shape="rect" id="node4" href="$a00471.html" title="Header file for the Base Likelihood class. " alt="" coords="1275,171,1411,197"/>
+<area shape="rect" id="node8" href="$a00482.html" title="Header file for the Gaussian likelihood class. " alt="" coords="1028,88,1191,115"/>
+<area shape="rect" id="node9" href="$a00479.html" title="Header file for the Egg box likelihood class. " alt="" coords="1266,88,1419,115"/>
+<area shape="rect" id="node10" href="$a00501.html" title="Header file for the Rosenbrock likelihood class. " alt="" coords="1444,88,1620,115"/>
+<area shape="rect" id="node11" href="$a00483.html" title="Header file for the Egg box likelihood class. Ref: https://mathworld.wolfram.com/GriewankFunction.html. " alt="" coords="1799,88,1964,115"/>
+<area shape="rect" id="node12" href="$a00472.html" title="Header file for the Egg box likelihood class. Ref: https://mathworld.wolfram.com/LorentzianFunction.html. " alt="" coords="2039,88,2188,115"/>
+<area shape="rect" id="node13" href="$a00484.html" title="Header file for the Egg box likelihood class. Ref: https://mathworld.wolfram.com/LorentzianFunction.html. " alt="" coords="212,88,383,115"/>
+<area shape="rect" id="node14" href="$a00505.html" title="Header file for the Visibility Amplitude Likelihood class. " alt="" coords="39,81,188,122"/>
+<area shape="rect" id="node15" href="$a00488.html" title="Header file for the Marginalized Visibility Amplitude Likelihood class. " alt="" coords="407,81,586,122"/>
+<area shape="rect" id="node16" href="$a00476.html" title="Header file for the Closure Phase Likelihood class. " alt="" coords="610,81,750,122"/>
+<area shape="rect" id="node17" href="$a00486.html" title="Header file for the Marginalized Closure Phase Likelihood class. " alt="" coords="775,81,954,122"/>
+<area shape="rect" id="node18" href="$a00481.html" title="Header file for the flux likelihood class. " alt="" coords="1645,88,1774,115"/>
+<area shape="rect" id="node19" href="$a00513.html" title="Header file for transform_base class. " alt="" coords="2183,245,2319,272"/>
+<area shape="rect" id="node20" href="$a00514.html" title="Header file for transform_fixed class. " alt="" coords="1949,171,2086,197"/>
+<area shape="rect" id="node21" href="$a00515.html" title="Header file for transform_logarithmic class. " alt="" coords="2162,171,2340,197"/>
+<area shape="rect" id="node22" href="$a00517.html" title="Header file for transform_none class. " alt="" coords="2416,171,2552,197"/>
+<area shape="rect" id="node6" href="$a00506.html" title="Header file for prior class. " alt="" coords="2017,245,2079,272"/>
 </map>

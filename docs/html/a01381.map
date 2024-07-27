@@ -1,3 +1,8 @@
-<map id="transform_logarithmic" name="transform_logarithmic">
-<area shape="rect" id="node2" href="$a00135.html" title="Defines the base transformation class. " alt="" coords="23,5,137,31"/>
+<map id="model/model_riaf_wrapper.h" name="model/model_riaf_wrapper.h">
+<area shape="rect" id="node2" href="$a00589.html" title="Header file for the extended RIAF image model class. " alt="" coords="73,155,223,181"/>
+<area shape="rect" id="node6" href="$a00678.html" title="Header file for visibility ampitude model class. " alt="" coords="907,155,1117,181"/>
+<area shape="rect" id="node7" href="$a00523.html" title="Header file for closure phase model class. " alt="" coords="657,155,831,181"/>
+<area shape="rect" id="node8" href="$a00521.html" title="Header file for visibility ampitude model class. " alt="" coords="248,155,451,181"/>
+<area shape="rect" id="node9" href="$a00533.html" title="Header file for flux model class. " alt="" coords="525,155,632,181"/>
+<area shape="rect" id="node10" href="$a00668.html" title="Header file for extended RIAF image+flux model class. " alt="" coords="437,80,539,107"/>
 </map>

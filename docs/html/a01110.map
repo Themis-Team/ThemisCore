@@ -1,3 +1,4 @@
-<map id="model/model_image_smooth.cpp" name="model/model_image_smooth.cpp">
-<area shape="rect" id="node2" href="$a01112.html" title="Header file for model_image_smooth. " alt="" coords="5,80,165,107"/>
+<map id="likelihood/likelihood_optimal_complex_gain_visibility.cpp" name="likelihood/likelihood_optimal_complex_gain_visibility.cpp">
+<area shape="rect" id="node2" href="$a00763.html" title="Header file for various random number generators using the algorithms in &quot;Numerical Recipes in C&quot; by ..." alt="" coords="5,117,216,144"/>
+<area shape="rect" id="node4" href="$a00494.html" title="Header file for the likelihood_optimal_complex_gain_visibility likelihood class. " alt="" coords="241,110,433,151"/>
 </map>

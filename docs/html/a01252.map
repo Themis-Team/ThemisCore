@@ -1,5 +1,5 @@
-<map id="likelihood_optimal_complex_gain_visibility" name="likelihood_optimal_complex_gain_visibility">
-<area shape="rect" id="node2" href="$a00041.html" title="Defines an interface to calculate log&#45;likelihoods given a set of parameters for an specific model..." alt="" coords="5,5,119,31"/>
-<area shape="rect" id="node3" href="$a00120.html" title="Defines the interface for models that generate complex visibility data appropriate for comparison wit..." alt="" coords="142,5,253,31"/>
-<area shape="rect" id="node4" href="$a00025.html" title="Defines a class containing a collection of visibility datum objects with simple I/O. " alt="" coords="277,5,378,31"/>
+<map id="model/model_image_raptor.h" name="model/model_image_raptor.h">
+<area shape="rect" id="node2" href="$a00456.html" title="Example demonstrating how to drive the external radiative transfer code RAPTOR. " alt="" coords="5,81,181,122"/>
+<area shape="rect" id="node3" href="$a00582.html" title="Implements driver to RAPTOR executable. " alt="" coords="206,88,433,115"/>
+<area shape="rect" id="node4" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="458,88,603,115"/>
 </map>

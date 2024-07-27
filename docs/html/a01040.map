@@ -1,3 +1,7 @@
-<map id="model/model_image_upsample.h" name="model/model_image_upsample.h">
-<area shape="rect" id="node2" href="$a00509.html" title="Header file for image model class. " alt="" coords="11,79,124,104"/>
+<map id="examples/eht_2018_example.cpp" name="examples/eht_2018_example.cpp">
+<area shape="rect" id="node2" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="66,171,264,197"/>
+<area shape="rect" id="node4" href="$a00531.html" title="Header file for ensemble averaged scattering interface. " alt="" coords="26,81,229,122"/>
+<area shape="rect" id="node5" href="$a00551.html" title="Header file for the Geometric Crescent Model Image class. " alt="" coords="254,88,438,115"/>
+<area shape="rect" id="node6" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="645,171,744,197"/>
+<area shape="rect" id="node8" href="$a00704.html" title="Header file for sampler_affine_invariant_tempered_MCMC class. " alt="" coords="514,81,698,122"/>
 </map>

@@ -1,5 +1,4 @@
-<map id="model_ring" name="model_ring">
-<area shape="rect" id="node2" href="$a00111.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="5,5,182,31"/>
-<area shape="rect" id="node3" href="$a00059.html" title="Defines the interface for models that generate closure phase data appropriate for comparison with dat..." alt="" coords="206,5,357,31"/>
-<area shape="rect" id="node4" href="$a00058.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="381,5,555,31"/>
+<map id="model/model_image_sed_fitted_riaf.cpp" name="model/model_image_sed_fitted_riaf.cpp">
+<area shape="rect" id="node2" href="$a00599.html" title="Header file for SED&#45;fitted RIAF model class. " alt="" coords="5,97,187,138"/>
+<area shape="rect" id="node8" href="$a00766.html" title="Header file for a general purpose timer based on the C time function. " alt="" coords="658,104,765,131"/>
 </map>

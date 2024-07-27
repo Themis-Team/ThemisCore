@@ -1,3 +1,4 @@
-<map id="model_visibility_galactic_center_diffractive_scattering_screen" name="model_visibility_galactic_center_diffractive_scattering_screen">
-<area shape="rect" id="node2" href="$a00120.html" title="Defines the interface for models that generate complex visibility data appropriate for comparison wit..." alt="" coords="71,5,182,31"/>
+<map id="sampling/sampler_stan_adapt_dense_e_nuts_MCMC.cpp" name="sampling/sampler_stan_adapt_dense_e_nuts_MCMC.cpp">
+<area shape="rect" id="node2" href="$a00717.html" title="Header file stan sampler used in Themis. " alt="" coords="845,103,1022,145"/>
+<area shape="rect" id="node14" href="$a00715.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="723,208,894,235"/>
 </map>

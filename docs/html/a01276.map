@@ -1,5 +1,9 @@
-<map id="model_circular_binary" name="model_circular_binary">
-<area shape="rect" id="node2" href="$a00121.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="5,5,182,31"/>
-<area shape="rect" id="node3" href="$a00065.html" title="Defines the interface for models that generate closure phase data appropriate for comparison with dat..." alt="" coords="206,5,357,31"/>
-<area shape="rect" id="node4" href="$a00064.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="381,5,555,31"/>
+<map id="model/model_image_sed_fitted_riaf.h" name="model/model_image_sed_fitted_riaf.h">
+<area shape="rect" id="node2" href="$a00452.html" title="Example illustrating the creationg of a RIAF model. " alt="" coords="5,97,181,138"/>
+<area shape="rect" id="node3" href="$a00458.html" title="Example illustrating the use of the RIAF model. " alt="" coords="207,97,367,138"/>
+<area shape="rect" id="node4" href="$a00598.html" title="test model_image_score clas by mcmc runs with gain calibration " alt="" coords="391,97,577,138"/>
+<area shape="rect" id="node5" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="602,104,747,131"/>
+<area shape="rect" id="node6" href="$a00779.html" title="To be added. " alt="" coords="772,97,924,138"/>
+<area shape="rect" id="node7" href="$a00780.html" title="Validation test for the RIAF model with visibility amplitude and closure pahase data ..." alt="" coords="948,97,1084,138"/>
+<area shape="rect" id="node8" href="$a00781.html" title="Test main file for the RIAF model with visibility amplitude data. " alt="" coords="1108,97,1284,138"/>
 </map>

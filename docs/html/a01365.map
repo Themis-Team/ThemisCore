@@ -1,6 +1,4 @@
-<map id="sampling/sampler_deo_tempering_MCMC.h" name="sampling/sampler_deo_tempering_MCMC.h">
-<area shape="rect" id="node2" href="$a01388.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="25,95,188,121"/>
-<area shape="rect" id="node13" href="$a01517.html" title="Header file for a general purpose timer based on the C time function. " alt="" coords="1210,95,1310,121"/>
-<area shape="rect" id="node14" href="$a00824.html" title="Modifies the likelihood according to a power tempering scheme. " alt="" coords="263,95,454,121"/>
-<area shape="rect" id="node15" href="$a01493.html" title="Header file for a multipurpose linear interpolation function. " alt="" coords="1070,95,1185,121"/>
+<map id="model/model_polarized_image_shearing_spot.h" name="model/model_polarized_image_shearing_spot.h">
+<area shape="rect" id="node2" href="$a00658.html" title="Implements Shearing spot image class. " alt="" coords="5,97,200,138"/>
+<area shape="rect" id="node3" href="$a00666.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="225,97,404,138"/>
 </map>

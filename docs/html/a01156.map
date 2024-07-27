@@ -1,4 +1,4 @@
-<map id="model/model_image_vrt2_pmap.h" name="model/model_image_vrt2_pmap.h">
-<area shape="rect" id="node2" href="$a01151.html" title="Implements the asymmetric model_image_vrt2_pmap image class. " alt="" coords="5,95,172,136"/>
-<area shape="rect" id="node3" href="$a01301.html" title="Header file for the model_image_vrt2_library image class. " alt="" coords="197,102,375,129"/>
+<map id="model/model_circular_binary.h" name="model/model_circular_binary.h">
+<area shape="rect" id="node2" href="$a00436.html" title="Fit visibility magnitude and closure phase data to a simple binary model. " alt="" coords="5,104,216,131"/>
+<area shape="rect" id="node3" href="$a00518.html" title="Implements binary model based on two Gaussians. " alt="" coords="240,97,403,138"/>
 </map>

@@ -1,4 +1,9 @@
-<map id="model/uncertainty_visibility_broken_power_change.h" name="model/uncertainty_visibility_broken_power_change.h">
-<area shape="rect" id="node2" href="$a01310.html" title="Implementation file for the uncertainty_visibility_broken_power_change class. " alt="" coords="5,95,189,136"/>
-<area shape="rect" id="node3" href="$a01466.html" title="Reads in some data and a light curve and generates some output data with uncertainty prescriptions..." alt="" coords="213,102,387,129"/>
+<map id="model/model_image_upsample.h" name="model/model_image_upsample.h">
+<area shape="rect" id="node2" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="5,87,221,129"/>
+<area shape="rect" id="node3" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="245,80,435,136"/>
+<area shape="rect" id="node4" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="459,80,648,136"/>
+<area shape="rect" id="node5" href="$a00624.html" title="Implements the model_image_upsample image class. " alt="" coords="673,95,927,121"/>
+<area shape="rect" id="node6" href="$a00742.html" title="tests/test_splined\l_raster.cpp" alt="" coords="951,87,1088,129"/>
+<area shape="rect" id="node7" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="1113,95,1257,121"/>
+<area shape="rect" id="node8" href="$a00745.html" title="tests/test_upsample.cpp" alt="" coords="1283,95,1464,121"/>
 </map>

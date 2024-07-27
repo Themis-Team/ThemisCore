@@ -1,5 +1,4 @@
-<map id="model_vrt2_library" name="model_vrt2_library">
-<area shape="rect" id="node2" href="$a00111.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="5,5,182,31"/>
-<area shape="rect" id="node3" href="$a00059.html" title="Defines the interface for models that generate closure phase data appropriate for comparison with dat..." alt="" coords="206,5,357,31"/>
-<area shape="rect" id="node4" href="$a00058.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="381,5,555,31"/>
+<map id="model/model_image_shearing_spot.cpp" name="model/model_image_shearing_spot.cpp">
+<area shape="rect" id="node2" href="$a00605.html" title="Header file for the shearing spot model class. " alt="" coords="5,97,179,138"/>
+<area shape="rect" id="node8" href="$a00766.html" title="Header file for a general purpose timer based on the C time function. " alt="" coords="650,104,757,131"/>
 </map>

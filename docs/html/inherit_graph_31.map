@@ -1,3 +1,8 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$a02411.html" title="Powell scheme optimizer with repeated kickouts for likelihoods. " alt="" coords="5,5,173,32"/>
+<area shape="rect" id="node1" href="$a00163.html" title="Defines the base prior class. " alt="" coords="5,107,96,133"/>
+<area shape="rect" id="node2" href="$a00164.html" title="Defines the gaussian prior class. " alt="" coords="179,5,296,32"/>
+<area shape="rect" id="node3" href="$a00165.html" title="Defines the linear(flat) prior class. " alt="" coords="189,56,285,83"/>
+<area shape="rect" id="node4" href="$a00166.html" title="Defines a prior that is uniform in log space. " alt="" coords="171,107,304,133"/>
+<area shape="rect" id="node5" href="$a00167.html" title="Defines the no&#45;prior class. " alt="" coords="192,157,283,184"/>
+<area shape="rect" id="node6" href="$a00168.html" title="Defines the gaussian prior class. " alt="" coords="144,208,331,235"/>
 </map>

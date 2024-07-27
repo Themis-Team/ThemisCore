@@ -1,5 +1,5 @@
 /*!
-  \file analyses/Imaging/imrecad_crosshands_deostan.cpp
+  \file analyses/Imaging/themaging_crosshands.cpp
   \author Avery Broderick
   \date May 2020
   \brief Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that uses DEO and the Stan NUTS drivers.

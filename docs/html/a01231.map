@@ -1,3 +1,5 @@
-<map id="likelihood_gaussian" name="likelihood_gaussian">
-<area shape="rect" id="node2" href="$a00041.html" title="Defines an interface to calculate log&#45;likelihoods given a set of parameters for an specific model..." alt="" coords="18,5,131,31"/>
+<map id="model/model_image_ipole.h" name="model/model_image_ipole.h">
+<area shape="rect" id="node2" href="$a00454.html" title="Example demonstrating how to drive the external radiative transfer code IPOLE. " alt="" coords="5,81,176,122"/>
+<area shape="rect" id="node3" href="$a00568.html" title="Implements driver to IPOLE executable. " alt="" coords="201,88,423,115"/>
+<area shape="rect" id="node4" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="447,88,592,115"/>
 </map>

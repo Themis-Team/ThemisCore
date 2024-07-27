@@ -1,4 +1,8 @@
-<map id="sampling/sampler_stan_adapt_diag_e_nuts_MCMC.cpp" name="sampling/sampler_stan_adapt_diag_e_nuts_MCMC.cpp">
-<area shape="rect" id="node2" href="$a00634.html" title="Header file stan sampler used in Themis. " alt="" coords="789,92,950,131"/>
-<area shape="rect" id="node14" href="$a00630.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="668,185,833,211"/>
+<map id="likelihood/prior_base.h" name="likelihood/prior_base.h">
+<area shape="rect" id="node2" href="$a00506.html" title="Header file for prior class. " alt="" coords="368,171,499,197"/>
+<area shape="rect" id="node3" href="$a00509.html" title="Header file for prior_base class. " alt="" coords="27,88,201,115"/>
+<area shape="rect" id="node4" href="$a00508.html" title="Header file for prior_gaussian class. " alt="" coords="227,88,424,115"/>
+<area shape="rect" id="node5" href="$a00512.html" title="likelihood/prior_truncated\l_gaussian.h" alt="" coords="448,81,637,122"/>
+<area shape="rect" id="node6" href="$a00510.html" title="Header file for the prior_logarithmic class. " alt="" coords="661,88,875,115"/>
+<area shape="rect" id="node7" href="$a00511.html" title="likelihood/prior_none.h" alt="" coords="899,88,1069,115"/>
 </map>

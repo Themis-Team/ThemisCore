@@ -1,4 +1,3 @@
-<map id="model/model_polarized_image_constant_polarization.h" name="model/model_polarized_image_constant_polarization.h">
-<area shape="rect" id="node4" href="$a00589.html" title="Header file for polarized image model class. " alt="" coords="23,92,197,117"/>
-<area shape="rect" id="node6" href="$a00509.html" title="Header file for image model class. " alt="" coords="221,92,333,117"/>
+<map id="likelihood/likelihood_base.cpp" name="likelihood/likelihood_base.cpp">
+<area shape="rect" id="node2" href="$a00471.html" title="Header file for the Base Likelihood class. " alt="" coords="5,96,141,123"/>
 </map>

@@ -1,7 +1,4 @@
-<map id="model/model_image_raster.h" name="model/model_image_raster.h">
-<area shape="rect" id="node2" href="$a00353.html" title="Generic driver for image reconstruction with Themis. " alt="" coords="5,87,191,114"/>
-<area shape="rect" id="node3" href="$a00425.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="215,87,413,114"/>
-<area shape="rect" id="node4" href="$a00428.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="437,80,612,121"/>
-<area shape="rect" id="node5" href="$a00431.html" title="Generic driver for image reconstruction with Themis that upsamples image. " alt="" coords="636,80,811,121"/>
-<area shape="rect" id="node6" href="$a01043.html" title="Implements the model_image_raster image class. " alt="" coords="835,87,1038,114"/>
+<map id="examples/generate_movie_shearing_spot.cpp" name="examples/generate_movie_shearing_spot.cpp">
+<area shape="rect" id="node2" href="$a00643.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot. " alt="" coords="26,97,200,138"/>
+<area shape="rect" id="node6" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="378,104,440,131"/>
 </map>

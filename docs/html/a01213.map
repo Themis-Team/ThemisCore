@@ -1,3 +1,6 @@
-<map id="likelihood_cauchy" name="likelihood_cauchy">
-<area shape="rect" id="node2" href="$a00041.html" title="Defines an interface to calculate log&#45;likelihoods given a set of parameters for an specific model..." alt="" coords="12,5,125,31"/>
+<map id="model/model_image_force_free_jet.h" name="model/model_image_force_free_jet.h">
+<area shape="rect" id="node2" href="$a00394.html" title="Driver file for M87 analysis with Broderick et al. 2009 FFJ model which is static. " alt="" coords="5,97,184,138"/>
+<area shape="rect" id="node3" href="$a00447.html" title="Example illustrating the creation of a force free jet model. " alt="" coords="209,97,396,138"/>
+<area shape="rect" id="node4" href="$a00535.html" title="Header file for extended force free image+flux model class. " alt="" coords="421,97,603,138"/>
+<area shape="rect" id="node5" href="$a00556.html" title="Implements SED&#45;fitted force free jet model class. " alt="" coords="627,97,823,138"/>
 </map>

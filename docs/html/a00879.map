@@ -1,5 +1,10 @@
-<map id="model/model_circular_binary.h" name="model/model_circular_binary.h">
-<area shape="rect" id="node2" href="$a01289.html" title="Header file for visibility ampitude model class. " alt="" coords="5,95,191,121"/>
-<area shape="rect" id="node4" href="$a00890.html" title="Header file for closure phase model class. " alt="" coords="267,95,425,121"/>
-<area shape="rect" id="node5" href="$a00884.html" title="Header file for visibility ampitude model class. " alt="" coords="449,95,629,121"/>
+<map id="analyses/ProjectSpecific/M87/ChallengeJ/im2/NSB_nog_nos/chj_smcrdir/chj_smcr1.cpp" name="analyses/ProjectSpecific/M87/ChallengeJ/im2/NSB_nog_nos/chj_smcrdir/chj_smcr1.cpp">
+<area shape="rect" id="node2" href="$a00551.html" title="Header file for the Geometric Crescent Model Image class. " alt="" coords="5,133,189,160"/>
+<area shape="rect" id="node3" href="$a00549.html" title="Implements wavelength&#45;dependent, asymmetric Gaussian image class. " alt="" coords="214,126,409,167"/>
+<area shape="rect" id="node4" href="$a00619.html" title="Header file for the model_image_sum class, which sums different model images, generating a convenient..." alt="" coords="434,133,592,160"/>
+<area shape="rect" id="node5" href="$a00611.html" title="Header file for model_image_smooth. " alt="" coords="617,133,796,160"/>
+<area shape="rect" id="node6" href="$a00711.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="820,126,1039,167"/>
+<area shape="rect" id="node7" href="$a00476.html" title="Header file for the Closure Phase Likelihood class. " alt="" coords="1063,126,1203,167"/>
+<area shape="rect" id="node8" href="$a00505.html" title="Header file for the Visibility Amplitude Likelihood class. " alt="" coords="1228,126,1377,167"/>
+<area shape="rect" id="node9" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="1402,133,1464,160"/>
 </map>

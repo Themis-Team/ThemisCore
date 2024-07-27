@@ -1,6 +1,4 @@
-<map id="model/model_symmetric_gaussian.h" name="model/model_symmetric_gaussian.h">
-<area shape="rect" id="node2" href="$a01283.html" title="Header file for visibility model class. " alt="" coords="620,95,743,121"/>
-<area shape="rect" id="node5" href="$a01289.html" title="Header file for visibility ampitude model class. " alt="" coords="24,95,209,121"/>
-<area shape="rect" id="node6" href="$a00890.html" title="Header file for closure phase model class. " alt="" coords="233,95,392,121"/>
-<area shape="rect" id="node7" href="$a00884.html" title="Header file for visibility ampitude model class. " alt="" coords="416,95,596,121"/>
+<map id="model/model_image_sed_fitted_riaf_intensity.h" name="model/model_image_sed_fitted_riaf_intensity.h">
+<area shape="rect" id="node2" href="$a00543.html" title="Header file for image model class. " alt="" coords="108,96,231,123"/>
+<area shape="rect" id="node6" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="306,96,368,123"/>
 </map>

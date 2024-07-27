@@ -1,4 +1,5 @@
-<map id="model/model_image_shearing_spot_johannsen.h" name="model/model_image_shearing_spot_johannsen.h">
-<area shape="rect" id="node2" href="$a01097.html" title="Implements Shearing spot image class. " alt="" coords="5,95,200,136"/>
-<area shape="rect" id="node3" href="$a01202.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot_johannse..." alt="" coords="224,95,419,136"/>
+<map id="likelihood/likelihood_marginalized_visibility_amplitude.h" name="likelihood/likelihood_marginalized_visibility_amplitude.h">
+<area shape="rect" id="node3" href="$a00471.html" title="Header file for the Base Likelihood class. " alt="" coords="380,109,516,136"/>
+<area shape="rect" id="node5" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="5,184,203,211"/>
+<area shape="rect" id="node6" href="$a00678.html" title="Header file for visibility ampitude model class. " alt="" coords="44,109,255,136"/>
 </map>

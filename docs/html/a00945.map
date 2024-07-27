@@ -1,3 +1,9 @@
-<map id="model/model_image_asymmetric_gaussian.h" name="model/model_image_asymmetric_gaussian.h">
-<area shape="rect" id="node2" href="$a00926.html" title="Header file for image model class. " alt="" coords="57,95,167,121"/>
+<map id="analyses/ProjectSpecific/M87/ChallengeJ/im2/NSB/chj_ssrdir/chj_ssr.cpp" name="analyses/ProjectSpecific/M87/ChallengeJ/im2/NSB/chj_ssrdir/chj_ssr.cpp">
+<area shape="rect" id="node2" href="$a00631.html" title="Header file for the Geometric Slashed Ring Model Image class. " alt="" coords="5,124,176,151"/>
+<area shape="rect" id="node3" href="$a00549.html" title="Implements wavelength&#45;dependent, asymmetric Gaussian image class. " alt="" coords="201,117,396,158"/>
+<area shape="rect" id="node4" href="$a00619.html" title="Header file for the model_image_sum class, which sums different model images, generating a convenient..." alt="" coords="421,124,579,151"/>
+<area shape="rect" id="node5" href="$a00611.html" title="Header file for model_image_smooth. " alt="" coords="604,124,783,151"/>
+<area shape="rect" id="node6" href="$a00711.html" title="Header file for sampler_differential_evolution_tempered_MCMC class. " alt="" coords="807,117,1025,158"/>
+<area shape="rect" id="node7" href="$a00496.html" title="Header file for the likelihood_optimal_gain_correction_visibility_amplitude likelihood class..." alt="" coords="1049,109,1241,165"/>
+<area shape="rect" id="node8" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="1266,124,1328,151"/>
 </map>

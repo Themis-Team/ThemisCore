@@ -1,4 +1,3 @@
-<map id="model_polarized_image_constant_polarization" name="model_polarized_image_constant_polarization">
-<area shape="rect" id="node2" href="$a00108.html" title="Defines an interface for models that generate polarized image data with a collection of utility funct..." alt="" coords="5,5,168,31"/>
-<area shape="rect" id="node3" href="$a00067.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="192,5,293,31"/>
+<map id="model/model_image_themaussian.h" name="model/model_image_themaussian.h">
+<area shape="rect" id="node2" href="$a00622.html" title="Implements Themaussian image class. A Themaussian is a sum of flux&#45;ordered gaussians.. " alt="" coords="5,80,280,107"/>
 </map>

@@ -1,3 +1,5 @@
-<map id="model_ensemble_averaged_scattered_image" name="model_ensemble_averaged_scattered_image">
-<area shape="rect" id="node2" href="$a00121.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="10,5,186,31"/>
+<map id="model/model_image_shearing_spot_johannsen.h" name="model/model_image_shearing_spot_johannsen.h">
+<area shape="rect" id="node2" href="$a00606.html" title="Implements Shearing spot image class. " alt="" coords="5,97,224,138"/>
+<area shape="rect" id="node3" href="$a00645.html" title="Header file for creating a movie object for shearing spot based on model_image_shearing_spot_johannse..." alt="" coords="248,97,467,138"/>
+<area shape="rect" id="node4" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="491,104,636,131"/>
 </map>

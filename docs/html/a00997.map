@@ -1,4 +1,8 @@
-<map id="model/model_image_refractive_scattering.cpp" name="model/model_image_refractive_scattering.cpp">
-<area shape="rect" id="node4" href="$a00541.html" title="Header file for refractive scattering interface. " alt="" coords="179,92,343,131"/>
-<area shape="rect" id="node5" href="$a00666.html" title="Provides a list of constants (in cgs) to be used throughout Themis. " alt="" coords="367,99,456,124"/>
+<map id="analyses/ProjectSpecific/SgrA/general_riaf_generate_image_library.cpp" name="analyses/ProjectSpecific/SgrA/general_riaf_generate_image_library.cpp">
+<area shape="rect" id="node2" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="239,117,301,144"/>
+<area shape="rect" id="node5" href="$a00751.html" title="Defines a lightweight command&#45;line parser to facilitate adding options to drivers. " alt="" coords="914,117,1047,144"/>
+<area shape="rect" id="node10" href="$a00757.html" title="Header file for a multipurpose linear interpolation function. " alt="" coords="559,117,687,144"/>
+<area shape="rect" id="node11" href="$a00563.html" title="Header file for the extended RIAF image model class with mass scaling. " alt="" coords="1072,110,1238,151"/>
+<area shape="rect" id="node13" href="$a00619.html" title="Header file for the model_image_sum class, which sums different model images, generating a convenient..." alt="" coords="325,117,483,144"/>
+<area shape="rect" id="node14" href="$a00621.html" title="Header file for the symmetric Gaussian image class. " alt="" coords="27,110,214,151"/>
 </map>

@@ -1,3 +1,101 @@
-<map id="model_movie_general_riaf_shearing_spot" name="model_movie_general_riaf_shearing_spot">
-<area shape="rect" id="node2" href="$a00101.html" title="model_movie\&lt; model\l_image_general_riaf\l_shearing_spot \&gt;" alt="" coords="7,5,156,57"/>
+<map id="model/model_image_smooth.h" name="model/model_image_smooth.h">
+<area shape="rect" id="node2" href="$a00207.html" title="analyses/Multipurpose\l/Imaging/Archive/imrec.cpp" alt="" coords="5,95,205,137"/>
+<area shape="rect" id="node3" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="229,95,445,137"/>
+<area shape="rect" id="node4" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="469,88,659,144"/>
+<area shape="rect" id="node5" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="683,88,872,144"/>
+<area shape="rect" id="node6" href="$a00239.html" title="Driver file for 3c279 analysis with geometric models: Large assymmetric Gaussian background one or mo..." alt="" coords="896,95,1088,137"/>
+<area shape="rect" id="node7" href="$a00240.html" title="Driver file for 3c279 analysis with time&#45;variable geometric models: Large assymmetric Gaussian backgr..." alt="" coords="1113,88,1300,144"/>
+<area shape="rect" id="node8" href="$a00241.html" title="Driver file for 3c279 analysis of HI+LO with geometric models: Large assymmetric Gaussian background ..." alt="" coords="1325,95,1547,137"/>
+<area shape="rect" id="node9" href="$a00250.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_afss.cpp" alt="" coords="1572,88,1828,144"/>
+<area shape="rect" id="node10" href="$a00251.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_densestan.cpp" alt="" coords="1852,88,2108,144"/>
+<area shape="rect" id="node11" href="$a00252.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_diagstan.cpp" alt="" coords="2132,88,2388,144"/>
+<area shape="rect" id="node12" href="$a00253.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_diff.cpp" alt="" coords="2412,88,2668,144"/>
+<area shape="rect" id="node13" href="$a00254.html" title="Driver file for J1924 analysis with geometric models: Large assymmetric Gaussian background one or mo..." alt="" coords="2692,95,2876,137"/>
+<area shape="rect" id="node14" href="$a00255.html" title="Driver file for J1924 analysis with time&#45;variable geometric models: Large assymmetric Gaussian backgr..." alt="" coords="2901,88,3080,144"/>
+<area shape="rect" id="node15" href="$a00256.html" title="Driver file for J1924 analysis of HI+LO with geometric models: Large assymmetric Gaussian background ..." alt="" coords="3105,95,3319,137"/>
+<area shape="rect" id="node16" href="$a00279.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im1/chj\l_smcr1.cpp" alt="" coords="3344,88,3523,144"/>
+<area shape="rect" id="node17" href="$a00280.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im1/WSB\l/chj_smcr1.cpp" alt="" coords="3547,88,3736,144"/>
+<area shape="rect" id="node18" href="$a00291.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im1/WSB\l/chj_smcr1asg1.cpp" alt="" coords="3760,88,3949,144"/>
+<area shape="rect" id="node19" href="$a00292.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im1/WSB\l/chj_smcr1asg2.cpp" alt="" coords="3973,88,4163,144"/>
+<area shape="rect" id="node20" href="$a00293.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im1/WSB\l/chj_smcr1asg5.cpp" alt="" coords="4187,88,4376,144"/>
+<area shape="rect" id="node21" href="$a00281.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/smcr1\l/chj_smcr1.cpp" alt="" coords="4401,88,4607,144"/>
+<area shape="rect" id="node22" href="$a00294.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/smcr1\l/chj_smcr1_ns.cpp" alt="" coords="4631,88,4837,144"/>
+<area shape="rect" id="node23" href="$a00282.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/smcr1as1\l/chj_smcr1.cpp" alt="" coords="4862,88,5092,144"/>
+<area shape="rect" id="node24" href="$a00295.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/smcr1as2\l/chj_smcr1as2.cpp" alt="" coords="5117,88,5347,144"/>
+<area shape="rect" id="node25" href="$a00298.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/smcr1as3\l/NoScanAvg/chj_smcr1as3.cpp" alt="" coords="5371,88,5601,144"/>
+<area shape="rect" id="node26" href="$a00302.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/smcr1as3\l/ScanAvg/NSB/chj_smcr1as3_ns.cpp" alt="" coords="5626,88,5880,144"/>
+<area shape="rect" id="node27" href="$a00299.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/smcr1as3\l/ScanAvg/WSB/chj_smcr1as3.cpp" alt="" coords="5905,88,6140,144"/>
+<area shape="rect" id="node28" href="$a00303.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrg1\l/chj_xsrg.cpp" alt="" coords="6164,88,6367,144"/>
+<area shape="rect" id="node29" href="$a00304.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1\l/NoScanAvg/NSB/chj_xsrg.cpp" alt="" coords="6391,88,6605,144"/>
+<area shape="rect" id="node30" href="$a00305.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1\l/NoScanAvg/WSB/chj_xsrg.cpp" alt="" coords="6631,88,6849,144"/>
+<area shape="rect" id="node31" href="$a00306.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1\l/ScanAvg/NSB/chj_xsrg.cpp" alt="" coords="6874,88,7085,144"/>
+<area shape="rect" id="node32" href="$a00307.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1\l/ScanAvg/WSB/chj_xsrg.cpp" alt="" coords="7110,88,7321,144"/>
+<area shape="rect" id="node33" href="$a00308.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1FF\l/NoScanAvg/NSB/chj_xsrg.cpp" alt="" coords="7347,88,7573,144"/>
+<area shape="rect" id="node34" href="$a00309.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1FF\l/NoScanAvg/WSB/chj_xsrg.cpp" alt="" coords="7597,88,7824,144"/>
+<area shape="rect" id="node35" href="$a00310.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1FF\l/ScanAvg/NSB/chj_xsrg.cpp" alt="" coords="7848,88,8075,144"/>
+<area shape="rect" id="node36" href="$a00311.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA1FF\l/ScanAvg/WSB/chj_xsrg.cpp" alt="" coords="8099,88,8325,144"/>
+<area shape="rect" id="node37" href="$a00312.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA2\l/NoScanAvg/chj_xsrg.cpp" alt="" coords="8350,88,8561,144"/>
+<area shape="rect" id="node38" href="$a00313.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14/xsrgA2\l/ScanAvg/chj_xsrg.cpp" alt="" coords="8586,88,8797,144"/>
+<area shape="rect" id="node39" href="$a00314.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14_b\l/WSB/chj_smcr1as1dir/chj\l_smcr1as1.cpp" alt="" coords="8823,81,9012,151"/>
+<area shape="rect" id="node40" href="$a00296.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14_b\l/WSB/chj_smcr1as2dir/chj\l_smcr1as2.cpp" alt="" coords="9036,81,9225,151"/>
+<area shape="rect" id="node41" href="$a00300.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14_b\l/WSB/chj_smcr1as3dir/chj\l_smcr1as3.cpp" alt="" coords="9249,81,9439,151"/>
+<area shape="rect" id="node42" href="$a00316.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14_b\l/WSB/chj_smcr1as4dir/chj\l_smcr1as4.cpp" alt="" coords="9463,81,9652,151"/>
+<area shape="rect" id="node43" href="$a00283.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im14_b\l/WSB/chj_smcr1dir/chj_smcr1.cpp" alt="" coords="9676,88,9916,144"/>
+<area shape="rect" id="node44" href="$a00329.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj_sC.cpp" alt="" coords="9941,95,10176,137"/>
+<area shape="rect" id="node45" href="$a00330.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sCpA2.cpp" alt="" coords="10201,88,10388,144"/>
+<area shape="rect" id="node46" href="$a00331.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXa2_wsB_ns.cpp" alt="" coords="10412,88,10599,144"/>
+<area shape="rect" id="node47" href="$a00332.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXa_wosB_n.cpp" alt="" coords="10623,88,10809,144"/>
+<area shape="rect" id="node48" href="$a00334.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXa_wosB_ns.cpp" alt="" coords="10833,88,11020,144"/>
+<area shape="rect" id="node49" href="$a00336.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXa_wsB.cpp" alt="" coords="11044,88,11231,144"/>
+<area shape="rect" id="node50" href="$a00337.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXa_wsB_n.cpp" alt="" coords="11255,88,11441,144"/>
+<area shape="rect" id="node51" href="$a00338.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXa_wsB_ns.cpp" alt="" coords="11465,88,11652,144"/>
+<area shape="rect" id="node52" href="$a00339.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXag_wsB_n.cpp" alt="" coords="11676,88,11863,144"/>
+<area shape="rect" id="node53" href="$a00340.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im18/chj\l_sXag_wsB_ns.cpp" alt="" coords="11887,88,12073,144"/>
+<area shape="rect" id="node54" href="$a00345.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sc_wosB_n.cpp" alt="" coords="12098,88,12283,144"/>
+<area shape="rect" id="node55" href="$a00346.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sc_wosB_ns.cpp" alt="" coords="12307,88,12492,144"/>
+<area shape="rect" id="node56" href="$a00347.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sca2_wosB_ns.cpp" alt="" coords="12517,88,12701,144"/>
+<area shape="rect" id="node57" href="$a00348.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sca6_wosB_ns.cpp" alt="" coords="12726,88,12911,144"/>
+<area shape="rect" id="node58" href="$a00349.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sca_wosB_n.cpp" alt="" coords="12935,88,13120,144"/>
+<area shape="rect" id="node59" href="$a00350.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sca_wosB_ns.cpp" alt="" coords="13145,88,13329,144"/>
+<area shape="rect" id="node60" href="$a00333.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sXa_wosB_n.cpp" alt="" coords="13354,88,13539,144"/>
+<area shape="rect" id="node61" href="$a00335.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/AEB\l/chj_sXa_wosB_ns.cpp" alt="" coords="13563,88,13748,144"/>
+<area shape="rect" id="node62" href="$a00284.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/chj\l_smcr1.cpp" alt="" coords="13773,88,13952,144"/>
+<area shape="rect" id="node63" href="$a00351.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/chj\l_smrg1.cpp" alt="" coords="13976,88,14155,144"/>
+<area shape="rect" id="node64" href="$a00285.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l/chj_smcrdir/chj_smcr1.cpp" alt="" coords="14179,88,14377,144"/>
+<area shape="rect" id="node65" href="$a00352.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l/chj_smcrdir_t2/chj_smcr1_t2.cpp" alt="" coords="14402,88,14640,144"/>
+<area shape="rect" id="node66" href="$a00354.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l/chj_ssrdir/chj_ssr.cpp" alt="" coords="14665,88,14852,144"/>
+<area shape="rect" id="node67" href="$a00356.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l/chj_sxrg/chj_sxrg.cpp" alt="" coords="14876,88,15063,144"/>
+<area shape="rect" id="node68" href="$a00286.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l/learning_gains/chj_smcr1.cpp" alt="" coords="15087,88,15305,144"/>
+<area shape="rect" id="node69" href="$a00287.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l_nog/chj_smcrdir/chj_smcr1.cpp" alt="" coords="15329,88,15559,144"/>
+<area shape="rect" id="node70" href="$a00288.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l_nog_nos/chj_smcrdir/chj\l_smcr1.cpp" alt="" coords="15583,81,15769,151"/>
+<area shape="rect" id="node71" href="$a00289.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l_nos/chj_smcrdir/chj_smcr1.cpp" alt="" coords="15794,88,16021,144"/>
+<area shape="rect" id="node72" href="$a00353.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l_nos/chj_smcrdir_t2/chj\l_smcr1_t2.cpp" alt="" coords="16047,81,16233,151"/>
+<area shape="rect" id="node73" href="$a00355.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/NSB\l_nos/chj_ssrdir/chj_ssr.cpp" alt="" coords="16258,88,16451,144"/>
+<area shape="rect" id="node74" href="$a00315.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_smcr1as1dir/chj_smcr1as1.cpp" alt="" coords="16475,88,16727,144"/>
+<area shape="rect" id="node75" href="$a00297.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_smcr1as2dir/chj_smcr1as2.cpp" alt="" coords="16751,88,17003,144"/>
+<area shape="rect" id="node76" href="$a00301.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_smcr1as3dir/chj_smcr1as3.cpp" alt="" coords="17027,88,17279,144"/>
+<area shape="rect" id="node77" href="$a00317.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_smcr1as4dir/chj_smcr1as4.cpp" alt="" coords="17303,88,17555,144"/>
+<area shape="rect" id="node78" href="$a00290.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_smcr1dir/chj_smcr1.cpp" alt="" coords="17579,88,17785,144"/>
+<area shape="rect" id="node79" href="$a00359.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_smcra1dir/chj_smcra1.cpp" alt="" coords="17810,88,18032,144"/>
+<area shape="rect" id="node80" href="$a00360.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_smcra2dir/chj_smcra2.cpp" alt="" coords="18057,88,18279,144"/>
+<area shape="rect" id="node81" href="$a00361.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_ssra1dir/chj_ssra1.cpp" alt="" coords="18303,88,18499,144"/>
+<area shape="rect" id="node82" href="$a00362.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_ssra2dir/chj_ssra2.cpp" alt="" coords="18523,88,18719,144"/>
+<area shape="rect" id="node83" href="$a00363.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ/im2/WSB\l/chj_sxrga1dir/chj_sxrga1.cpp" alt="" coords="18743,88,18957,144"/>
+<area shape="rect" id="node84" href="$a00274.html" title="Driver file for Challenge J+ analysis with smoothed xsringauss model. " alt="" coords="18983,95,19201,137"/>
+<area shape="rect" id="node85" href="$a00275.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ+/chjp_sXa2.cpp" alt="" coords="19225,95,19460,137"/>
+<area shape="rect" id="node86" href="$a00276.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ+/chjp_sXa2g\l_sgt.cpp" alt="" coords="19485,88,19699,144"/>
+<area shape="rect" id="node87" href="$a00277.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ+/chjp_sXag.cpp" alt="" coords="19724,95,19959,137"/>
+<area shape="rect" id="node88" href="$a00278.html" title="analyses/ProjectSpecific\l/M87/ChallengeJ+/chjp_sXag_ai.cpp" alt="" coords="19983,95,20236,137"/>
+<area shape="rect" id="node89" href="$a00388.html" title="analyses/ProjectSpecific\l/M87/m87_ccm_afss.cpp" alt="" coords="20260,95,20441,137"/>
+<area shape="rect" id="node90" href="$a00389.html" title="Driver file for M87 analysis with the concordance crescent model: Large symmetric Gaussian background..." alt="" coords="20465,95,20668,137"/>
+<area shape="rect" id="node91" href="$a00390.html" title="Driver file for M87 analysis with the concordance crescent model that uses all days and bands: Large ..." alt="" coords="20693,95,20917,137"/>
+<area shape="rect" id="node92" href="$a00391.html" title="Driver file for M87 analysis with the concordance crescent model: Large symmetric Gaussian background..." alt="" coords="20943,95,21196,137"/>
+<area shape="rect" id="node93" href="$a00392.html" title="Driver file for M87 analysis with the concordance crescent model: Large symmetric Gaussian background..." alt="" coords="21221,95,21475,137"/>
+<area shape="rect" id="node94" href="$a00393.html" title="analyses/ProjectSpecific\l/M87/m87_ccm_nuts.cpp" alt="" coords="21499,95,21681,137"/>
+<area shape="rect" id="node95" href="$a00395.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="21707,95,21885,137"/>
+<area shape="rect" id="node96" href="$a00396.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="21909,95,22120,137"/>
+<area shape="rect" id="node97" href="$a00397.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="22145,95,22383,137"/>
+<area shape="rect" id="node98" href="$a00398.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="22408,95,22595,137"/>
+<area shape="rect" id="node99" href="$a00399.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="22619,95,22861,137"/>
+<area shape="rect" id="node100" href="$a00400.html" title="Driver file for M87 analysis with smoothed xsringauss model plus components based on eponymous Challe..." alt="" coords="22885,95,23064,137"/>
 </map>

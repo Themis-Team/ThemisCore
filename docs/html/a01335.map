@@ -1,3 +1,4 @@
-<map id="model_image_orbiting_spot" name="model_image_orbiting_spot">
-<area shape="rect" id="node2" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="47,5,149,31"/>
+<map id="model/model_movie_orbiting_spot.h" name="model/model_movie_orbiting_spot.h">
+<area shape="rect" id="node2" href="$a00579.html" title="Header file for the shearing spot model class. " alt="" coords="80,97,248,138"/>
+<area shape="rect" id="node6" href="$a00636.html" title="Header file for the model movie class. " alt="" coords="272,104,395,131"/>
 </map>

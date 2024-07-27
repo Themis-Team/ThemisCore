@@ -1,3 +1,4 @@
-<map id="model/model_polarized_image_sum.h" name="model/model_polarized_image_sum.h">
-<area shape="rect" id="node2" href="$a01214.html" title="Header file for polarized image model class. " alt="" coords="5,95,175,121"/>
+<map id="model/model_image_orbiting_spot.h" name="model/model_image_orbiting_spot.h">
+<area shape="rect" id="node5" href="$a00543.html" title="Header file for image model class. " alt="" coords="184,96,307,123"/>
+<area shape="rect" id="node7" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="46,96,108,123"/>
 </map>

@@ -1,4 +1,4 @@
-<map id="model_visibility_galactic_center_diffractive_scattering_screen" name="model_visibility_galactic_center_diffractive_scattering_screen">
-<area shape="rect" id="node2" href="$a00120.html" title="Defines the interface for models that generate complex visibility data appropriate for comparison wit..." alt="" coords="33,5,144,31"/>
-<area shape="rect" id="node3" href="$a00019.html" title="Wandering magnetic field angular model. " alt="" coords="174,5,237,31"/>
+<map id="sampling/sampler_stan_adapt_dense_e_nuts_MCMC.h" name="sampling/sampler_stan_adapt_dense_e_nuts_MCMC.h">
+<area shape="rect" id="node8" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="123,187,221,213"/>
+<area shape="rect" id="node26" href="$a00715.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="46,104,217,131"/>
 </map>

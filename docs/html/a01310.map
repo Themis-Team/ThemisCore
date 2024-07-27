@@ -1,3 +1,3 @@
-<map id="model_image_crescent" name="model_image_crescent">
-<area shape="rect" id="node2" href="$a00071.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="34,5,136,31"/>
+<map id="model/model_image_themaussian.cpp" name="model/model_image_themaussian.cpp">
+<area shape="rect" id="node2" href="$a00623.html" title="Header file for the Themaussian model image class. A Themaussian is a sum of flux&#45;ordered asymmetric ..." alt="" coords="5,80,219,107"/>
 </map>

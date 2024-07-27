@@ -1,3 +1,4 @@
-<map id="model_polarized_image_adaptive_splined_raster" name="model_polarized_image_adaptive_splined_raster">
-<area shape="rect" id="node2" href="$a00112.html" title="Defines an interface for models that generate polarized image data with a collection of utility funct..." alt="" coords="9,5,172,31"/>
+<map id="optimizing/optimizer_powell.h" name="optimizing/optimizer_powell.h">
+<area shape="rect" id="node2" href="$a00699.html" title="Implementation file for the optimizer_powell class. " alt="" coords="5,97,163,138"/>
+<area shape="rect" id="node3" href="$a00784.html" title="validation/test_optimizer.cpp" alt="" coords="187,104,397,131"/>
 </map>
