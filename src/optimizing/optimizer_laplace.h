@@ -1,5 +1,5 @@
 /*!
-  \file optimizer_fisher_matrix.h
+  \file optimizer_laplace.h
   \author Paul Tiede
   \brief Header file for a class that does a Fisher-Matrix analysis of the likelihood.
 */
