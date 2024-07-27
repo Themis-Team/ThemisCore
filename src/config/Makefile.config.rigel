@@ -10,7 +10,8 @@
 ## the various config files with other Themis users.
 
 ## The desired MPI C++ compiler
-CC=mpicxx
+# CC=mpicxx
+CC=env OMPI_CXX=g++-7 mpicxx
 
 ## The appropriate list of C++ compiler flags.  Note that some C++11 features
 ## must be enabled, e.g., with the -std=c++0x flag for gcc
