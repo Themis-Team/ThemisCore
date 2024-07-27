@@ -1,0 +1,5 @@
+<map id="likelihood_polarization_fraction" name="likelihood_polarization_fraction">
+<area shape="rect" id="node2" href="$a00052.html" title="Defines an interface to calculate log&#45;likelihoods given a set of parameters for an specific model..." alt="" coords="5,13,128,40"/>
+<area shape="rect" id="node3" href="$a00031.html" title="Defines a class containing a collection of linear polarization fraction amplitude datum objects with ..." alt="" coords="153,13,345,40"/>
+<area shape="rect" id="node4" href="$a00138.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="369,6,516,47"/>
+</map>

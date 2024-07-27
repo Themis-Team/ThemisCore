@@ -1,0 +1,5 @@
+<map id="generate_transition" name="generate_transition">
+<area shape="rect" id="node2" href="$a00179.html#a3c2d8154dffbec06431f2382bf2cf4ae" title="get_chain_state" alt="" coords="384,22,509,49"/>
+<area shape="rect" id="node3" href="$a00179.html#a902795d04ed56abd1c5c5bf22df87fdd" title="write_checkpoint" alt="" coords="203,22,336,49"/>
+<area shape="rect" id="node4" href="$a00179.html#a3b25dc08abf806860c9036cdf9ee5281" title="write_state" alt="" coords="222,73,317,100"/>
+</map>

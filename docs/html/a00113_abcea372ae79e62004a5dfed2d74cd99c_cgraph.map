@@ -1,0 +1,5 @@
+<map id="generate_image" name="generate_image">
+<area shape="rect" id="node2" href="$a00180.html#a60de64d75454385b23995437f1d72669" title="Restarts the StopWatch to the current time. " alt="" coords="191,5,345,46"/>
+<area shape="rect" id="node3" href="$a00113.html#ae9672a867047aef8f025e1a776429950" title="generate_renormalized\l_image" alt="" coords="181,70,355,111"/>
+<area shape="rect" id="node4" href="$a00180.html#a5bc166054169833263fa30d04b1c990f" title="Prints the current elapsed time, prefixing with the string passed in prefix (defaults to empty) and p..." alt="" coords="191,135,345,177"/>
+</map>

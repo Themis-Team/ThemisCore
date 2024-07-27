@@ -1,0 +1,6 @@
+<map id="run_sampler" name="run_sampler">
+<area shape="rect" id="node2" href="$a00179.html#a9052bddd7a396a632fb160e1ed817f01" title="write_chain_header" alt="" coords="167,5,316,32"/>
+<area shape="rect" id="node3" href="$a00179.html#abc07f6bbacab100b01d052af24f0cd3e" title="write_state_header" alt="" coords="168,56,315,83"/>
+<area shape="rect" id="node4" href="$a00179.html#abd458a3dd5363f123f6ae7929c7fec97" title="write_sampler_header" alt="" coords="158,107,325,133"/>
+<area shape="rect" id="node5" href="$a00179.html#a682dab237df625ff55a78beaa114972c" title="generate_transition" alt="" coords="167,157,316,184"/>
+</map>

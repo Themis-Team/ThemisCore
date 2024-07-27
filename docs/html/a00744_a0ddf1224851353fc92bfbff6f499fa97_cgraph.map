@@ -1,0 +1,10 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="114,5,305,32"/>
+<area shape="rect" id="node3" href="$a00125.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="110,57,309,98"/>
+<area shape="rect" id="node4" href="$a00125.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="126,123,293,179"/>
+<area shape="rect" id="node5" href="$a00032.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="124,203,295,245"/>
+<area shape="rect" id="node6" href="$a00125.html#a4551e4dd465764e17bd8e1e5c386f707" title="Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="126,269,293,325"/>
+<area shape="rect" id="node7" href="$a00032.html#ad92c659f92a853146b7a3d5d22bc448c" title="Provides access to the atomic datum element. " alt="" coords="124,350,295,391"/>
+<area shape="rect" id="node8" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="130,415,289,457"/>
+<area shape="rect" id="node9" href="$a00052.html#a6d78613a34512a9059683d93810d756f" title="Themis::likelihood\l_base::output_model\l_data_comparison" alt="" coords="130,481,289,537"/>
+</map>

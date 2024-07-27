@@ -1,0 +1,10 @@
+<map id="generate_transition" name="generate_transition">
+<area shape="rect" id="node2" href="$a00169.html#a78309d923f245b6acf167260194ba6e1" title="Returns a random number. " alt="" coords="403,17,581,44"/>
+<area shape="rect" id="node3" href="$a00172.html#ac5e9d0cdc63852475c30975039101620" title="factor_slice_sample" alt="" coords="203,42,355,69"/>
+<area shape="rect" id="node4" href="$a00172.html#a3b25dc08abf806860c9036cdf9ee5281" title="write_state" alt="" coords="231,93,326,120"/>
+<area shape="rect" id="node5" href="$a00172.html#a3c2d8154dffbec06431f2382bf2cf4ae" title="get_chain_state" alt="" coords="429,144,555,170"/>
+<area shape="rect" id="node6" href="$a00172.html#ab9988889559ba000dcbaf6670a252b17" title="update_covariance" alt="" coords="206,194,351,221"/>
+<area shape="rect" id="node7" href="$a00172.html#a902795d04ed56abd1c5c5bf22df87fdd" title="write_checkpoint" alt="" coords="212,245,345,272"/>
+<area shape="rect" id="node8" href="$a00172.html#ae69295b846f5a00f10aaae17f0bf2f6f" title="width_adapt" alt="" coords="227,296,330,322"/>
+<area shape="rect" id="node9" href="$a00172.html#ad7806ee199ecc5fc314b63c52450538d" title="factor_adapt" alt="" coords="227,346,331,373"/>
+</map>

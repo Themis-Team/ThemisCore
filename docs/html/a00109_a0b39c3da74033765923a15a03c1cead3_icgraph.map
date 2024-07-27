@@ -1,0 +1,3 @@
+<map id="estimate_image_size_log_spiral" name="estimate_image_size_log_spiral">
+<area shape="rect" id="node2" href="$a00109.html#a357c4e970980d6a5a9e2e88928c700bc" title="Returns an estimate of the total flux, computed over a dynamically adjusted region, at the frequency at which this model is created. An accuracy parameter (in Jy) is passed that defines the absolute accuracy at which the flux estimate must be computed. " alt="" coords="216,12,392,39"/>
+</map>

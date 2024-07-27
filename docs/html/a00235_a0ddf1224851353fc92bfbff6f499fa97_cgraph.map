@@ -1,0 +1,25 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00122.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="131,5,298,61"/>
+<area shape="rect" id="node3" href="$a00089.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="115,85,314,141"/>
+<area shape="rect" id="node4" href="$a00131.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the analytical Fourier transform of t..." alt="" coords="114,165,315,221"/>
+<area shape="rect" id="node5" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="135,246,294,287"/>
+<area shape="rect" id="node6" href="$a00033.html#a0913a1bc5e54162951b1c92a198e59f0" title="Adds data from the file &lt;file_name&gt;. " alt="" coords="129,311,300,353"/>
+<area shape="rect" id="node7" href="$a00028.html#a0c5ff55a30fc7bfd3e8ee9ba1d9da85e" title="Adds data from the file &lt;file_name&gt;. " alt="" coords="134,377,295,418"/>
+<area shape="rect" id="node8" href="$a00027.html#abf4eb9482be66f80a16aa474573f59ab" title="Adds data from the file &lt;file_name&gt;. " alt="" coords="133,442,296,483"/>
+<area shape="rect" id="node9" href="$a00086.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="131,507,298,549"/>
+<area shape="rect" id="node10" href="$a00124.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="131,573,298,614"/>
+<area shape="rect" id="node11" href="$a00049.html#a5395260cfc8d3e5ffb0e58a2af1adac5" title="Set/reset , , and &#160;after construction via finite differencing the tabulated values. " alt="" coords="123,638,306,679"/>
+<area shape="rect" id="node12" href="$a00049.html#a0f8a50774873ee8f02bb229798a6336b" title="Bicubic interpolation. " alt="" coords="129,703,301,745"/>
+<area shape="rect" id="node13" href="$a00049.html#a25a5aec029585b7605186109c6e8c493" title="Bilinear interpolation. " alt="" coords="129,769,301,810"/>
+<area shape="rect" id="node14" href="$a00175.html#a2b7bcf7f729848cefc6d3280cb7a0ea5" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="110,835,319,891"/>
+<area shape="rect" id="node15" href="$a00175.html#a4850ede31f84edca137aa4b7be6ac907" title="Function to set the checkpoint/restart functionality. " alt="" coords="110,915,319,971"/>
+<area shape="rect" id="node16" href="$a00175.html#a23d7e93a292109d74d46c606079208a2" title="Function to set the parameters of the tempering schedule. t0 is the halving&#45;time, nu is the origional..." alt="" coords="110,995,319,1051"/>
+<area shape="rect" id="node17" href="$a00175.html#a33b4d7c112a828ca94a5ee5294953620" title="Function to run the sampler, takes a likelihood object, name of output files, and tuning parameters f..." alt="" coords="110,1484,319,1540"/>
+<area shape="rect" id="node19" href="$a00175.html#a7b73ee0b2d3b227f49aef7157d7a762c" title="Finds the best fit within provided chain file and returns it. " alt="" coords="110,1171,319,1227"/>
+<area shape="rect" id="node20" href="$a00033.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="640,1401,811,1442"/>
+<area shape="rect" id="node21" href="$a00028.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="134,1302,295,1343"/>
+<area shape="rect" id="node22" href="$a00027.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="134,1367,295,1409"/>
+<area shape="rect" id="node23" href="$a00067.html#a12eebd6b7237990e297ff29d4598ec9f" title="Returns the number of independent gains, which is generally less than product of the number of statio..." alt="" coords="369,1229,591,1299"/>
+<area shape="rect" id="node24" href="$a00067.html#a3ef9efa5004657d3f211db1628ab387a" title="Outputs the set of gain corrections in a structure fashion to an output stream. " alt="" coords="121,1075,308,1146"/>
+<area shape="rect" id="node18" href="$a00050.html#af89ee5719a0410f4635c7576440f4bea" title="Returns the chi squared evaluated at a vector in the parameter space. " alt="" coords="409,1459,551,1501"/>
+</map>

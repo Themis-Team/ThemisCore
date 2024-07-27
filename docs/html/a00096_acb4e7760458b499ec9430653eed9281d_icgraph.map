@@ -1,0 +1,4 @@
+<map id="open_error_streams" name="open_error_streams">
+<area shape="rect" id="node2" href="$a00096.html#a67b4043dccac42a17d9f0280bb8300cd" title="Constructor to make a RIAF model. Takes a frequency (Hz), mass (cm), distance (cm). " alt="" coords="206,5,402,32"/>
+<area shape="rect" id="node3" href="$a00096.html#a51ab07209f4e7ae01964ef04506b3b59" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="217,56,391,83"/>
+</map>

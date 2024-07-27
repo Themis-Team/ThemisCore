@@ -1,0 +1,6 @@
+<map id="operator()" name="operator()">
+<area shape="rect" id="node2" href="$a00154.html#a57fe8eb2c95299fce33d50662db53409" title="A user&#45;supplied one&#45;time generate function that permits model construction prior to calling the visib..." alt="" coords="142,5,351,46"/>
+<area shape="rect" id="node3" href="$a00154.html#a07804b7e6a3d6e205bd8f1ac8f3de211" title="A user&#45;supplied function that returns the visibility amplitude in Jy. Takes a datum_visibility_amplit..." alt="" coords="155,71,338,127"/>
+<area shape="rect" id="node4" href="$a00033.html#ac9fe8049304eae58192b65ed7eaaca93" title="Provides access to the atomic datum element. " alt="" coords="161,151,332,193"/>
+<area shape="rect" id="node5" href="$a00067.html#a37d99fcea13046e28bdd80e4d1bb5a0f" title="optimal_gain_corrections" alt="" coords="153,217,340,244"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="visibility_amplitude" name="visibility_amplitude">
+<area shape="rect" id="node2" href="$a00101.html#a09c8dd337fa39ff262bd529cbc399642" title="Calculates the complex visibility amplitude. " alt="" coords="219,5,360,32"/>
+<area shape="rect" id="node3" href="$a00086.html#a768d372e8ad29b011ed9c7c38828ed7d" title="Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="206,57,373,98"/>
+</map>

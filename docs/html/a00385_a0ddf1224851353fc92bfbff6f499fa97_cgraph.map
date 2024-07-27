@@ -1,0 +1,5 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="115,5,306,32"/>
+<area shape="rect" id="node3" href="$a00111.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="121,57,300,98"/>
+<area shape="rect" id="node4" href="$a00111.html#a768d372e8ad29b011ed9c7c38828ed7d" title="Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="110,122,311,163"/>
+</map>

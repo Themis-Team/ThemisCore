@@ -1,0 +1,5 @@
+<map id="model_image_refractive_scattering" name="model_image_refractive_scattering">
+<area shape="rect" id="node2" href="$a00086.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="5,135,115,161"/>
+<area shape="rect" id="node3" href="$a00049.html" title="Defines a general purpose 2D interpolator class that implements a variety of interpolation schemes..." alt="" coords="61,5,176,32"/>
+<area shape="rect" id="node4" href="$a00022.html" title="Wandering magnetic field angular model. " alt="" coords="267,135,331,161"/>
+</map>

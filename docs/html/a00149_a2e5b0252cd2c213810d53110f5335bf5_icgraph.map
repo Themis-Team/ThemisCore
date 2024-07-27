@@ -1,0 +1,6 @@
+<map id="find_frequency_index" name="find_frequency_index">
+<area shape="rect" id="node2" href="$a00149.html#a768d372e8ad29b011ed9c7c38828ed7d" title="Returns visibility ampitudes in Jy, computed numerically. The accuracy parameter is not used at prese..." alt="" coords="217,5,367,32"/>
+<area shape="rect" id="node3" href="$a00149.html#a0cc96a8304b38027ffa3df00e7ed8bc3" title="Returns closure phase in degrees. The accuracy parameter is not used at present. " alt="" coords="235,56,349,83"/>
+<area shape="rect" id="node4" href="$a00149.html#a5ee36c82d14c92796a93b08cdb6acbd0" title="Returns closure ampitudes, computed numerically. The accuracy parameter is not used at present..." alt="" coords="221,107,363,133"/>
+<area shape="rect" id="node5" href="$a00149.html#a6538e2add96d058b8854aa64b2094d41" title="Returns flux in Jy computed from the model_image_riaf with a frequency nearest to that requested..." alt="" coords="269,157,315,184"/>
+</map>

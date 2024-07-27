@@ -1,0 +1,4 @@
+<map id="crosshand_visibilities" name="crosshand_visibilities">
+<area shape="rect" id="node2" href="$a00086.html#a4551e4dd465764e17bd8e1e5c386f707" title="Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="226,5,393,46"/>
+<area shape="rect" id="node3" href="$a00139.html#a3cd80f86daabb4b1377447ddbd63d99d" title="Applies the D&#45;terms. Checks if modeling inside and must be called in crosshand_visibilities if redefi..." alt="" coords="216,70,403,111"/>
+</map>

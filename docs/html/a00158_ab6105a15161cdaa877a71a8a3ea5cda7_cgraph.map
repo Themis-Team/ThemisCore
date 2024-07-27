@@ -1,0 +1,5 @@
+<map id="find_precision" name="find_precision">
+<area shape="rect" id="node2" href="$a00018.html#a377f25fe483fed7bcec5ec587e5e99c8" title="Themis::optimizer_laplace\l::_nlogprob::set_scale" alt="" coords="181,5,376,46"/>
+<area shape="rect" id="node3" href="$a00018.html#a94eaaf5608aa7fd6fb0b71a0670826b9" title="Themis::optimizer_laplace\l::_nlogprob::loglikelihood_trans" alt="" coords="165,70,392,111"/>
+<area shape="rect" id="node4" href="$a00158.html#ae80d61deb7a77e91aae9175faaaa2764" title="Helper function for the loglikelihood so it is in the form. " alt="" coords="237,136,320,163"/>
+</map>

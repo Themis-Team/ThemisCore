@@ -1,0 +1,21 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="134,5,325,32"/>
+<area shape="rect" id="node3" href="$a00029.html#a25a1bd7afdc8981cee48ba54568e73f8" title="Provides access to the atomic datum element. " alt="" coords="139,57,319,98"/>
+<area shape="rect" id="node4" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="398,145,557,186"/>
+<area shape="rect" id="node5" href="$a00139.html#a7746c3acfd4949be61e2290ea5174966" title="Add D&#45;terms, increases the number of parameters by four times the number of station codes passed..." alt="" coords="136,174,323,215"/>
+<area shape="rect" id="node6" href="$a00139.html#a3b358993505dce30caa392c4c153e854" title="Write a unique identifying tag for use with the ThemisPy plotting features. This calls the overloaded..." alt="" coords="122,239,337,281"/>
+<area shape="rect" id="node7" href="$a00139.html#abce107303fc4304cc0a5047b12c75776" title="Boolean to determine if this is fitting D&#45;terms. " alt="" coords="132,305,327,346"/>
+<area shape="rect" id="node8" href="$a00139.html#a358908052608a3a9536893d962ed2709" title="Number of D&#45;terms (each complex number) " alt="" coords="128,370,331,411"/>
+<area shape="rect" id="node9" href="$a00065.html#a04f7485cce7e036ffa1f6eeba04a31dd" title="Outputs the set of complex gains in a structure fashion to an output stream. " alt="" coords="135,435,323,506"/>
+<area shape="rect" id="node10" href="$a00065.html#a3ef9efa5004657d3f211db1628ab387a" title="Outputs the set of gain corrections in a structure fashion to an output stream. " alt="" coords="139,531,320,616"/>
+<area shape="rect" id="node11" href="$a00052.html#a6d78613a34512a9059683d93810d756f" title="Themis::likelihood\l_base::output_model\l_data_comparison" alt="" coords="150,640,309,696"/>
+<area shape="rect" id="node12" href="$a00139.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="136,721,323,762"/>
+<area shape="rect" id="node13" href="$a00157.html#ad27c0e1fc2f1c926daad18e3caa67192" title="Function to set the meta&#45;parameters associated with the kickout procedure. " alt="" coords="111,786,348,827"/>
+<area shape="rect" id="node14" href="$a00157.html#a2586b6667243884ba2198c5dcb509de0" title="Function to run the optimizer, takes a likelihood object, vector of priors, name of an optimizer outp..." alt="" coords="132,851,327,893"/>
+<area shape="rect" id="node15" href="$a00029.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="139,917,319,958"/>
+<area shape="rect" id="node16" href="$a00174.html#a4850ede31f84edca137aa4b7be6ac907" title="Function to set the checkpoint/restart functionality. " alt="" coords="110,983,349,1039"/>
+<area shape="rect" id="node17" href="$a00174.html#a2a1ed7587c6b501245a3ec1e642359ce" title="Function to set the parameters of the tempering schedule. We now use the adaption scheme from Syed 20..." alt="" coords="110,1063,349,1119"/>
+<area shape="rect" id="node18" href="$a00174.html#a6c5dd7ec9383440b0f0741ca74743dd2" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="110,1143,349,1199"/>
+<area shape="rect" id="node19" href="$a00174.html#a48efcbf9a64a14ada4a47714795b8ae3" title="Function to run the sampler, takes a likelihood object, name of output files, and tuning parameters f..." alt="" coords="110,1223,349,1279"/>
+<area shape="rect" id="node20" href="$a00174.html#a7b73ee0b2d3b227f49aef7157d7a762c" title="Finds the best fit within provided chain file and returns it. " alt="" coords="110,1303,349,1359"/>
+</map>

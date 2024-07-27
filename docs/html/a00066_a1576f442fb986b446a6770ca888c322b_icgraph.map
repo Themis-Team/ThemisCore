@@ -1,0 +1,6 @@
+<map id="optimal_complex_gains" name="optimal_complex_gains">
+<area shape="rect" id="node2" href="$a00066.html#a54ffb85edbc7919ea272998bacb9ca9f" title="likelihood_multiproc" alt="" coords="240,5,395,32"/>
+<area shape="rect" id="node3" href="$a00066.html#a7e4fc09289dd17e25007f006b8c8f8e3" title="likelihood_uniproc" alt="" coords="247,56,388,83"/>
+<area shape="rect" id="node4" href="$a00066.html#a0de4cafc1b0d9c9735c409c921bbac83" title="Returns the &#160;of a vector of parameters . " alt="" coords="267,107,367,133"/>
+<area shape="rect" id="node5" href="$a00066.html#a6c42b0fca13053ec11c5ecd15b3f674b" title="Returns the &#160;of a vector of parameters &#160;including the gain prior terms. " alt="" coords="232,158,403,199"/>
+</map>

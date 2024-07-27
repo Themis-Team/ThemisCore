@@ -1,0 +1,18 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00028.html#a0c5ff55a30fc7bfd3e8ee9ba1d9da85e" title="Adds data from the file &lt;file_name&gt;. " alt="" coords="134,5,295,46"/>
+<area shape="rect" id="node3" href="$a00124.html#a289e603e17710b79e88c1de31a7fab85" title="Add an image. " alt="" coords="122,70,307,111"/>
+<area shape="rect" id="node4" href="$a00131.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the analytical Fourier transform of t..." alt="" coords="114,136,315,192"/>
+<area shape="rect" id="node5" href="$a00089.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="115,216,314,272"/>
+<area shape="rect" id="node6" href="$a00125.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="115,296,314,352"/>
+<area shape="rect" id="node7" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="135,377,294,418"/>
+<area shape="rect" id="node8" href="$a00067.html#a3ef9efa5004657d3f211db1628ab387a" title="Outputs the set of gain corrections in a structure fashion to an output stream. " alt="" coords="121,785,308,855"/>
+<area shape="rect" id="node11" href="$a00175.html#a2b7bcf7f729848cefc6d3280cb7a0ea5" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="110,493,319,549"/>
+<area shape="rect" id="node12" href="$a00175.html#a4850ede31f84edca137aa4b7be6ac907" title="Function to set the checkpoint/restart functionality. " alt="" coords="110,573,319,629"/>
+<area shape="rect" id="node13" href="$a00175.html#a33b4d7c112a828ca94a5ee5294953620" title="Function to run the sampler, takes a likelihood object, name of output files, and tuning parameters f..." alt="" coords="110,880,319,936"/>
+<area shape="rect" id="node15" href="$a00175.html#a7b73ee0b2d3b227f49aef7157d7a762c" title="Finds the best fit within provided chain file and returns it. " alt="" coords="110,704,319,760"/>
+<area shape="rect" id="node10" href="$a00033.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="640,541,811,582"/>
+<area shape="rect" id="node9" href="$a00067.html#a12eebd6b7237990e297ff29d4598ec9f" title="Returns the number of independent gains, which is generally less than product of the number of statio..." alt="" coords="369,631,591,702"/>
+<area shape="rect" id="node16" href="$a00124.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="131,961,298,1002"/>
+<area shape="rect" id="node17" href="$a00028.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="134,1026,295,1067"/>
+<area shape="rect" id="node14" href="$a00050.html#af89ee5719a0410f4635c7576440f4bea" title="Returns the chi squared evaluated at a vector in the parameter space. " alt="" coords="409,986,551,1027"/>
+</map>

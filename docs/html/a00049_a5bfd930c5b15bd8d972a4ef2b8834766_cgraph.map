@@ -1,0 +1,7 @@
+<map id="bicubic_spline" name="bicubic_spline">
+<area shape="rect" id="node2" href="$a00049.html#ae36a6dc9cbed6e9fe619951ac778f9df" title="fd_derivatives" alt="" coords="169,5,284,32"/>
+<area shape="rect" id="node4" href="$a00049.html#a36f14ab8678daf542b9d1652531dff54" title="get_cell" alt="" coords="190,107,263,133"/>
+<area shape="rect" id="node3" href="$a00049.html#a17c13151d4f7fd026b829cdfde6e747e" title="index" alt="" coords="333,44,392,71"/>
+<area shape="rect" id="node5" href="$a00049.html#ac3cd228ccdc3ad1942921ec709babb6e" title="Access to y array. " alt="" coords="343,120,382,147"/>
+<area shape="rect" id="node6" href="$a00049.html#a1ac3ae76151d2481125257d8ad649c18" title="column_spline" alt="" coords="169,208,285,235"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="set_mpi_communicator" name="set_mpi_communicator">
+<area shape="rect" id="node2" href="$a00192.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Sets the MPI_Comm to be used for the likelihood evaluation. " alt="" coords="229,5,451,46"/>
+<area shape="rect" id="node3" href="$a00060.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::likelihood\l::set_mpi_communicator" alt="" coords="499,34,682,75"/>
+</map>

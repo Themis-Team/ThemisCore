@@ -1,0 +1,5 @@
+<map id="likelihood_optimal_gain_correction_visibility_amplitude" name="likelihood_optimal_gain_correction_visibility_amplitude">
+<area shape="rect" id="node2" href="$a00052.html" title="Defines an interface to calculate log&#45;likelihoods given a set of parameters for an specific model..." alt="" coords="5,5,128,32"/>
+<area shape="rect" id="node3" href="$a00154.html" title="Defines the interface for models that generate visibility amplitude data appropriate for comparison w..." alt="" coords="153,5,351,32"/>
+<area shape="rect" id="node4" href="$a00033.html" title="Defines a class containing a collection of visibility amplitude datum objects with simple I/O..." alt="" coords="376,5,563,32"/>
+</map>

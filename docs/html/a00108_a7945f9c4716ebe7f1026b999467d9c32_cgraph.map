@@ -1,0 +1,6 @@
+<map id="generate_model" name="generate_model">
+<area shape="rect" id="node2" href="$a00108.html#a5a971d41b604433c4f5e039905a35182" title="A user&#45;supplied function that generates and returns rectalinear grid of intensities in Jy/str located..." alt="" coords="219,5,347,32"/>
+<area shape="rect" id="node3" href="$a00086.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="199,57,366,98"/>
+<area shape="rect" id="node4" href="$a00108.html#a843afe3690e11e68190a0bb2bbbfd242" title="generate_model_visibilities" alt="" coords="181,123,384,149"/>
+<area shape="rect" id="node5" href="$a00108.html#af7975b7fed388ea42d53d56a5553b6c3" title="&lt; Blurs the input model image using the ensemble averaged blurring kernel. " alt="" coords="199,173,366,200"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="model_flux" name="model_flux">
+<area shape="rect" id="node2" href="$a00082.html" title="Defines an image and flux model based on the force free jet models employed in Broderick and Loeb (20..." alt="" coords="5,80,165,107"/>
+<area shape="rect" id="node3" href="$a00149.html" title="Defines an image and flux model based on the RIAF models employed in Broderick, Fish, Doeleman and Loeb (2011) and Broderick et al. (2016), permitting greater freedom to modify the underlying semi&#45;analytic accretion flow structure. " alt="" coords="190,80,281,107"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="get_index_from_station_code" name="get_index_from_station_code">
+<area shape="rect" id="node2" href="$a00139.html#a7746c3acfd4949be61e2290ea5174966" title="Add D&#45;terms, increases the number of parameters by four times the number of station codes passed..." alt="" coords="270,5,389,32"/>
+<area shape="rect" id="node3" href="$a00139.html#a3cd80f86daabb4b1377447ddbd63d99d" title="Applies the D&#45;terms. Checks if modeling inside and must be called in crosshand_visibilities if redefi..." alt="" coords="273,56,386,83"/>
+</map>

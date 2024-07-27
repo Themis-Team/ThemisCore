@@ -1,0 +1,7 @@
+<map id="gradient" name="gradient">
+<area shape="rect" id="node2" href="$a00162.html#addcd9ad1c0920ab6086ac4305bb4655e" title="Themis::prior::gradient" alt="" coords="131,5,301,32"/>
+<area shape="rect" id="node3" href="$a00050.html#ae80d61deb7a77e91aae9175faaaa2764" title="step_size" alt="" coords="175,56,257,83"/>
+<area shape="rect" id="node4" href="$a00162.html#a885fe140862be2421037e27e101ee67f" title="Themis::prior::upper\l_bound" alt="" coords="139,107,293,149"/>
+<area shape="rect" id="node5" href="$a00162.html#af12c7a47b492836af6df25d9504b2cea" title="Themis::prior::lower\l_bound" alt="" coords="140,173,292,214"/>
+<area shape="rect" id="node6" href="$a00050.html#af736b268e71ebf83e1fa0c33447b6c7f" title="operator()" alt="" coords="173,239,259,265"/>
+</map>

@@ -1,0 +1,10 @@
+<map id="set_f" name="set_f">
+<area shape="rect" id="node2" href="$a00086.html#aa6799f7a3f2b32b8f3da9cacba91b0ba" title="Themis::model_image\l::output_image" alt="" coords="147,5,314,46"/>
+<area shape="rect" id="node3" href="$a00086.html#afcac4753ba142627db1a91343edb26a5" title="Utility function to numerically computes the complex visibilities from the image data after _alpha..." alt="" coords="135,70,327,111"/>
+<area shape="rect" id="node4" href="$a00091.html#a4ae746c392617267a20b7fee123a3f08" title="Themis::model_image\l_diffractive_scattering\l_screen::model_image_diffractive\l_scattering_screen" alt="" coords="109,135,352,206"/>
+<area shape="rect" id="node5" href="$a00108.html#af7975b7fed388ea42d53d56a5553b6c3" title="&lt; Blurs the input model image using the ensemble averaged blurring kernel. " alt="" coords="143,231,318,287"/>
+<area shape="rect" id="node6" href="$a00108.html#a1d03f6a932b6ccf83025dcfbcd84fb9e" title="Themis::model_image\l_refractive_scattering\l::compute_kphase_screen" alt="" coords="135,311,326,367"/>
+<area shape="rect" id="node7" href="$a00127.html#a5a971d41b604433c4f5e039905a35182" title="Sets the image pixel values. " alt="" coords="127,391,334,433"/>
+<area shape="rect" id="node8" href="$a00139.html#aa6799f7a3f2b32b8f3da9cacba91b0ba" title="Themis::model_polarized\l_image::output_image" alt="" coords="137,457,324,498"/>
+<area shape="rect" id="node9" href="$a00139.html#afcac4753ba142627db1a91343edb26a5" title="Utility function to numerically computes the complex visibilities from the image data after _alpha..." alt="" coords="111,522,351,563"/>
+</map>

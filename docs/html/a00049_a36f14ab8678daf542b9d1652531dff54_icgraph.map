@@ -1,0 +1,9 @@
+<map id="get_cell" name="get_cell">
+<area shape="rect" id="node2" href="$a00049.html#afe87f7a8e1cd71e2e976d3b55f0ab8ca" title="Linear interpolation within the nearest trixel. " alt="" coords="129,5,245,32"/>
+<area shape="rect" id="node3" href="$a00049.html#ac52d760c36377e9819a7f07a58f9d016" title="Linear interpolation on log(x),log(y),log(f). " alt="" coords="133,56,240,83"/>
+<area shape="rect" id="node4" href="$a00049.html#ab3cbe72ff8203646d855fabee3f005f9" title="Linear interpolation with treatement of boundary. See interpolator2D.cpp for details. " alt="" coords="293,132,416,159"/>
+<area shape="rect" id="node5" href="$a00049.html#a25a5aec029585b7605186109c6e8c493" title="Bilinear interpolation. " alt="" coords="157,157,216,184"/>
+<area shape="rect" id="node6" href="$a00049.html#a0f8a50774873ee8f02bb229798a6336b" title="Bicubic interpolation. " alt="" coords="153,208,221,235"/>
+<area shape="rect" id="node7" href="$a00049.html#a5bfd930c5b15bd8d972a4ef2b8834766" title="Bicubic spline interpolation. " alt="" coords="129,259,244,285"/>
+<area shape="rect" id="node8" href="$a00049.html#ab80b66e6e2f1491d50e78eec4e1ceaff" title="Obtaining the limits on an interpolation cell given x,y. " alt="" coords="142,309,231,336"/>
+</map>

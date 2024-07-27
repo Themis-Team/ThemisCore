@@ -1,0 +1,4 @@
+<map id="set_scale" name="set_scale">
+<area shape="rect" id="node2" href="$a00158.html#ad4723b6c4128e79b98f4e21cf93f3dd3" title="Themis::optimizer_laplace\l::run_optimizer" alt="" coords="136,5,331,46"/>
+<area shape="rect" id="node3" href="$a00158.html#ab6105a15161cdaa877a71a8a3ea5cda7" title="Finds the inverse covariance matrix using the Laplace approximation around the peak defined by params..." alt="" coords="136,70,331,111"/>
+</map>

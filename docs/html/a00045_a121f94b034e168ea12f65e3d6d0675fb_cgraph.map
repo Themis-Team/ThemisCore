@@ -1,0 +1,3 @@
+<map id="image_family_static_error" name="image_family_static_error">
+<area shape="rect" id="node2" href="$a00045.html#a5ab6630badb1c2574b1f42de1e9851f8" title="Generates the error esitmates given a list of image file names, the README file name, a set of parameters appropriate for model_image_score. Can modify the number of radial samples, azimuthal samples, and range of baseline lengths (in Glambda) sampled. " alt="" coords="209,12,399,39"/>
+</map>

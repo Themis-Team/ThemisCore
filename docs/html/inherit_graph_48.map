@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$a00198.html" title="Defines the base transformation class. " alt="" coords="6,81,130,108"/>
+<area shape="rect" id="node2" href="$a00199.html" title="Defines the fixed value transformation class. " alt="" coords="200,5,325,32"/>
+<area shape="rect" id="node3" href="$a00200.html" title="Defines the logarithmic transformation class. " alt="" coords="179,56,346,83"/>
+<area shape="rect" id="node4" href="$a00201.html" title="Defines the logit transformation class. " alt="" coords="201,107,324,133"/>
+<area shape="rect" id="node5" href="$a00202.html" title="Defines the identity transformation class. " alt="" coords="200,157,325,184"/>
+</map>

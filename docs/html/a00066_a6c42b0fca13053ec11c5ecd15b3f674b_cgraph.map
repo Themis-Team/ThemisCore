@@ -1,0 +1,7 @@
+<map id="chi_squared_with_gain_priors" name="chi_squared_with_gain_priors">
+<area shape="rect" id="node2" href="$a00066.html#a809e8d1f94c9f5435dfd46b9e9e1f302" title="distribute_gains" alt="" coords="253,5,379,32"/>
+<area shape="rect" id="node3" href="$a00153.html#a57fe8eb2c95299fce33d50662db53409" title="A user&#45;supplied one&#45;time generate function that permits model construction prior to calling the visib..." alt="" coords="225,57,407,98"/>
+<area shape="rect" id="node4" href="$a00032.html#ad92c659f92a853146b7a3d5d22bc448c" title="Provides access to the atomic datum element. " alt="" coords="231,122,401,163"/>
+<area shape="rect" id="node5" href="$a00153.html#acb29207abc83dc1036d5072d49457907" title="Returns complex visibility in Jy computed from the image given a datum_visibility object..." alt="" coords="225,187,407,229"/>
+<area shape="rect" id="node6" href="$a00066.html#a1576f442fb986b446a6770ca888c322b" title="optimal_complex_gains" alt="" coords="227,253,405,280"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="set_tables" name="set_tables">
+<area shape="rect" id="node2" href="$a00091.html#a4ae746c392617267a20b7fee123a3f08" title="Themis::model_image\l_diffractive_scattering\l_screen::model_image_diffractive\l_scattering_screen" alt="" coords="144,5,387,75"/>
+<area shape="rect" id="node3" href="$a00092.html#aff62e5701dfcd412ae4b82451cf9e8ac" title="Set light curve. " alt="" coords="182,100,349,156"/>
+<area shape="rect" id="node4" href="$a00045.html#a5ab6630badb1c2574b1f42de1e9851f8" title="Generates the error esitmates given a list of image file names, the README file name, a set of parameters appropriate for model_image_score. Can modify the number of radial samples, azimuthal samples, and range of baseline lengths (in Glambda) sampled. " alt="" coords="181,180,350,236"/>
+</map>

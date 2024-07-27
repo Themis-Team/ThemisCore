@@ -1,0 +1,7 @@
+<map id="generate_scattering_screen" name="generate_scattering_screen">
+<area shape="rect" id="node2" href="$a00049.html#a0f8a50774873ee8f02bb229798a6336b" title="Bicubic interpolation. " alt="" coords="225,5,397,46"/>
+<area shape="rect" id="node3" href="$a00020.html#a1ddbe92dd7f68ea5db8d9957e6da0c0a" title="Themis::model_image\l_diffractive_scattering\l_screen::_P_phi::set_alpha" alt="" coords="214,71,407,127"/>
+<area shape="rect" id="node4" href="$a00020.html#aab6cee9ef6c5703616e7ff50b0f72bab" title="Themis::model_image\l_diffractive_scattering\l_screen::_P_phi::set_phi0" alt="" coords="218,151,403,207"/>
+<area shape="rect" id="node5" href="$a00020.html#aedffdaae2ec40285d604e174f1a8fb8b" title="Themis::model_image\l_diffractive_scattering\l_screen::_P_phi::set_kZeta" alt="" coords="213,231,408,287"/>
+<area shape="rect" id="node6" href="$a00042.html#a0ea5f40bd6ce3bb8503d57e01a3e913c" title="Returns the integral of the integrand from a to b. " alt="" coords="205,311,416,353"/>
+</map>

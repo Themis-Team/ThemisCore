@@ -1,0 +1,29 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00140.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="170,5,358,75"/>
+<area shape="rect" id="node3" href="$a00140.html#ac34f4bab7d4a8ca115d28b1486293b91" title="State switch to using the fast polynomial approximation in utils::fast_img_exp, which exploits the fa..." alt="" coords="157,100,371,156"/>
+<area shape="rect" id="node4" href="$a00145.html#a9862b657c35161768a1460049ab5fa1d" title="Add an image. " alt="" coords="171,1044,357,1100"/>
+<area shape="rect" id="node6" href="$a00089.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="165,247,363,303"/>
+<area shape="rect" id="node7" href="$a00131.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the analytical Fourier transform of t..." alt="" coords="163,327,365,383"/>
+<area shape="rect" id="node8" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="481,290,639,331"/>
+<area shape="rect" id="node9" href="$a00189.html#aea04732e3cecbbb3c2e47f2bb0cc0834" title="Specify bpl noise amplitude at 4 Glambda instead of break location u0. " alt="" coords="143,458,385,529"/>
+<area shape="rect" id="node10" href="$a00189.html#ac19b70bccd7589799d9d393acdadd32d" title="Specify logarithmic range in sigma_T, f, a, up. " alt="" coords="110,553,418,609"/>
+<area shape="rect" id="node11" href="$a00189.html#a337ffaf3334ec91bd4607c71b727e378" title="Specify the ratio between the uncertainties on the parallel and crosshands. " alt="" coords="163,634,365,705"/>
+<area shape="rect" id="node12" href="$a00139.html#a7746c3acfd4949be61e2290ea5174966" title="Add D&#45;terms, increases the number of parameters by four times the number of station codes passed..." alt="" coords="171,181,357,222"/>
+<area shape="rect" id="node13" href="$a00139.html#a3b358993505dce30caa392c4c153e854" title="Write a unique identifying tag for use with the ThemisPy plotting features. This calls the overloaded..." alt="" coords="157,781,371,822"/>
+<area shape="rect" id="node14" href="$a00208.html#a2b064d6023823d246b6dd73d3a835279" title="read_config" alt="" coords="215,847,313,873"/>
+<area shape="rect" id="node15" href="$a00077.html#aa983ddaeded5756189f46428be79c631" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="168,898,360,939"/>
+<area shape="rect" id="node16" href="$a00189.html#aac782da1f912bceb5d8ad00c8dc892ac" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="159,964,369,1020"/>
+<area shape="rect" id="node5" href="$a00139.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="467,887,653,929"/>
+<area shape="rect" id="node17" href="$a00049.html#a5395260cfc8d3e5ffb0e58a2af1adac5" title="Set/reset , , and &#160;after construction via finite differencing the tabulated values. " alt="" coords="173,1125,355,1166"/>
+<area shape="rect" id="node18" href="$a00049.html#a0f8a50774873ee8f02bb229798a6336b" title="Bicubic interpolation. " alt="" coords="178,1190,350,1231"/>
+<area shape="rect" id="node19" href="$a00049.html#a25a5aec029585b7605186109c6e8c493" title="Bilinear interpolation. " alt="" coords="178,1255,350,1297"/>
+<area shape="rect" id="node20" href="$a00089.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="161,1321,367,1362"/>
+<area shape="rect" id="node21" href="$a00131.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="181,1386,347,1427"/>
+<area shape="rect" id="node22" href="$a00157.html#a42c9d39bd8a6daf09c813c4a5fd5e6c5" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="159,1451,369,1493"/>
+<area shape="rect" id="node23" href="$a00157.html#ad27c0e1fc2f1c926daad18e3caa67192" title="Function to set the meta&#45;parameters associated with the kickout procedure. " alt="" coords="145,1517,383,1558"/>
+<area shape="rect" id="node24" href="$a00157.html#a2586b6667243884ba2198c5dcb509de0" title="Function to run the optimizer, takes a likelihood object, vector of priors, name of an optimizer outp..." alt="" coords="167,1582,361,1623"/>
+<area shape="rect" id="node25" href="$a00173.html#ace913f369f92e0cc3db59ed3ca65542f" title="Sets the output streams for the sampler. This is the same function as for sampler_MCMC_base. " alt="" coords="179,1648,349,1704"/>
+<area shape="rect" id="node26" href="$a00769.html#a82081eebb628c45ebc01f8785288a859" title="Checks whether a file exists. " alt="" coords="191,1728,337,1755"/>
+<area shape="rect" id="node27" href="$a00173.html#a74165d182383b8e7ac682e8e400e2cd0" title="Returns the current round of the sampler. " alt="" coords="156,1779,372,1821"/>
+<area shape="rect" id="node28" href="$a00050.html#af89ee5719a0410f4635c7576440f4bea" title="Returns the chi squared evaluated at a vector in the parameter space. " alt="" coords="193,1845,335,1886"/>
+</map>

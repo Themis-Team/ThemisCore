@@ -1,0 +1,5 @@
+<map id="likelihood_flux" name="likelihood_flux">
+<area shape="rect" id="node2" href="$a00052.html" title="Defines an interface to calculate log&#45;likelihoods given a set of parameters for an specific model..." alt="" coords="5,5,128,32"/>
+<area shape="rect" id="node3" href="$a00030.html" title="Defines a class containing a collection of flux datum objects with simple I/O. " alt="" coords="153,5,236,32"/>
+<area shape="rect" id="node4" href="$a00081.html" title="Defines the interface for models that generate flux data appropriate for comparison with datum_flux..." alt="" coords="261,5,355,32"/>
+</map>

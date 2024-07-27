@@ -1,0 +1,8 @@
+<map id="model_image_diffractive_scattering_screen" name="model_image_diffractive_scattering_screen">
+<area shape="rect" id="node2" href="$a00086.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="250,5,417,46"/>
+<area shape="rect" id="node3" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="238,71,429,97"/>
+<area shape="rect" id="node4" href="$a00049.html#ad28213f0aadf483480ca27bdbf71eda1" title="Set/reset x,y,f after construction. " alt="" coords="247,122,419,163"/>
+<area shape="rect" id="node5" href="$a00091.html#a3a3347d2e7ade394001ed0c77f151513" title="generate_minmajnorm" alt="" coords="248,188,419,215"/>
+<area shape="rect" id="node6" href="$a00048.html#a0053d13f4eaeccf907bb5dabe9691bb3" title="Sets/resets the tabulated independent (x) and dependent (f) variable values. " alt="" coords="247,239,419,281"/>
+<area shape="rect" id="node7" href="$a00091.html#ad20a0225dfe56b9225474f254050850a" title="generate_scattering\l_screen" alt="" coords="257,305,409,346"/>
+</map>

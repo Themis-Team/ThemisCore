@@ -1,0 +1,5 @@
+<map id="set_mpi_communicator" name="set_mpi_communicator">
+<area shape="rect" id="node2" href="$a00052.html#a3982659b6e44ff03177e1ad32ac0f81a" title="Initialization function that generates the model and likelihood communicators. " alt="" coords="243,5,399,46"/>
+<area shape="rect" id="node3" href="$a00153.html#a51ab07209f4e7ae01964ef04506b3b59" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="230,70,413,111"/>
+<area shape="rect" id="node4" href="$a00190.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="245,136,397,192"/>
+</map>

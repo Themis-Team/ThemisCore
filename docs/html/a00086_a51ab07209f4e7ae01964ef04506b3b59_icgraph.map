@@ -1,0 +1,8 @@
+<map id="set_mpi_communicator" name="set_mpi_communicator">
+<area shape="rect" id="node2" href="$a00091.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Sets the mpi communicator for generating images. " alt="" coords="233,5,466,61"/>
+<area shape="rect" id="node3" href="$a00092.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Sets the MPI communicator if the underlying images are parallelized. " alt="" coords="266,85,433,141"/>
+<area shape="rect" id="node4" href="$a00108.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::model_image\l_refractive_scattering\l::set_mpi_communicator" alt="" coords="258,165,441,221"/>
+<area shape="rect" id="node5" href="$a00120.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::model_image\l_smooth::set_mpi_communicator" alt="" coords="230,246,469,287"/>
+<area shape="rect" id="node6" href="$a00123.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::model_image\l_stretch::set_mpi_communicator" alt="" coords="232,311,467,353"/>
+<area shape="rect" id="node7" href="$a00141.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="A user&#45;supplied function that returns the closure amplitudes. Takes a datum_fractional_polarization t..." alt="" coords="241,377,458,433"/>
+</map>

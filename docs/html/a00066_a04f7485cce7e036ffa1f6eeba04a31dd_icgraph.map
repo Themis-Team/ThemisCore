@@ -1,0 +1,4 @@
+<map id="output_gains" name="output_gains">
+<area shape="rect" id="node2" href="$a00211.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="186,5,241,32"/>
+<area shape="rect" id="node3" href="$a00066.html#aa18789b97b14f99d0c1d74b59e4b2e9d" title="Outputs the set of complex gains in a structure fashion to a file. " alt="" coords="160,56,267,83"/>
+</map>

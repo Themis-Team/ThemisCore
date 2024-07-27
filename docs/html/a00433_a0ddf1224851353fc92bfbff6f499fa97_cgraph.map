@@ -1,0 +1,5 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00086.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="110,5,277,46"/>
+<area shape="rect" id="node3" href="$a00086.html#a19440e4ee24c261cf277ae7c58b918ad" title="Provides direct access to the constructed image. Sets a 2D grid of angles (alpha, beta) in radians an..." alt="" coords="110,70,277,111"/>
+<area shape="rect" id="node4" href="$a00088.html#a4b0fda591ebfe23ee161b7e692fdca07" title="Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="110,136,277,192"/>
+</map>

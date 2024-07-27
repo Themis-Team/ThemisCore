@@ -1,0 +1,8 @@
+<map id="compute_raw_visibilities" name="compute_raw_visibilities">
+<area shape="rect" id="node2" href="$a00139.html#a2f698b8af0f2e2ab7e9a0c119b84f6b1" title="A one&#45;time generate function that will generate the complex visibilities and store them..." alt="" coords="238,5,455,32"/>
+<area shape="rect" id="node3" href="$a00139.html#af137fd4f3df98bc32a80924aea32e167" title="Returns a vector of complex visibility corresponding to RR,LL,RL,LR in Jy computed from the image giv..." alt="" coords="265,56,428,83"/>
+<area shape="rect" id="node4" href="$a00139.html#a4551e4dd465764e17bd8e1e5c386f707" title="Returns complex visibility in Jy computed from the image given a datum_visibility object..." alt="" coords="307,107,386,133"/>
+<area shape="rect" id="node5" href="$a00139.html#a768d372e8ad29b011ed9c7c38828ed7d" title="Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="271,157,422,184"/>
+<area shape="rect" id="node6" href="$a00139.html#a0cc96a8304b38027ffa3df00e7ed8bc3" title="Returns closure phase in degrees computed from the image given a datum_closure_phase object..." alt="" coords="289,208,404,235"/>
+<area shape="rect" id="node7" href="$a00139.html#a5ee36c82d14c92796a93b08cdb6acbd0" title="Returns closure amplitude computed from the image given a datum_closure_phase object, containing all of the accoutrements. While this provides access to the actual data value, the two could be separated if necessary. Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value. Note that this can be redefined in child classes. " alt="" coords="275,259,418,285"/>
+</map>

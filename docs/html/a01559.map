@@ -1,0 +1,5 @@
+<map id="likelihood_closure_phase" name="likelihood_closure_phase">
+<area shape="rect" id="node2" href="$a00052.html" title="Defines an interface to calculate log&#45;likelihoods given a set of parameters for an specific model..." alt="" coords="5,5,128,32"/>
+<area shape="rect" id="node3" href="$a00076.html" title="Defines the interface for models that generate closure phase data appropriate for comparison with dat..." alt="" coords="153,5,316,32"/>
+<area shape="rect" id="node4" href="$a00028.html" title="Defines a class containing a collection of closure phases datum objects with simple I/O..." alt="" coords="341,5,491,32"/>
+</map>

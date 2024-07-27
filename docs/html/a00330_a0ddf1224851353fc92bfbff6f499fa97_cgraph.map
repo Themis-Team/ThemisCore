@@ -1,0 +1,15 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="119,5,310,32"/>
+<area shape="rect" id="node3" href="$a00124.html#a289e603e17710b79e88c1de31a7fab85" title="Add an image. " alt="" coords="122,57,307,98"/>
+<area shape="rect" id="node4" href="$a00090.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="131,122,298,163"/>
+<area shape="rect" id="node5" href="$a00120.html#a596d820f44e38c0883c3d689efb3fc04" title="Size of the supplied model image, i.e., number of parameters expected. " alt="" coords="131,187,298,229"/>
+<area shape="rect" id="node6" href="$a00089.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="111,253,318,294"/>
+<area shape="rect" id="node7" href="$a00124.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="131,318,298,359"/>
+<area shape="rect" id="node8" href="$a00090.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the analytical Fourier transform of t..." alt="" coords="121,384,308,440"/>
+<area shape="rect" id="node9" href="$a00089.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="115,464,314,520"/>
+<area shape="rect" id="node10" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="135,545,294,586"/>
+<area shape="rect" id="node11" href="$a00067.html#a3ef9efa5004657d3f211db1628ab387a" title="Outputs the set of gain corrections in a structure fashion to an output stream. " alt="" coords="121,610,308,681"/>
+<area shape="rect" id="node12" href="$a00175.html#a2b7bcf7f729848cefc6d3280cb7a0ea5" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="110,705,319,761"/>
+<area shape="rect" id="node13" href="$a00175.html#a4850ede31f84edca137aa4b7be6ac907" title="Function to set the checkpoint/restart functionality. " alt="" coords="110,785,319,841"/>
+<area shape="rect" id="node14" href="$a00175.html#a33b4d7c112a828ca94a5ee5294953620" title="Function to run the sampler, takes a likelihood object, name of output files, and tuning parameters f..." alt="" coords="110,865,319,921"/>
+</map>

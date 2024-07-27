@@ -1,0 +1,5 @@
+<map id="read_checkpoint" name="read_checkpoint">
+<area shape="rect" id="node2" href="$a00179.html#a5f10371283a6397aae912d41853e06ef" title="Sets the initial metric diagonal, default is vector will with ones, i.e. identity matrix..." alt="" coords="184,5,325,46"/>
+<area shape="rect" id="node3" href="$a00179.html#a883ceabd8b1606461733a1338f68a499" title="set_chain_state" alt="" coords="193,71,317,97"/>
+<area shape="rect" id="node4" href="$a00179.html#a3b25dc08abf806860c9036cdf9ee5281" title="write_state" alt="" coords="207,121,302,148"/>
+</map>

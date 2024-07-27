@@ -1,0 +1,9 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00122.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="109,5,344,46"/>
+<area shape="rect" id="node3" href="$a00086.html#a19440e4ee24c261cf277ae7c58b918ad" title="Provides direct access to the constructed image. Sets a 2D grid of angles (alpha, beta) in radians an..." alt="" coords="143,70,310,111"/>
+<area shape="rect" id="node4" href="$a00086.html#a2f698b8af0f2e2ab7e9a0c119b84f6b1" title="A one&#45;time generate function that will generate the complex visibilities and store them..." alt="" coords="114,135,339,177"/>
+<area shape="rect" id="node5" href="$a00086.html#adc5f52a328f02599816a1e278457cd82" title="Provides direct access to the visibility amplitudes. Sets a 2D grid of baselines (u,v) in lambda, and visibilites in Jy. " alt="" coords="129,201,324,242"/>
+<area shape="rect" id="node6" href="$a00122.html#a768d372e8ad29b011ed9c7c38828ed7d" title="Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="134,267,319,323"/>
+<area shape="rect" id="node8" href="$a00086.html#ae16a0b34707d5ca747c3865cb76c28f3" title="Provides direct access to the complex visibilities. Sets a 2D grid of baselines (u,v) in lambda, and visibilites in Jy. " alt="" coords="143,347,310,389"/>
+<area shape="rect" id="node7" href="$a00122.html#a4551e4dd465764e17bd8e1e5c386f707" title="Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="393,341,578,382"/>
+</map>

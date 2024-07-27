@@ -1,0 +1,4 @@
+<map id="model_image_fixed_lightcurve" name="model_image_fixed_lightcurve">
+<area shape="rect" id="node2" href="$a00086.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="17,5,127,32"/>
+<area shape="rect" id="node3" href="$a00048.html" title="Defines a general purpose 1D linear interpolator. " alt="" coords="151,5,267,32"/>
+</map>

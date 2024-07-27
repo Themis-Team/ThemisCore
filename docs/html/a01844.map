@@ -1,0 +1,6 @@
+<map id="model_polarization_fraction" name="model_polarization_fraction">
+<area shape="rect" id="node2" href="$a00146.html" title="model_polarized_movie\l\&lt; model_polarized_image\l_gaussian_spot \&gt;" alt="" coords="207,5,401,61"/>
+<area shape="rect" id="node3" href="$a00146.html" title="model_polarized_movie\l\&lt; model_polarized_image\l_shearing_spot \&gt;" alt="" coords="207,85,401,141"/>
+<area shape="rect" id="node4" href="$a00139.html" title="Defines an interface for models that generate polarized image data with a collection of utility funct..." alt="" coords="215,165,393,192"/>
+<area shape="rect" id="node5" href="$a00146.html" title="Defines the interface for models that generate movie data with a collection of utility functions that..." alt="" coords="200,217,408,258"/>
+</map>

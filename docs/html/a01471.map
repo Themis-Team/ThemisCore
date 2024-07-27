@@ -1,0 +1,14 @@
+<map id="tests/sum_test.cpp" name="tests/sum_test.cpp">
+<area shape="rect" id="node7" href="$a00543.html" title="Header file for image model class. " alt="" coords="905,171,1028,197"/>
+<area shape="rect" id="node8" href="$a00575.html" title="Header file for the Multi&#45;Asymmetric Gaussian image class originally motivated by the model fitting c..." alt="" coords="568,81,805,122"/>
+<area shape="rect" id="node9" href="$a00549.html" title="Implements wavelength&#45;dependent, asymmetric Gaussian image class. " alt="" coords="881,81,1076,122"/>
+<area shape="rect" id="node10" href="$a00577.html" title="Header file for the Multi&#45;Gaussian image class originally motivated by the model fitting challenge 2 ..." alt="" coords="1101,88,1323,115"/>
+<area shape="rect" id="node11" href="$a00621.html" title="Header file for the symmetric Gaussian image class. " alt="" coords="1347,81,1535,122"/>
+<area shape="rect" id="node12" href="$a00619.html" title="Header file for the model_image_sum class, which sums different model images, generating a convenient..." alt="" coords="1559,88,1717,115"/>
+<area shape="rect" id="node13" href="$a00551.html" title="Header file for the Geometric Crescent Model Image class. " alt="" coords="358,88,543,115"/>
+<area shape="rect" id="node14" href="$a00432.html" title="Header file for datum and data objects containing visibility amplitudes. " alt="" coords="1255,171,1453,197"/>
+<area shape="rect" id="node15" href="$a00422.html" title="Header file for datum and data objects containing closure phases. " alt="" coords="1479,171,1641,197"/>
+<area shape="rect" id="node16" href="$a00420.html" title="Header file for datum and data objects containing closure amplitudes. " alt="" coords="1666,171,1856,197"/>
+<area shape="rect" id="node17" href="$a00430.html" title="Header file for datum and data objects containing visibilities. " alt="" coords="1881,171,2004,197"/>
+<area shape="rect" id="node18" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="2029,171,2091,197"/>
+</map>

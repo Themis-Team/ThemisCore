@@ -1,0 +1,10 @@
+<map id="size" name="size">
+<area shape="rect" id="node2" href="$a00225.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="435,80,490,107"/>
+<area shape="rect" id="node3" href="$a00139.html#aa6799f7a3f2b32b8f3da9cacba91b0ba" title="output_image" alt="" coords="156,47,268,74"/>
+<area shape="rect" id="node4" href="$a00139.html#adc5f52a328f02599816a1e278457cd82" title="Provides direct access to the visibility amplitudes. Sets a 2D grid of baselines (u,v) in lambda, and visibilites in Jy. " alt="" coords="119,98,305,124"/>
+<area shape="rect" id="node5" href="$a00139.html#afcac4753ba142627db1a91343edb26a5" title="Utility function to numerically computes the complex visibilities from the image data after _alpha..." alt="" coords="371,294,555,320"/>
+<area shape="rect" id="node6" href="$a00139.html#acc1114442db5e25ce0b2556b445510d9" title="2D shift utility function to center the zero&#45;baseline modes at the center of the array ..." alt="" coords="176,228,248,255"/>
+<area shape="rect" id="node7" href="$a00145.html#a2a3c1f02f014ee02359d9758d768ee82" title="Constructor. Takes a vector of pointers to model_polarized_image objects. " alt="" coords="101,279,323,335"/>
+<area shape="rect" id="node8" href="$a00145.html#a9862b657c35161768a1460049ab5fa1d" title="Add an image. " alt="" coords="119,148,305,204"/>
+<area shape="rect" id="node9" href="$a00145.html#a7945f9c4716ebe7f1026b999467d9c32" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="103,410,321,452"/>
+</map>

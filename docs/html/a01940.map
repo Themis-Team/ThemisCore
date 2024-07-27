@@ -1,0 +1,6 @@
+<map id="sampler_MCMC_base" name="sampler_MCMC_base">
+<area shape="rect" id="node2" href="$a00172.html" title="Defines the interface to an automated factor slice sampler, which isn&#39;t as efficient as Stan in terms..." alt="" coords="214,5,413,46"/>
+<area shape="rect" id="node3" href="$a00173.html" title="Parallel tempered Markov Chain Monte Carlo using DEO swapping scheme. " alt="" coords="223,70,403,111"/>
+<area shape="rect" id="node4" href="$a00178.html" title="sampler_stan_adapt\l_dense_e_nuts_MCMC" alt="" coords="231,135,396,177"/>
+<area shape="rect" id="node5" href="$a00179.html" title="sampler_stan_adapt\l_diag_e_nuts_MCMC" alt="" coords="236,201,391,242"/>
+</map>

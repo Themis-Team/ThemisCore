@@ -1,0 +1,7 @@
+<map id="sampling/sampler_automated_factor_slice_sampler_MCMC.cpp" name="sampling/sampler_automated_factor_slice_sampler_MCMC.cpp">
+<area shape="rect" id="node2" href="$a00706.html" title="Header file for a generic single factor slice sampler used in Themis. This uses slice sampling to exp..." alt="" coords="5,97,203,138"/>
+<area shape="rect" id="node4" href="$a00715.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="141,187,312,213"/>
+<area shape="rect" id="node5" href="$a00513.html" title="Header file for transform_base class. " alt="" coords="388,187,524,213"/>
+<area shape="rect" id="node6" href="$a00516.html" title="Header file for transform_logit class. " alt="" coords="493,104,627,131"/>
+<area shape="rect" id="node8" href="$a00517.html" title="Header file for transform_none class. " alt="" coords="279,104,416,131"/>
+</map>

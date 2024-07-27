@@ -1,0 +1,4 @@
+<map id="visibility_amplitude" name="visibility_amplitude">
+<area shape="rect" id="node2" href="$a00083.html#ad71de5ad25df7234333414be460d3d41" title="&lt; Dphi function for the ensemble averaged image. " alt="" coords="271,5,323,32"/>
+<area shape="rect" id="node3" href="$a00154.html#a07804b7e6a3d6e205bd8f1ac8f3de211" title="A user&#45;supplied function that returns the visibility amplitude in Jy. Takes a datum_visibility_amplit..." alt="" coords="206,56,389,112"/>
+</map>

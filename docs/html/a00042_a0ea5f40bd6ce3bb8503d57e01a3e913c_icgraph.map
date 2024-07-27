@@ -1,0 +1,8 @@
+<map id="integrate" name="integrate">
+<area shape="rect" id="node2" href="$a00078.html#a15646d1898559dccb4284251cf2473cd" title="Themis::model_crosshand\l_visibilities_galactic\l_center_diffractive_scattering\l_screen::model_crosshand_visibilities\l_galactic_center_diffractive_scattering_screen" alt="" coords="136,5,459,91"/>
+<area shape="rect" id="node3" href="$a00083.html#a2c00255ae996c60ce83b0feac784232d" title="Themis::model_galactic\l_center_diffractive_scattering\l_screen::model_galactic_center\l_diffractive_scattering_screen" alt="" coords="184,115,411,186"/>
+<area shape="rect" id="node4" href="$a00091.html#a3a3347d2e7ade394001ed0c77f151513" title="Themis::model_image\l_diffractive_scattering\l_screen::generate_minmajnorm" alt="" coords="183,211,412,267"/>
+<area shape="rect" id="node5" href="$a00091.html#ad20a0225dfe56b9225474f254050850a" title="Themis::model_image\l_diffractive_scattering\l_screen::generate_scattering_screen" alt="" coords="167,291,427,347"/>
+<area shape="rect" id="node6" href="$a00108.html#a56709fae3e8edd91dff46e8904319fea" title="Themis::model_image\l_refractive_scattering\l::model_image_refractive\l_scattering" alt="" coords="203,371,392,442"/>
+<area shape="rect" id="node7" href="$a00155.html#a6c16870fde582b4126e35573adf66f4c" title="Themis::model_visibility\l_galactic_center_diffractive\l_scattering_screen::model_visibility\l_galactic_center_diffractive_scattering_screen" alt="" coords="136,466,459,537"/>
+</map>

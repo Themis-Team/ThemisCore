@@ -1,0 +1,6 @@
+<map id="ensemble_blur_image" name="ensemble_blur_image">
+<area shape="rect" id="node2" href="$a00108.html#ad71de5ad25df7234333414be460d3d41" title="Power spectrum of phase screen. " alt="" coords="282,5,334,32"/>
+<area shape="rect" id="node3" href="$a00108.html#a13e0f0ae29c0290d886b544af4d21266" title="ifft_2d" alt="" coords="277,56,339,83"/>
+<area shape="rect" id="node4" href="$a00108.html#a97c05e73e226e6b813831dcf1100047b" title="ifft_shift" alt="" coords="270,107,346,133"/>
+<area shape="rect" id="node5" href="$a00049.html#ad28213f0aadf483480ca27bdbf71eda1" title="Set/reset x,y,f after construction. " alt="" coords="222,158,394,199"/>
+</map>

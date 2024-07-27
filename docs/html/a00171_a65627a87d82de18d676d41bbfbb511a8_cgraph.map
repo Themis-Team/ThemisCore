@@ -1,0 +1,6 @@
+<map id="run_optimizer" name="run_optimizer">
+<area shape="rect" id="node2" href="$a00060.html#a0c8dffd8d8e3df06e448abdfaf7b0aab" title="Returns access to the prior vector. " alt="" coords="398,57,541,99"/>
+<area shape="rect" id="node3" href="$a00060.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::likelihood\l::set_mpi_communicator" alt="" coords="166,32,349,73"/>
+<area shape="rect" id="node4" href="$a00171.html#a5370252fe4f12d91aca707873ee0a19f" title="Function to ncapsulate the process of optimization. Returns the maximized likelihood and resets pvec ..." alt="" coords="187,98,327,125"/>
+<area shape="rect" id="node5" href="$a00171.html#a12369273ac754b298ae6e9bb0e16136d" title="Function to generate a random starting point given the bounds on the prior. Assumes an arctan distrib..." alt="" coords="179,149,336,175"/>
+</map>

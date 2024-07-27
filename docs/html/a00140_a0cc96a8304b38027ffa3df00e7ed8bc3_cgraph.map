@@ -1,0 +1,4 @@
+<map id="closure_phase" name="closure_phase">
+<area shape="rect" id="node2" href="$a00140.html#a4551e4dd465764e17bd8e1e5c386f707" title="Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="222,5,301,32"/>
+<area shape="rect" id="node3" href="$a00139.html#a0cc96a8304b38027ffa3df00e7ed8bc3" title="Returns closure phase in degrees computed from the image given a datum_closure_phase object..." alt="" coords="168,57,355,98"/>
+</map>

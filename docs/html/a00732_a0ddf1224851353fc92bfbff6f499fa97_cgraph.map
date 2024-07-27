@@ -1,0 +1,12 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00095.html#a9dff515604625ff2c262d78454790d53" title="State switch to select numerically computed visibilities using the machinery in model_image. Once called, all future visibilities will be computed numerically until use_analytical_visibilities() is called. " alt="" coords="130,5,321,61"/>
+<area shape="rect" id="node3" href="$a00108.html#aebbbb2c50d0e7b5bb1cbaf91096d11ec" title="Themis::model_image\l_refractive_scattering\l::set_image_resolution" alt="" coords="140,85,311,141"/>
+<area shape="rect" id="node4" href="$a00108.html#abd9c9da91d516b2c6445ad7d8792b355" title="Themis::model_image\l_refractive_scattering\l::set_screen_size" alt="" coords="142,165,309,221"/>
+<area shape="rect" id="node5" href="$a00124.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="142,246,309,287"/>
+<area shape="rect" id="node6" href="$a00108.html#a7945f9c4716ebe7f1026b999467d9c32" title="Takes model parameters and generates scattered observables e.g. VA. " alt="" coords="142,312,309,368"/>
+<area shape="rect" id="node7" href="$a00086.html#a2f698b8af0f2e2ab7e9a0c119b84f6b1" title="A one&#45;time generate function that will generate the complex visibilities and store them..." alt="" coords="113,393,338,434"/>
+<area shape="rect" id="node8" href="$a00108.html#aef848504d90067e254b5b81517dccff2" title="Themis::model_image\l_refractive_scattering\l::get_ensemble_average_image" alt="" coords="110,459,341,515"/>
+<area shape="rect" id="node9" href="$a00108.html#a19440e4ee24c261cf277ae7c58b918ad" title="Themis::model_image\l_refractive_scattering\l::get_image" alt="" coords="142,539,309,595"/>
+<area shape="rect" id="node10" href="$a00086.html#ae16a0b34707d5ca747c3865cb76c28f3" title="Provides direct access to the complex visibilities. Sets a 2D grid of baselines (u,v) in lambda, and visibilites in Jy. " alt="" coords="142,619,309,661"/>
+<area shape="rect" id="node11" href="$a00124.html#a9906355fb3f0ebcd668cbb731bb62481" title="Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="142,685,309,726"/>
+</map>

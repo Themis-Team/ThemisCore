@@ -1,0 +1,5 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00090.html#a7852689b04c61c49ed34cffbb1b09313" title="Sets model_image_crescent to generate production images with resolution Nray x Nray. The default is 128x128, which is probably larger than required in practice. " alt="" coords="110,5,277,61"/>
+<area shape="rect" id="node3" href="$a00086.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="110,86,277,127"/>
+<area shape="rect" id="node4" href="$a00086.html#a19440e4ee24c261cf277ae7c58b918ad" title="Provides direct access to the constructed image. Sets a 2D grid of angles (alpha, beta) in radians an..." alt="" coords="110,151,277,193"/>
+</map>

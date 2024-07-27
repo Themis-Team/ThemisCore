@@ -1,0 +1,4 @@
+<map id="run_optimizer" name="run_optimizer">
+<area shape="rect" id="node2" href="$a00208.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="194,5,249,32"/>
+<area shape="rect" id="node3" href="$a00157.html#a5dcfa6b900c0f61fb48cb81d9c97170e" title="Function to run the optimizer, takes a likelihood object, vector of priors, name of an optimizer outp..." alt="" coords="165,56,277,83"/>
+</map>

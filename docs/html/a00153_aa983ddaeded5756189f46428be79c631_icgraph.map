@@ -1,0 +1,10 @@
+<map id="size" name="size">
+<area shape="rect" id="node2" href="$a00208.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="175,5,230,32"/>
+<area shape="rect" id="node3" href="$a00066.html#a54ffb85edbc7919ea272998bacb9ca9f" title="Themis::likelihood\l_optimal_complex_gain\l_visibility::likelihood\l_multiproc" alt="" coords="114,57,291,127"/>
+<area shape="rect" id="node4" href="$a00066.html#a7e4fc09289dd17e25007f006b8c8f8e3" title="Themis::likelihood\l_optimal_complex_gain\l_visibility::likelihood\l_uniproc" alt="" coords="114,151,291,222"/>
+<area shape="rect" id="node5" href="$a00066.html#a0de4cafc1b0d9c9735c409c921bbac83" title="Returns the &#160;of a vector of parameters . " alt="" coords="114,247,291,303"/>
+<area shape="rect" id="node6" href="$a00066.html#a510c7dbaa0f840e7c2b3bc1a07436e02" title="Themis::likelihood\l_optimal_complex_gain\l_visibility::gaussj" alt="" coords="114,327,291,383"/>
+<area shape="rect" id="node7" href="$a00071.html#ae42d7de1b49d18a419c1e61dd03b5024" title="Returns the log&#45;likelihood of a vector of parameters . " alt="" coords="124,407,281,449"/>
+<area shape="rect" id="node8" href="$a00071.html#a0de4cafc1b0d9c9735c409c921bbac83" title="Returns the &#160;of a vector of parameters . " alt="" coords="117,473,288,514"/>
+<area shape="rect" id="node9" href="$a00155.html#a596d820f44e38c0883c3d689efb3fc04" title="Size of the supplied model image, i.e., number of parameters expected. " alt="" coords="102,539,303,595"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="x" name="x">
+<area shape="rect" id="node2" href="$a00049.html#ad28213f0aadf483480ca27bdbf71eda1" title="Set/reset x,y,f after construction. " alt="" coords="125,5,179,32"/>
+<area shape="rect" id="node3" href="$a00049.html#ac52d760c36377e9819a7f07a58f9d016" title="Linear interpolation on log(x),log(y),log(f). " alt="" coords="259,132,365,159"/>
+<area shape="rect" id="node4" href="$a00049.html#a1ac3ae76151d2481125257d8ad649c18" title="column_spline" alt="" coords="94,107,210,133"/>
+<area shape="rect" id="node5" href="$a00049.html#a22b0b7596ede6b5e4238d606d7423d02" title="bcucof" alt="" coords="119,157,185,184"/>
+<area shape="rect" id="node6" href="$a00049.html#a36f14ab8678daf542b9d1652531dff54" title="get_cell" alt="" coords="115,208,189,235"/>
+</map>

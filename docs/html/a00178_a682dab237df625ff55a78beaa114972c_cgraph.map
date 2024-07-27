@@ -1,0 +1,5 @@
+<map id="generate_transition" name="generate_transition">
+<area shape="rect" id="node2" href="$a00177.html#a28017fddcb4cb97c6ae2f4d149643077" title="Themis::sampler_MCMC\l_base::reset_likelihood_sum" alt="" coords="203,5,410,46"/>
+<area shape="rect" id="node3" href="$a00178.html#a902795d04ed56abd1c5c5bf22df87fdd" title="write_checkpoint" alt="" coords="240,71,373,97"/>
+<area shape="rect" id="node4" href="$a00178.html#a3b25dc08abf806860c9036cdf9ee5281" title="write_state" alt="" coords="259,121,354,148"/>
+</map>

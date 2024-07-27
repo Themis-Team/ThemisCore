@@ -1,0 +1,6 @@
+<map id="sampling/sampler_deo_tempering_MCMC.h" name="sampling/sampler_deo_tempering_MCMC.h">
+<area shape="rect" id="node2" href="$a00715.html" title="Header file for base markov chain monte carlo sampler. " alt="" coords="25,96,197,123"/>
+<area shape="rect" id="node13" href="$a00766.html" title="Header file for a general purpose timer based on the C time function. " alt="" coords="1297,96,1405,123"/>
+<area shape="rect" id="node14" href="$a00500.html" title="Modifies the likelihood according to a power tempering scheme. " alt="" coords="364,96,578,123"/>
+<area shape="rect" id="node15" href="$a00757.html" title="Header file for a multipurpose linear interpolation function. " alt="" coords="1145,96,1273,123"/>
+</map>

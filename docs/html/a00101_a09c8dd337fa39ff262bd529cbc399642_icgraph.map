@@ -1,0 +1,6 @@
+<map id="complex_visibility" name="complex_visibility">
+<area shape="rect" id="node2" href="$a00101.html#a4b0fda591ebfe23ee161b7e692fdca07" title="Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="195,5,346,32"/>
+<area shape="rect" id="node3" href="$a00101.html#a822b73d792172794a4e6635459e94937" title="Returns closure phase in degrees computed from the image given a datum_closure_phase object..." alt="" coords="213,56,328,83"/>
+<area shape="rect" id="node4" href="$a00101.html#a8f7e00a1f08aa80b35685baf407be9a1" title="Returns closure amplitude computed from the image given a datum_closure_phase object, containing all of the accoutrements. While this provides access to the actual data value, the two could be separated if necessary. Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value. Note that this can be redefined in child classes. " alt="" coords="199,107,342,133"/>
+<area shape="rect" id="node5" href="$a00101.html#a4551e4dd465764e17bd8e1e5c386f707" title="Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="231,157,310,184"/>
+</map>

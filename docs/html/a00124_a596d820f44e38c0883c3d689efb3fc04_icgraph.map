@@ -1,0 +1,5 @@
+<map id="size" name="size">
+<area shape="rect" id="node2" href="$a00207.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="147,5,202,32"/>
+<area shape="rect" id="node3" href="$a00124.html#a34f15114b6b5eadb850e57cc10a13711" title="Constructor. Takes a vector of pointers to model_image objects. " alt="" coords="101,56,248,83"/>
+<area shape="rect" id="node4" href="$a00124.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="111,107,239,133"/>
+</map>

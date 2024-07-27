@@ -1,0 +1,11 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00136.html#a7852689b04c61c49ed34cffbb1b09313" title="Themis::model_movie\l_shearing_spot::set\l_image_resolution" alt="" coords="149,5,315,61"/>
+<area shape="rect" id="node3" href="$a00136.html#a8ff966760ccb52454ca32ca93f96b4e5" title="Themis::model_movie\l_shearing_spot::set\l_screen_size" alt="" coords="149,85,315,141"/>
+<area shape="rect" id="node4" href="$a00136.html#af31599fdbfe53bf6702852ac82b3064c" title="Themis::model_movie\l_shearing_spot::add\l_background_riaf" alt="" coords="149,165,315,221"/>
+<area shape="rect" id="node5" href="$a00135.html#aebbbb2c50d0e7b5bb1cbaf91096d11ec" title="Themis::model_movie\l_refractive_scattering\l::set_image_resolution" alt="" coords="147,245,317,301"/>
+<area shape="rect" id="node6" href="$a00135.html#abd9c9da91d516b2c6445ad7d8792b355" title="Themis::model_movie\l_refractive_scattering\l::set_screen_size" alt="" coords="149,325,315,381"/>
+<area shape="rect" id="node7" href="$a00043.html#a78309d923f245b6acf167260194ba6e1" title="Returns a random number. " alt="" coords="110,406,354,447"/>
+<area shape="rect" id="node8" href="$a00132.html#a7945f9c4716ebe7f1026b999467d9c32" title="A user&#45;supplied one&#45;time generate function that permits model construction prior to calling the closu..." alt="" coords="121,472,343,528"/>
+<area shape="rect" id="node9" href="$a00132.html#ae78058f9101dff9c9ede491fc1b81afb" title="Provides direct access to the constructed image. Sets a 2D grid of angles (alpha, beta) in radians an..." alt="" coords="116,552,348,608"/>
+<area shape="rect" id="node10" href="$a00135.html#a0af5b4f3a8353835f6f42b598cea5129" title="Themis::model_movie\l_refractive_scattering\l::get_ensemble_average_frame" alt="" coords="118,632,346,688"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="distribute_gains" name="distribute_gains">
+<area shape="rect" id="node2" href="$a00066.html#a012e48b5ec7769b2e5614bd6b3a62488" title="output" alt="" coords="239,5,303,32"/>
+<area shape="rect" id="node3" href="$a00066.html#a0de4cafc1b0d9c9735c409c921bbac83" title="Returns the &#160;of a vector of parameters . " alt="" coords="221,56,321,83"/>
+<area shape="rect" id="node4" href="$a00066.html#a6c42b0fca13053ec11c5ecd15b3f674b" title="Returns the &#160;of a vector of parameters &#160;including the gain prior terms. " alt="" coords="185,107,356,149"/>
+<area shape="rect" id="node5" href="$a00066.html#aa18789b97b14f99d0c1d74b59e4b2e9d" title="Outputs the set of complex gains in a structure fashion to a file. " alt="" coords="217,173,324,200"/>
+<area shape="rect" id="node6" href="$a00066.html#a51201cd6edb46da19aafc8cf83f4dade" title="Outputs the set of gain corrections in a structure fashion to a file. " alt="" coords="181,224,360,251"/>
+</map>

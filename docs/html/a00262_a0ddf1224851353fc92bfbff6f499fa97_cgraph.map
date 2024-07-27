@@ -1,0 +1,19 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="126,5,317,32"/>
+<area shape="rect" id="node3" href="$a00033.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="381,86,552,127"/>
+<area shape="rect" id="node4" href="$a00033.html#ac9fe8049304eae58192b65ed7eaaca93" title="Provides access to the atomic datum element. " alt="" coords="381,406,552,447"/>
+<area shape="rect" id="node5" href="$a00028.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="141,202,302,243"/>
+<area shape="rect" id="node6" href="$a00028.html#ac31ed39d8b2728fa6fc08c3220c9087e" title="Provides access to the atomic datum element. " alt="" coords="141,267,302,309"/>
+<area shape="rect" id="node7" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="142,333,301,374"/>
+<area shape="rect" id="node8" href="$a00102.html#a9dff515604625ff2c262d78454790d53" title="State switch to select numerically computed visibilities using the machinery in model_image. Once called, all future visibilities will be computed numerically until use_analytical_visibilities() is called. " alt="" coords="115,399,328,455"/>
+<area shape="rect" id="node9" href="$a00102.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="115,479,328,535"/>
+<area shape="rect" id="node10" href="$a00086.html#a19440e4ee24c261cf277ae7c58b918ad" title="Provides direct access to the constructed image. Sets a 2D grid of angles (alpha, beta) in radians an..." alt="" coords="138,559,305,601"/>
+<area shape="rect" id="node11" href="$a00102.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="115,625,328,681"/>
+<area shape="rect" id="node12" href="$a00067.html#a12eebd6b7237990e297ff29d4598ec9f" title="Returns the number of independent gains, which is generally less than product of the number of statio..." alt="" coords="110,107,333,178"/>
+<area shape="rect" id="node13" href="$a00102.html#a822b73d792172794a4e6635459e94937" title="Returns closure phase in degrees computed from the image given a datum_closure_phase object..." alt="" coords="115,756,328,812"/>
+<area shape="rect" id="node14" href="$a00067.html#a38e9f49e2dbfd2e95e33c73d75ce1b57" title="Returns the start time of each gain&#45;correction epoch. " alt="" coords="124,837,319,907"/>
+<area shape="rect" id="node15" href="$a00067.html#a1278c2536466476fc26bd3f0a3500de9" title="Returns the set of gain corrections for each epoch. " alt="" coords="128,931,315,1002"/>
+<area shape="rect" id="node16" href="$a00175.html#a2b7bcf7f729848cefc6d3280cb7a0ea5" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="117,1027,326,1083"/>
+<area shape="rect" id="node17" href="$a00175.html#a33b4d7c112a828ca94a5ee5294953620" title="Function to run the sampler, takes a likelihood object, name of output files, and tuning parameters f..." alt="" coords="117,1107,326,1163"/>
+<area shape="rect" id="node18" href="$a00175.html#a59a34c2cb3b6f14fdf8aa301192c02f8" title="Function to estimate the bayesian evidence using the Thermodynamic Integration method. " alt="" coords="111,1187,331,1243"/>
+</map>

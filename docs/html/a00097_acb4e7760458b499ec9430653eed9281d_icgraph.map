@@ -1,0 +1,4 @@
+<map id="open_error_streams" name="open_error_streams">
+<area shape="rect" id="node2" href="$a00097.html#a96521c3bfad8a615671032c8ad8dc4db" title="Constructor to make a shearing spot model. Takes the start time of the observation (UTC)..." alt="" coords="210,5,377,46"/>
+<area shape="rect" id="node3" href="$a00097.html#a51ab07209f4e7ae01964ef04506b3b59" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="206,71,381,97"/>
+</map>

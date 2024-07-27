@@ -1,0 +1,4 @@
+<map id="generate_scattering_screen" name="generate_scattering_screen">
+<area shape="rect" id="node2" href="$a00091.html#a4ae746c392617267a20b7fee123a3f08" title="model_image_diffractive\l_scattering_screen" alt="" coords="205,5,389,46"/>
+<area shape="rect" id="node3" href="$a00091.html#a7945f9c4716ebe7f1026b999467d9c32" title="Takes model parameters and generates the model with the diffractive scattering. " alt="" coords="233,71,361,97"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="compute_kphase_screen" name="compute_kphase_screen">
+<area shape="rect" id="node2" href="$a00108.html#a546cdf75b1a4e5d489f44fd8b230fad8" title="make_epsilon_screen" alt="" coords="243,5,405,32"/>
+<area shape="rect" id="node3" href="$a00108.html#a596d820f44e38c0883c3d689efb3fc04" title="size" alt="" coords="459,132,507,159"/>
+<area shape="rect" id="node4" href="$a00108.html#aef2ec623da1eb52f0c67986c63699423" title="Generate random Gaussian epsilon screen from parameter list. " alt="" coords="305,107,343,133"/>
+<area shape="rect" id="node5" href="$a00108.html#a13e0f0ae29c0290d886b544af4d21266" title="ifft_2d" alt="" coords="293,157,355,184"/>
+<area shape="rect" id="node6" href="$a00108.html#a97c05e73e226e6b813831dcf1100047b" title="ifft_shift" alt="" coords="286,208,362,235"/>
+<area shape="rect" id="node7" href="$a00049.html#ad28213f0aadf483480ca27bdbf71eda1" title="Set/reset x,y,f after construction. " alt="" coords="238,259,410,301"/>
+</map>

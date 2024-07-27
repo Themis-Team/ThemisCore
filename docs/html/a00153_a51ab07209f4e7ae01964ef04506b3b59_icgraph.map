@@ -1,0 +1,5 @@
+<map id="set_mpi_communicator" name="set_mpi_communicator">
+<area shape="rect" id="node2" href="$a00066.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="229,5,475,61"/>
+<area shape="rect" id="node3" href="$a00071.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="280,85,424,141"/>
+<area shape="rect" id="node4" href="$a00155.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Sets the mpi communicator for generating images. " alt="" coords="250,166,454,237"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="gen_spline_derivs" name="gen_spline_derivs">
+<area shape="rect" id="node2" href="$a00049.html#a7baf48b18b6138903f130784d9eff6b1" title="Interpolator2D constructor with x,y,f and the gradients , , and &#160;set explicitly. " alt="" coords="193,5,309,32"/>
+<area shape="rect" id="node3" href="$a00049.html#a40a1cc2d1168d082137c011d046e23ce" title="Set/reset , , and &#160;after construction. " alt="" coords="219,56,282,83"/>
+<area shape="rect" id="node4" href="$a00049.html#ae36a6dc9cbed6e9fe619951ac778f9df" title="fd_derivatives" alt="" coords="193,107,308,133"/>
+</map>

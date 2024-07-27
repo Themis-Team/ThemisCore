@@ -1,0 +1,5 @@
+<map id="write_state" name="write_state">
+<area shape="rect" id="node2" href="$a00172.html#ad921b077c78fcac644063ab86dc9cbea" title="run_sampler" alt="" coords="347,5,450,32"/>
+<area shape="rect" id="node3" href="$a00172.html#a636cdd9f5bcd4ed525140d4c4504b59e" title="generate_transition" alt="" coords="149,31,299,57"/>
+<area shape="rect" id="node4" href="$a00172.html#a0ab7c887a9bf4ffabba6bc0fa8dab86b" title="read_checkpoint" alt="" coords="159,81,289,108"/>
+</map>

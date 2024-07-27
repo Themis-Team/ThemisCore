@@ -1,0 +1,5 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00158.html#a875bd79b22182d77bf76efe80f65705b" title="Runs the optimizer and returns best parameters by reference. " alt="" coords="352,5,547,46"/>
+<area shape="rect" id="node3" href="$a00158.html#a3a369cdd6ec6c957f506a94e01b0a077" title="Themis::optimizer_laplace\l::parallel_optimizer" alt="" coords="109,34,304,75"/>
+<area shape="rect" id="node4" href="$a00158.html#ab6105a15161cdaa877a71a8a3ea5cda7" title="Finds the inverse covariance matrix using the Laplace approximation around the peak defined by params..." alt="" coords="109,99,304,141"/>
+</map>

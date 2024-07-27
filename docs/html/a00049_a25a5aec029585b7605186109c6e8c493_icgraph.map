@@ -1,0 +1,5 @@
+<map id="linear" name="linear">
+<area shape="rect" id="node2" href="$a00208.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="189,5,243,32"/>
+<area shape="rect" id="node3" href="$a00127.html#a5a971d41b604433c4f5e039905a35182" title="Sets the image pixel values. " alt="" coords="113,57,319,98"/>
+<area shape="rect" id="node4" href="$a00049.html#ab3cbe72ff8203646d855fabee3f005f9" title="Linear interpolation with treatement of boundary. See interpolator2D.cpp for details. " alt="" coords="155,123,277,149"/>
+</map>

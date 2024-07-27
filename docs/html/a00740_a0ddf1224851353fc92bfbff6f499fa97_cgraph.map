@@ -1,0 +1,13 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="121,5,311,32"/>
+<area shape="rect" id="node3" href="$a00102.html#a9dff515604625ff2c262d78454790d53" title="State switch to select numerically computed visibilities using the machinery in model_image. Once called, all future visibilities will be computed numerically until use_analytical_visibilities() is called. " alt="" coords="109,56,323,112"/>
+<area shape="rect" id="node4" href="$a00102.html#a7945f9c4716ebe7f1026b999467d9c32" title="A one&#45;time generate function that permits model construction prior to calling the visibility_amplitud..." alt="" coords="109,136,323,192"/>
+<area shape="rect" id="node5" href="$a00086.html#a19440e4ee24c261cf277ae7c58b918ad" title="Provides direct access to the constructed image. Sets a 2D grid of angles (alpha, beta) in radians an..." alt="" coords="133,217,299,258"/>
+<area shape="rect" id="node6" href="$a00033.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="131,282,301,323"/>
+<area shape="rect" id="node7" href="$a00033.html#ac9fe8049304eae58192b65ed7eaaca93" title="Provides access to the atomic datum element. " alt="" coords="131,347,301,389"/>
+<area shape="rect" id="node8" href="$a00102.html#a4b0fda591ebfe23ee161b7e692fdca07" title="Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object..." alt="" coords="109,413,323,469"/>
+<area shape="rect" id="node9" href="$a00102.html#adc448d21498ae35bc7c28697ce111814" title="State switch to select analytically computed visibilities using the the analytical Fourier transform ..." alt="" coords="109,493,323,549"/>
+<area shape="rect" id="node10" href="$a00028.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="135,574,297,615"/>
+<area shape="rect" id="node11" href="$a00028.html#ac31ed39d8b2728fa6fc08c3220c9087e" title="Provides access to the atomic datum element. " alt="" coords="135,639,297,681"/>
+<area shape="rect" id="node12" href="$a00102.html#a822b73d792172794a4e6635459e94937" title="Returns closure phase in degrees computed from the image given a datum_closure_phase object..." alt="" coords="109,705,323,761"/>
+</map>

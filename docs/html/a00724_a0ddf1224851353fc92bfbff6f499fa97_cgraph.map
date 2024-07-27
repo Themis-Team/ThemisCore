@@ -1,0 +1,6 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00171.html#a2b7bcf7f729848cefc6d3280cb7a0ea5" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="118,5,322,61"/>
+<area shape="rect" id="node3" href="$a00171.html#a4850ede31f84edca137aa4b7be6ac907" title="Function to set the checkpoint/restart functionality. " alt="" coords="118,85,322,141"/>
+<area shape="rect" id="node4" href="$a00171.html#a33b4d7c112a828ca94a5ee5294953620" title="Function to run the sampler, takes a likelihood object, name of output files, and tuning parameters f..." alt="" coords="118,165,322,221"/>
+<area shape="rect" id="node5" href="$a00171.html#a59a34c2cb3b6f14fdf8aa301192c02f8" title="Function to estimate the bayesian evidence using the Thermodynamic Integration method. " alt="" coords="110,245,330,301"/>
+</map>

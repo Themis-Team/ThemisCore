@@ -1,0 +1,8 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00769.html#a9e6c40e3ac64e1da381451d8cef0d8d0" title="Themis::utils::global_path" alt="" coords="110,5,301,32"/>
+<area shape="rect" id="node3" href="$a00136.html#a7852689b04c61c49ed34cffbb1b09313" title="Themis::model_movie\l_shearing_spot::set\l_image_resolution" alt="" coords="122,56,289,112"/>
+<area shape="rect" id="node4" href="$a00136.html#a8ff966760ccb52454ca32ca93f96b4e5" title="Themis::model_movie\l_shearing_spot::set\l_screen_size" alt="" coords="122,136,289,192"/>
+<area shape="rect" id="node5" href="$a00136.html#af31599fdbfe53bf6702852ac82b3064c" title="Themis::model_movie\l_shearing_spot::add\l_background_riaf" alt="" coords="122,216,289,272"/>
+<area shape="rect" id="node6" href="$a00132.html#a7945f9c4716ebe7f1026b999467d9c32" title="A user&#45;supplied one&#45;time generate function that permits model construction prior to calling the closu..." alt="" coords="122,297,289,338"/>
+<area shape="rect" id="node7" href="$a00132.html#ae78058f9101dff9c9ede491fc1b81afb" title="Provides direct access to the constructed image. Sets a 2D grid of angles (alpha, beta) in radians an..." alt="" coords="122,362,289,403"/>
+</map>

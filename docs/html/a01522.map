@@ -1,0 +1,17 @@
+<map id="validation/noise_paper_level0_mring.cpp" name="validation/noise_paper_level0_mring.cpp">
+<area shape="rect" id="node2" href="$a00430.html" title="Header file for datum and data objects containing visibilities. " alt="" coords="735,285,859,312"/>
+<area shape="rect" id="node6" href="$a00571.html" title="Header file for the geometric mring model. " alt="" coords="1233,195,1401,221"/>
+<area shape="rect" id="node7" href="$a00621.html" title="Header file for the symmetric Gaussian image class. " alt="" coords="46,278,233,319"/>
+<area shape="rect" id="node8" href="$a00555.html" title="Header file for the model_image_fixed_lightcurve class, which renormalizes the visibilities by a fixe..." alt="" coords="1608,285,1843,312"/>
+<area shape="rect" id="node9" href="$a00611.html" title="Header file for model_image_smooth. " alt="" coords="1476,195,1655,221"/>
+<area shape="rect" id="node10" href="$a00468.html" title="Header file for the Likelihood class. " alt="" coords="1968,285,2067,312"/>
+<area shape="rect" id="node13" href="$a00500.html" title="Modifies the likelihood according to a power tempering scheme. " alt="" coords="2105,195,2319,221"/>
+<area shape="rect" id="node14" href="$a00503.html" title="Header file for the Visibility Likelihood class. " alt="" coords="311,104,469,131"/>
+<area shape="rect" id="node16" href="$a00768.html" title="Header file for a variety of utility functions within Themis. " alt="" coords="1386,285,1448,312"/>
+<area shape="rect" id="node15" href="$a00688.html" title="Header file for uncertainty model class approprirate for crosshand visibilities. " alt="" coords="533,195,701,221"/>
+<area shape="rect" id="node17" href="$a00692.html" title="Header file for uncertainty model class approprirate for complex visibilities that adds a floor and f..." alt="" coords="594,97,752,138"/>
+<area shape="rect" id="node18" href="$a00694.html" title="Header file for uncertainty model class approprirate for complex visibilities that adds a floor and f..." alt="" coords="1115,97,1273,138"/>
+<area shape="rect" id="node19" href="$a00690.html" title="Header file for uncertainty model class approprirate for complex visibilities that adds a floor and f..." alt="" coords="901,97,1088,138"/>
+<area shape="rect" id="node20" href="$a00707.html" title="Header file for sampler_deo_tempering_MCMC class. " alt="" coords="2446,97,2625,138"/>
+<area shape="rect" id="node24" href="$a00706.html" title="Header file for a generic single factor slice sampler used in Themis. This uses slice sampling to exp..." alt="" coords="1882,187,2080,229"/>
+</map>

@@ -1,0 +1,20 @@
+<map id="main" name="main">
+<area shape="rect" id="node2" href="$a00086.html#a3b358993505dce30caa392c4c153e854" title="Write a unique identifying tag for use with the ThemisPy plotting features. This calls the overloaded..." alt="" coords="145,5,311,46"/>
+<area shape="rect" id="node3" href="$a00769.html#a75209dead98388a3d0c3c2c375043f85" title="Themis::utils::station\l_codes" alt="" coords="149,70,307,111"/>
+<area shape="rect" id="node4" href="$a00032.html#abb8d761266917c5f01f03ee83b631922" title="Adds data from the file &lt;file_name&gt;. " alt="" coords="143,135,313,177"/>
+<area shape="rect" id="node5" href="$a00124.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="145,201,311,242"/>
+<area shape="rect" id="node6" href="$a00066.html#a1b3951292149467875b25ef41697731b" title="Set the maximum number of iterations in the likelihood maximizer. More iterations results in higher a..." alt="" coords="123,267,333,323"/>
+<area shape="rect" id="node7" href="$a00157.html#a42c9d39bd8a6daf09c813c4a5fd5e6c5" title="Function to set the distribution of processors in different layers of parallelization. " alt="" coords="123,347,333,389"/>
+<area shape="rect" id="node8" href="$a00157.html#ad27c0e1fc2f1c926daad18e3caa67192" title="Function to set the meta&#45;parameters associated with the kickout procedure. " alt="" coords="109,413,347,454"/>
+<area shape="rect" id="node9" href="$a00157.html#a2586b6667243884ba2198c5dcb509de0" title="Function to run the optimizer, takes a likelihood object, vector of priors, name of an optimizer outp..." alt="" coords="131,478,325,519"/>
+<area shape="rect" id="node10" href="$a00032.html#aac782da1f912bceb5d8ad00c8dc892ac" title="Returns the number of data points. " alt="" coords="143,543,313,585"/>
+<area shape="rect" id="node11" href="$a00173.html#a0ab7c887a9bf4ffabba6bc0fa8dab86b" title="Loads the ckpt from a stream. This will set the sampler to the state given in the ckpt..." alt="" coords="138,609,318,665"/>
+<area shape="rect" id="node12" href="$a00178.html#add6fae21b429b24a4ead355d085aa815" title="sets the adaption stuff with the applicable window stuff for stan. " alt="" coords="123,689,333,745"/>
+<area shape="rect" id="node13" href="$a00178.html#a2e083d3d90120a666fc04317ef10fbea" title="Sets the window parameters for STAN, these rarely need to be changed. " alt="" coords="123,769,333,825"/>
+<area shape="rect" id="node14" href="$a00178.html#a9dd6f190e82ef66677ea67ccc99da62e" title="Themis::sampler_stan\l_adapt_dense_e_nuts_MCMC\l::set_max_depth" alt="" coords="123,849,333,905"/>
+<area shape="rect" id="node15" href="$a00177.html#a8042c2e294dbbb96d0a5af5e8d00364c" title="Finds the best fit within provided chain file and returns it. " alt="" coords="139,930,317,971"/>
+<area shape="rect" id="node16" href="$a00066.html#a12eebd6b7237990e297ff29d4598ec9f" title="Returns the number of independent gains, which is generally less than product of the number of statio..." alt="" coords="395,1047,573,1118"/>
+<area shape="rect" id="node17" href="$a00066.html#a3ef9efa5004657d3f211db1628ab387a" title="Outputs the set of gain corrections in a structure fashion to an output stream. " alt="" coords="139,1047,317,1118"/>
+<area shape="rect" id="node18" href="$a00066.html#a04f7485cce7e036ffa1f6eeba04a31dd" title="Outputs the set of complex gains in a structure fashion to an output stream. " alt="" coords="139,1143,317,1199"/>
+<area shape="rect" id="node19" href="$a00050.html#af89ee5719a0410f4635c7576440f4bea" title="Returns the chi squared evaluated at a vector in the parameter space. " alt="" coords="157,1223,299,1265"/>
+</map>

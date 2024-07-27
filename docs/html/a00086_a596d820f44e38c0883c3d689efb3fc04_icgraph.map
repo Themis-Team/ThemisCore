@@ -1,0 +1,23 @@
+<map id="size" name="size">
+<area shape="rect" id="node2" href="$a00207.html#a0ddf1224851353fc92bfbff6f499fa97" title="main" alt="" coords="199,5,254,32"/>
+<area shape="rect" id="node3" href="$a00086.html#aa6799f7a3f2b32b8f3da9cacba91b0ba" title="output_image" alt="" coords="171,56,283,83"/>
+<area shape="rect" id="node4" href="$a00086.html#afcac4753ba142627db1a91343edb26a5" title="Utility function to numerically computes the complex visibilities from the image data after _alpha..." alt="" coords="400,132,584,159"/>
+<area shape="rect" id="node5" href="$a00086.html#acc1114442db5e25ce0b2556b445510d9" title="2D shift utility function to center the zero&#45;baseline modes at the center of the array ..." alt="" coords="191,157,263,184"/>
+<area shape="rect" id="node6" href="$a00091.html#a4ae746c392617267a20b7fee123a3f08" title="Themis::model_image\l_diffractive_scattering\l_screen::model_image_diffractive\l_scattering_screen" alt="" coords="105,209,348,279"/>
+<area shape="rect" id="node7" href="$a00092.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="143,303,310,345"/>
+<area shape="rect" id="node8" href="$a00094.html#a2a883632b7bb2afa4f6b3d2db5ed34af" title="Constructor. Takes a model_image object, a vector of orders, and optional reference time..." alt="" coords="136,369,317,425"/>
+<area shape="rect" id="node9" href="$a00094.html#a231fe84539e3e34fd4029a97da5bc499" title="Return a string that contains a unique identifying tag for use with the ThemisPy plotting features..." alt="" coords="122,450,331,491"/>
+<area shape="rect" id="node10" href="$a00094.html#a417cba0c134ab362dbc7144aac010b1a" title="A MANY&#45;time generate function to construct the underlying model_image object for each datum..." alt="" coords="127,516,326,572"/>
+<area shape="rect" id="node11" href="$a00105.html#ab81740a9e57bcbba6554ba70c48ec616" title="Constructor. Takes a model_image object, a vector of orders, and optional reference time..." alt="" coords="127,597,326,667"/>
+<area shape="rect" id="node12" href="$a00105.html#a231fe84539e3e34fd4029a97da5bc499" title="Return a string that contains a unique identifying tag for use with the ThemisPy plotting features..." alt="" coords="143,692,310,748"/>
+<area shape="rect" id="node13" href="$a00105.html#a417cba0c134ab362dbc7144aac010b1a" title="A MANY&#45;time generate function to construct the underlying model_image object for each datum..." alt="" coords="135,772,319,828"/>
+<area shape="rect" id="node14" href="$a00108.html#a596d820f44e38c0883c3d689efb3fc04" title="Themis::model_image\l_refractive_scattering::size" alt="" coords="127,853,326,894"/>
+<area shape="rect" id="node15" href="$a00120.html#a596d820f44e38c0883c3d689efb3fc04" title="Size of the supplied model image, i.e., number of parameters expected. " alt="" coords="143,918,310,959"/>
+<area shape="rect" id="node16" href="$a00121.html#a07c773bc64052e48d4f20b4cee3f353e" title="Constructor. Takes a model_image object, a vector of orders, and optional reference time..." alt="" coords="140,984,313,1040"/>
+<area shape="rect" id="node17" href="$a00121.html#a231fe84539e3e34fd4029a97da5bc499" title="Return a string that contains a unique identifying tag for use with the ThemisPy plotting features..." alt="" coords="126,1065,327,1106"/>
+<area shape="rect" id="node18" href="$a00121.html#afc666ce363cecd65c222bb1a5cac81af" title="A MANY&#45;time generate function to construct the underlying model_image object for each datum..." alt="" coords="131,1131,322,1187"/>
+<area shape="rect" id="node19" href="$a00123.html#a596d820f44e38c0883c3d689efb3fc04" title="Size of the supplied model image, i.e., number of parameters expected. " alt="" coords="143,1211,310,1253"/>
+<area shape="rect" id="node20" href="$a00124.html#a289e603e17710b79e88c1de31a7fab85" title="Add an image. " alt="" coords="134,1277,319,1318"/>
+<area shape="rect" id="node21" href="$a00127.html#a596d820f44e38c0883c3d689efb3fc04" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="143,1342,310,1383"/>
+<area shape="rect" id="node22" href="$a00141.html#ae6f88ee37b2e21c6104662078c698596" title="Themis::model_polarized\l_image_constant_polarization\l::model_polarized_image_constant\l_polarization" alt="" coords="102,1407,351,1478"/>
+</map>

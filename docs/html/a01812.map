@@ -1,0 +1,4 @@
+<map id="model_image_upsample" name="model_image_upsample">
+<area shape="rect" id="node2" href="$a00086.html" title="Defines an interface for models that generate image data with a collection of utility functions to co..." alt="" coords="10,125,120,152"/>
+<area shape="rect" id="node3" href="$a00049.html" title="Defines a general purpose 2D interpolator class that implements a variety of interpolation schemes..." alt="" coords="66,5,181,32"/>
+</map>

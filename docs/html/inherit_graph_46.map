@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$a00192.html" title="sampler_MCMC_base" alt="" coords="5,111,165,137"/>
+<area shape="rect" id="node2" href="$a00187.html" title="Defines the interface to an automated factor slice sampler, which isn&#39;t as efficient as Stan in terms..." alt="" coords="214,5,413,46"/>
+<area shape="rect" id="node3" href="$a00188.html" title="Parallel tempered Markov Chain Monte Carlo using DEO swapping scheme. " alt="" coords="223,70,403,111"/>
+<area shape="rect" id="node4" href="$a00193.html" title="sampler_stan_adapt\l_dense_e_nuts_MCMC" alt="" coords="231,135,396,177"/>
+<area shape="rect" id="node5" href="$a00194.html" title="sampler_stan_adapt\l_diag_e_nuts_MCMC" alt="" coords="236,201,391,242"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="generate_model" name="generate_model">
+<area shape="rect" id="node2" href="$a00154.html#aa983ddaeded5756189f46428be79c631" title="A user&#45;supplied function that returns the number of the parameters the model expects. " alt="" coords="441,5,623,46"/>
+<area shape="rect" id="node3" href="$a00084.html#a596d820f44e38c0883c3d689efb3fc04" title="Size of the supplied model image, i.e., number of parameters expected. " alt="" coords="263,37,311,64"/>
+<area shape="rect" id="node4" href="$a00154.html#a57fe8eb2c95299fce33d50662db53409" title="A user&#45;supplied one&#45;time generate function that permits model construction prior to calling the visib..." alt="" coords="182,89,391,130"/>
+</map>

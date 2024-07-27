@@ -1,0 +1,9 @@
+<map id="set_mpi_communicator" name="set_mpi_communicator">
+<area shape="rect" id="node2" href="$a00063.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="229,5,485,61"/>
+<area shape="rect" id="node3" href="$a00067.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="264,86,451,157"/>
+<area shape="rect" id="node4" href="$a00072.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Defines a set of processors provided to the model for parallel computation via an MPI communicator..." alt="" coords="266,181,449,237"/>
+<area shape="rect" id="node5" href="$a00079.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::model_ensemble\l_averaged_parameterized\l_scattered_image::set_mpi\l_communicator" alt="" coords="258,262,457,333"/>
+<area shape="rect" id="node6" href="$a00080.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::model_ensemble\l_averaged_scattered_image\l::set_mpi_communicator" alt="" coords="254,357,461,413"/>
+<area shape="rect" id="node7" href="$a00083.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Sets the mpi communicator for generating images. " alt="" coords="241,437,474,493"/>
+<area shape="rect" id="node8" href="$a00084.html#a5af65a14a82abdf1f1ec3fdc26eebdcc" title="Themis::model_gaussian\l_scattered_image::set\l_mpi_communicator" alt="" coords="265,517,449,573"/>
+</map>
