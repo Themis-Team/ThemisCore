@@ -19,7 +19,7 @@ namespace Themis
 {
   /*!
     \class optimizer_laplace.h
-    \brief Optimizers the likelihood and then makes a Laplace approximation approximate the likelihood.
+    \brief Optimizes the likelihood and then makes a Laplace approximation approximate the likelihood.
   */
 class optimizer_laplace
 {
@@ -106,6 +106,6 @@ private:
 
 };//end optimizer_laplace
  
-}//end Themis
+};//end Themis
 
 #endif
