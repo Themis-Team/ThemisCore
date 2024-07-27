@@ -1,5 +1,5 @@
 /*!
-  \file analyses/Imaging/imrecad_complex_nuts_diag.cpp
+  \file analyses/Imaging/themaging_complex.cpp
   \author Roman Gold, Avery Broderick, Paul Tiede
   \date Oct 2020
   \brief Generic driver for image reconstruction with Themis with complex visibilities including noise modeling and ngEHT.
