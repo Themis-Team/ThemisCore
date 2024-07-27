@@ -1,8 +1,8 @@
 /*!
-  \file analyses/Imaging/themaging_vacp.cpp
+  \file themaging_vacp.cpp
   \author
   \date Feb 2020
-  \brief Generic driver for image reconstruction with Themis.
+  \brief Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data.
 
   \details TBD
 */
