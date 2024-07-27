@@ -42,5 +42,5 @@ Avery E. Broderick, Mansour Karami, Roman Gold, Jorge A. Preciado, Carlos Wang
 
 ## Copyright and license
 
-[GPL-3.0](https://github.com/Themis-Team/ThemisCore?tab=GPL-3.0-1-ov-file#readme
+[GPL-3.0](https://github.com/Themis-Team/ThemisCore?tab=GPL-3.0-1-ov-file#readme)
 
