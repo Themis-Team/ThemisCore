@@ -19,6 +19,7 @@ ifeq ($(shell test -f Makefile.config && echo yes),yes)
   $(info "INFO: Using FFTW_INCLUDE_DIR=$(FFTW_INCLUDE_DIR)")
   $(info "INFO: Using FFTW_LIB_DIR=$(FFTW_LIB_DIR)")
   $(info "INFO: Using TORCH_DIR=$(TORCH_DIR)")
+  $(info "INFO: Using HDF5_LIB_DIR=$(HDF5_LIB_DIR)")
   $(info "INFO: --------------------------------------------------------------------------")
 else
   CC=mpicxx
@@ -26,6 +27,7 @@ else
   FFTW_INCLUDE_DIR=$(THEMISDIR)/../FFTW/include
   FFTW_LIB_DIR=$(THEMISDIR)/../FFTW/lib
   TORCH_DIR=
+  HDF5_LIB_DIR=
   $(warning "WARNING: --------------------------------------------------------------------------")
   $(warning "WARNING: Could not find Makefile.config, using defaults, which probably won't work.")
   $(warning "WARNING: Using CC=$(CC)")
@@ -33,6 +35,7 @@ else
   $(warning "WARNING: Using FFTW_INCLUDE_DIR=$(FFTW_INCLUDE_DIR)")
   $(warning "WARNING: Using FFTW_LIB_DIR=$(FFTW_LIB_DIR)")
   $(warning "INFO: Using TORCH_DIR=$(TORCH_DIR)")
+  $(info "INFO: Using HDF5_LIB_DIR=$(HDF5_LIB_DIR)")
   $(warning "WARNING: --------------------------------------------------------------------------")
 endif
 
@@ -66,6 +69,17 @@ TBB_RELATIVE_PATH ?= ../$(notdir $(TBB))
 TBB_BIN_ABSOLUTE_PATH = $(abspath $(TBB_BIN))
 TBB_ABSOLUTE_PATH = $(abspath $(TBB))
 
+# HDF5 stuff
+# Torch stuff
+ifneq ($(HDF5_LIB_DIR),)
+  HDF5_LFLAGS=-L$(HDF5_LIB_DIR)
+  HDF5_LIBS=-lhdf5
+  $(info "Torch enabled. Using HDF5_LIB_DIR=$(HDF5_LIB_DIR)")
+else
+  HDF5_LFLAGS=
+  HDF5_LIBS=
+endif
+
 # Torch stuff
 ifneq ($(TORCH_DIR),)
   TORCH_IFLAGS=-I$(TORCH_DIR)/include
@@ -83,8 +97,8 @@ endif
 export IFLAGS=-I$(THEMISDIR)/data -I$(THEMISDIR)/likelihood -I$(THEMISDIR)/model -I$(THEMISDIR)/sampling -I$(THEMISDIR)/util -I$(THEMISDIR)/optimizing -I$(THEMISDIR)/VRT2/include -I$(FFTW_INCLUDE_DIR) -isystem$(THEMISDIR)/themistan/stan/src -I$(THEMISDIR)/themistan/stan/./src/ -I$(THEMISDIR)/themistan/stan/lib/stan_math -I$(THEMISDIR)/LBFGSpp/include -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/eigen_3.3.3 -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/boost_1.72.0 -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/sundials_4.1.0/include/ -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb_2019_U8/include/ -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb -I$(THEMISDIR)/themistan $(TORCH_IFLAGS)
 
 ## Linker flags
-LFLAGS=-L$(FFTW_LIB_DIR) -L$(THEMISDIR)/VRT2/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/boost_1.72.0/stage/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb_2019_U8/include -Wl,-L,"$(TBB_BIN_ABSOLUTE_PATH)" -Wl,-rpath,"$(TBB_BIN_ABSOLUTE_PATH)"
-LIBS=$(TORCH_LFLAGS) -lm -lfftw3 -lhdf5 -lvrt2 -ltbb 
+LFLAGS=-L$(FFTW_LIB_DIR) -L$(THEMISDIR)/VRT2/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/boost_1.72.0/stage/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb_2019_U8/include -Wl,-L,"$(TBB_BIN_ABSOLUTE_PATH)" -Wl,-rpath,"$(TBB_BIN_ABSOLUTE_PATH)" $(HDF5_LAGS)
+LIBS=$(TORCH_LFLAGS) -lm -lfftw3 -lvrt2 -ltbb $(HDF5_LIBS)
 
 #export HDF5_MPI="ON"
 #export HDF5_CXX=mpiCC

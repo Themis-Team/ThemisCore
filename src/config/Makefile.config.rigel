@@ -25,4 +25,11 @@ FFTW_INCLUDE_DIR=/usr/include
 ## library file libfftw3.a can be found.
 FFTW_LIB_DIR=/usr/lib64
 
+## If defined, will build hdf5 file support.  Requires libhdf5 on the
+## linker path.  Only necessary if hdf5 features are being used.
+HDF5_LIB_DIR=/usr/lib64
 
+## The absolute location of thee Torch installation.  This should contain
+## include and lib directories.  Only necessary if Torch features are
+## being used.
+TORCH_DIR=
