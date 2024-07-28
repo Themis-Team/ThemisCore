@@ -23,8 +23,8 @@
 <area shape="rect" id="node23" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="4405,311,4621,353"/>
 <area shape="rect" id="node24" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="4645,304,4834,360"/>
 <area shape="rect" id="node25" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="4858,304,5048,360"/>
-<area shape="rect" id="node26" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="4233,103,4476,145"/>
-<area shape="rect" id="node27" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="5072,311,5290,353"/>
+<area shape="rect" id="node26" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="4233,103,4476,145"/>
+<area shape="rect" id="node27" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="5072,311,5290,353"/>
 <area shape="rect" id="node28" href="$a00257.html" title="analyses/ProjectSpecific\l/M87/Challenge2/challenge2\l_VACP_comparison.cpp" alt="" coords="4550,96,4756,152"/>
 <area shape="rect" id="node29" href="$a00258.html" title="analyses/ProjectSpecific\l/M87/Challenge2/generate\l_multigaussian_test_data.cpp" alt="" coords="4780,96,4996,152"/>
 <area shape="rect" id="node30" href="$a00259.html" title="analyses/ProjectSpecific\l/M87/Challenge2/test_multigaussian.cpp" alt="" coords="5020,103,5305,145"/>

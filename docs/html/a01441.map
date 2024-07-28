@@ -15,8 +15,8 @@
 <area shape="rect" id="node15" href="$a00226.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_hilo.cpp" alt="" coords="3016,96,3205,152"/>
 <area shape="rect" id="node16" href="$a00230.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_hilo.cpp" alt="" coords="3229,96,3419,152"/>
 <area shape="rect" id="node17" href="$a00232.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_hilo_noopt.cpp" alt="" coords="3443,96,3632,152"/>
-<area shape="rect" id="node18" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="3656,103,3899,145"/>
-<area shape="rect" id="node19" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="3923,103,4141,145"/>
+<area shape="rect" id="node18" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="3656,103,3899,145"/>
+<area shape="rect" id="node19" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="3923,103,4141,145"/>
 <area shape="rect" id="node20" href="$a00253.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_diff.cpp" alt="" coords="4165,96,4421,152"/>
 <area shape="rect" id="node21" href="$a00708.html" title="Implementation file for the sampler_differential_evolution_deo_tempered_MCMC class. " alt="" coords="4446,103,4711,145"/>
 <area shape="rect" id="node22" href="$a00770.html" title="Test rig for developing and testing the likelihood_small_gain_correction_visibility_amplitude class..." alt="" coords="4736,103,4899,145"/>

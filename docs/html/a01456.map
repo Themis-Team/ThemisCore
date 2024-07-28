@@ -12,8 +12,8 @@
 <area shape="rect" id="node12" href="$a00223.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_complex_single_deostan_v3.cpp" alt="" coords="2325,96,2565,152"/>
 <area shape="rect" id="node13" href="$a00225.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_deostan.cpp" alt="" coords="2589,96,2779,152"/>
 <area shape="rect" id="node14" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="2803,96,3001,152"/>
-<area shape="rect" id="node15" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="3027,103,3269,145"/>
-<area shape="rect" id="node16" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="3294,103,3553,145"/>
+<area shape="rect" id="node15" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="3027,103,3269,145"/>
+<area shape="rect" id="node16" href="$a00237.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="3294,103,3553,145"/>
 <area shape="rect" id="node17" href="$a00252.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_diagstan.cpp" alt="" coords="3579,96,3835,152"/>
 <area shape="rect" id="node18" href="$a00393.html" title="analyses/ProjectSpecific\l/M87/m87_ccm_nuts.cpp" alt="" coords="3859,103,4041,145"/>
 <area shape="rect" id="node19" href="$a00405.html" title="analyses/ProjectSpecific\l/SgrA/general_riaf_complex\l_diagstan.cpp" alt="" coords="4066,96,4267,152"/>

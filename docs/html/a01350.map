@@ -4,7 +4,7 @@
 <area shape="rect" id="node4" href="$a00227.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_dense.cpp" alt="" coords="432,200,643,256"/>
 <area shape="rect" id="node5" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="667,200,865,256"/>
 <area shape="rect" id="node6" href="$a00229.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_slice.cpp" alt="" coords="891,200,1080,256"/>
-<area shape="rect" id="node7" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="1105,207,1364,249"/>
+<area shape="rect" id="node7" href="$a00237.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="1105,207,1364,249"/>
 <area shape="rect" id="node8" href="$a00648.html" title="Implements polarized image model class. " alt="" coords="1219,103,1393,145"/>
 <area shape="rect" id="node9" href="$a00651.html" title="Header file for the model_polarized_image_adaptive_splined_raster image class. " alt="" coords="601,96,788,152"/>
 <area shape="rect" id="node10" href="$a00653.html" title="Header file for a polarized image model class with a constant polarization applied to a model image..." alt="" coords="813,103,1043,145"/>

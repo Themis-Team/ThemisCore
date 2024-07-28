@@ -22,8 +22,8 @@
 <area shape="rect" id="node22" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="4533,103,4749,145"/>
 <area shape="rect" id="node23" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="4773,96,4963,152"/>
 <area shape="rect" id="node24" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="4987,96,5176,152"/>
-<area shape="rect" id="node25" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="5200,103,5443,145"/>
-<area shape="rect" id="node26" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="5467,103,5685,145"/>
+<area shape="rect" id="node25" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="5200,103,5443,145"/>
+<area shape="rect" id="node26" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="5467,103,5685,145"/>
 <area shape="rect" id="node27" href="$a00614.html" title="Implements the model_image_splined_raster image class. " alt="" coords="5709,103,5920,145"/>
 <area shape="rect" id="node28" href="$a00742.html" title="tests/test_splined\l_raster.cpp" alt="" coords="5945,103,6081,145"/>
 <area shape="rect" id="node29" href="$a00743.html" title="tests/test_tags.cpp" alt="" coords="6106,111,6251,137"/>

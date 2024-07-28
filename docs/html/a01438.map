@@ -16,8 +16,8 @@
 <area shape="rect" id="node16" href="$a00227.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_dense.cpp" alt="" coords="3229,96,3440,152"/>
 <area shape="rect" id="node17" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="3465,96,3663,152"/>
 <area shape="rect" id="node18" href="$a00229.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_slice.cpp" alt="" coords="3688,96,3877,152"/>
-<area shape="rect" id="node19" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="3901,103,4144,145"/>
-<area shape="rect" id="node20" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="4169,103,4428,145"/>
+<area shape="rect" id="node19" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="3901,103,4144,145"/>
+<area shape="rect" id="node20" href="$a00237.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="4169,103,4428,145"/>
 <area shape="rect" id="node21" href="$a00242.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss.cpp" alt="" coords="4453,96,4685,152"/>
 <area shape="rect" id="node22" href="$a00243.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va.cpp" alt="" coords="4709,96,4941,152"/>
 <area shape="rect" id="node23" href="$a00244.html" title="analyses/ProjectSpecific\l/GalacticCenterScatteringScreen\l/gcss_va00.cpp" alt="" coords="4965,96,5197,152"/>

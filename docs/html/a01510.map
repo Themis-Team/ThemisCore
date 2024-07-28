@@ -21,8 +21,8 @@
 <area shape="rect" id="node21" href="$a00227.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_dense.cpp" alt="" coords="3229,184,3440,240"/>
 <area shape="rect" id="node22" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="3465,184,3663,240"/>
 <area shape="rect" id="node23" href="$a00229.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_slice.cpp" alt="" coords="3688,184,3877,240"/>
-<area shape="rect" id="node24" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="3901,191,4144,233"/>
-<area shape="rect" id="node25" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="4169,191,4428,233"/>
+<area shape="rect" id="node24" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="3901,191,4144,233"/>
+<area shape="rect" id="node25" href="$a00237.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="4169,191,4428,233"/>
 <area shape="rect" id="node26" href="$a00556.html" title="Implements SED&#45;fitted force free jet model class. " alt="" coords="3886,87,4081,129"/>
 <area shape="rect" id="node27" href="$a00562.html" title="Implements the RIAF image model class. " alt="" coords="4106,87,4317,129"/>
 <area shape="rect" id="node28" href="$a00564.html" title="Implements Shearing spot image class. " alt="" coords="4342,87,4553,129"/>

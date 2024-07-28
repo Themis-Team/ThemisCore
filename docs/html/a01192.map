@@ -23,8 +23,8 @@
 <area shape="rect" id="node23" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="5468,178,5684,219"/>
 <area shape="rect" id="node24" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="5041,171,5231,227"/>
 <area shape="rect" id="node25" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="5255,171,5444,227"/>
-<area shape="rect" id="node26" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="948,178,1191,219"/>
-<area shape="rect" id="node27" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="4799,178,5017,219"/>
+<area shape="rect" id="node26" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="948,178,1191,219"/>
+<area shape="rect" id="node27" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="4799,178,5017,219"/>
 <area shape="rect" id="node28" href="$a00557.html" title="Header file for force free jet model. " alt="" coords="10698,81,10893,122"/>
 <area shape="rect" id="node29" href="$a00549.html" title="Implements wavelength&#45;dependent, asymmetric Gaussian image class. " alt="" coords="3306,81,3547,122"/>
 <area shape="rect" id="node32" href="$a00542.html" title="Implements image model class. " alt="" coords="10918,88,11100,115"/>

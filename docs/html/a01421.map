@@ -20,9 +20,9 @@
 <area shape="rect" id="node20" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="4105,96,4303,152"/>
 <area shape="rect" id="node21" href="$a00229.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_slice.cpp" alt="" coords="4328,96,4517,152"/>
 <area shape="rect" id="node22" href="$a00230.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_hilo.cpp" alt="" coords="4541,96,4731,152"/>
-<area shape="rect" id="node23" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="4755,103,4997,145"/>
-<area shape="rect" id="node24" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="5022,103,5281,145"/>
-<area shape="rect" id="node25" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="5307,103,5525,145"/>
+<area shape="rect" id="node23" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="4755,103,4997,145"/>
+<area shape="rect" id="node24" href="$a00237.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="5022,103,5281,145"/>
+<area shape="rect" id="node25" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="5307,103,5525,145"/>
 <area shape="rect" id="node26" href="$a00250.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_afss.cpp" alt="" coords="5549,96,5805,152"/>
 <area shape="rect" id="node27" href="$a00251.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_densestan.cpp" alt="" coords="5829,96,6085,152"/>
 <area shape="rect" id="node28" href="$a00252.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_diagstan.cpp" alt="" coords="6109,96,6365,152"/>

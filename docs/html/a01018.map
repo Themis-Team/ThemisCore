@@ -4,7 +4,7 @@
 <area shape="rect" id="node4" href="$a00227.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_dense.cpp" alt="" coords="432,307,643,363"/>
 <area shape="rect" id="node5" href="$a00228.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_diag.cpp" alt="" coords="1067,307,1265,363"/>
 <area shape="rect" id="node6" href="$a00229.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_slice.cpp" alt="" coords="667,307,856,363"/>
-<area shape="rect" id="node7" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="1290,314,1549,355"/>
+<area shape="rect" id="node7" href="$a00237.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="1290,314,1549,355"/>
 <area shape="rect" id="node8" href="$a00423.html" title="Implements datum and data objects containing crosshand visibilities (RR, LL, RL, LR). " alt="" coords="1545,97,1703,138"/>
 <area shape="rect" id="node9" href="$a00478.html" title="Header file for the crosshand visibilities likelihood class. " alt="" coords="619,202,800,243"/>
 <area shape="rect" id="node11" href="$a00492.html" title="Header file for the likelihood_optimal_complex_gain_constrained_crosshand_visibilities likelihood cla..." alt="" coords="824,187,1003,258"/>

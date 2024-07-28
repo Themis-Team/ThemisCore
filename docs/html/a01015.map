@@ -23,8 +23,8 @@
 <area shape="rect" id="node23" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="4757,87,4973,129"/>
 <area shape="rect" id="node24" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="4997,80,5187,136"/>
 <area shape="rect" id="node25" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="5211,80,5400,136"/>
-<area shape="rect" id="node26" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="5424,87,5667,129"/>
-<area shape="rect" id="node27" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="5691,87,5909,129"/>
+<area shape="rect" id="node26" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="5424,87,5667,129"/>
+<area shape="rect" id="node27" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="5691,87,5909,129"/>
 <area shape="rect" id="node28" href="$a00421.html" title="Implements datum and data objects containing closure phases. " alt="" coords="5933,95,6144,121"/>
 <area shape="rect" id="node29" href="$a00436.html" title="Fit visibility magnitude and closure phase data to a simple binary model. " alt="" coords="6168,95,6379,121"/>
 <area shape="rect" id="node30" href="$a00455.html" title="Example of fitting a multi&#45;Gaussian image model to visibility amplitude and closure phase data accord..." alt="" coords="6403,87,6603,129"/>

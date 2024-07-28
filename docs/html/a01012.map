@@ -23,8 +23,8 @@
 <area shape="rect" id="node23" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="869,282,1085,323"/>
 <area shape="rect" id="node24" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="1109,275,1299,331"/>
 <area shape="rect" id="node25" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="1323,275,1512,331"/>
-<area shape="rect" id="node26" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="5085,87,5328,129"/>
-<area shape="rect" id="node27" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="1536,282,1755,323"/>
+<area shape="rect" id="node26" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="5085,87,5328,129"/>
+<area shape="rect" id="node27" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="1536,282,1755,323"/>
 <area shape="rect" id="node28" href="$a00419.html" title="Implements datum and data objects containing closure amplitudes. " alt="" coords="5353,95,5591,121"/>
 <area shape="rect" id="node29" href="$a00474.html" title="Header file for the clsoure Amplitude Likelihood class. " alt="" coords="783,185,944,226"/>
 <area shape="rect" id="node30" href="$a00521.html" title="Header file for visibility ampitude model class. " alt="" coords="757,87,920,129"/>

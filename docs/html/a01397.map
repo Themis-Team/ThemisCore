@@ -18,7 +18,7 @@
 <area shape="rect" id="node18" href="$a00225.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_deostan.cpp" alt="" coords="3680,109,3869,165"/>
 <area shape="rect" id="node19" href="$a00227.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_nuts_dense.cpp" alt="" coords="3893,109,4104,165"/>
 <area shape="rect" id="node20" href="$a00229.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecad\l_crosshands_slice.cpp" alt="" coords="4128,109,4317,165"/>
-<area shape="rect" id="node21" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="4341,117,4584,158"/>
+<area shape="rect" id="node21" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="4341,117,4584,158"/>
 <area shape="rect" id="node22" href="$a00250.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_afss.cpp" alt="" coords="4608,109,4864,165"/>
 <area shape="rect" id="node23" href="$a00251.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_densestan.cpp" alt="" coords="4888,109,5144,165"/>
 <area shape="rect" id="node24" href="$a00252.html" title="analyses/ProjectSpecific\l/ImgWS2020/MultiGauss/multigauss\l_synth_deo_diagstan.cpp" alt="" coords="5168,109,5424,165"/>

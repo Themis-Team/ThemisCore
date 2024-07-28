@@ -28,9 +28,9 @@
 <area shape="rect" id="node28" href="$a00233.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup.cpp" alt="" coords="5317,178,5533,219"/>
 <area shape="rect" id="node29" href="$a00234.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_hilo.cpp" alt="" coords="5771,171,5960,227"/>
 <area shape="rect" id="node30" href="$a00235.html" title="analyses/Multipurpose\l/Imaging/Archive/imrecup\l_scatt_hilo.cpp" alt="" coords="6208,171,6397,227"/>
-<area shape="rect" id="node31" href="$a00236.html" title="analyses/Multipurpose\l/Imaging/themaging_complex.cpp" alt="" coords="1547,282,1789,323"/>
-<area shape="rect" id="node32" href="$a00237.html" title="analyses/Multipurpose\l/Imaging/themaging_crosshands.cpp" alt="" coords="3159,282,3419,323"/>
-<area shape="rect" id="node33" href="$a00238.html" title="analyses/Multipurpose\l/Imaging/themaging_vacp.cpp" alt="" coords="6239,282,6457,323"/>
+<area shape="rect" id="node31" href="$a00236.html" title="Generic driver for image reconstruction with Themis with complex visibilities including noise modelin..." alt="" coords="1547,282,1789,323"/>
+<area shape="rect" id="node32" href="$a00237.html" title="Generic driver for polarized image reconstruction with Themis with full crosshand visibilities that u..." alt="" coords="3159,282,3419,323"/>
+<area shape="rect" id="node33" href="$a00238.html" title="Generic driver for image reconstruction with Themis from visibility amplitude and closure phase data..." alt="" coords="6239,282,6457,323"/>
 <area shape="rect" id="node34" href="$a00257.html" title="analyses/ProjectSpecific\l/M87/Challenge2/challenge2\l_VACP_comparison.cpp" alt="" coords="8045,171,8251,227"/>
 <area shape="rect" id="node35" href="$a00258.html" title="analyses/ProjectSpecific\l/M87/Challenge2/generate\l_multigaussian_test_data.cpp" alt="" coords="8275,171,8491,227"/>
 <area shape="rect" id="node36" href="$a00259.html" title="analyses/ProjectSpecific\l/M87/Challenge2/test_multigaussian.cpp" alt="" coords="8515,178,8800,219"/>
