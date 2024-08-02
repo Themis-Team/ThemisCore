@@ -50,7 +50,7 @@ void RT_Axion::reinitialize(FourVector<double>& x, FourVector<double>& k)
   set_common_funcs();
 }
 
-void RT_Axion::set_constants()
+void RT_Axion::set_constants() // Start-up functions/quantities, things that can be defined only at very beginning.
 {
   // // Emission constant (in cgs units)
   // _Cjnu = VRT2_Constants::me * VRT2_Constants::c * VRT2_Constants::re
@@ -77,7 +77,7 @@ void RT_Axion::set_constants()
   // _Calphanu *= _length_scale;
 }
 
-void RT_Axion::set_common_funcs()
+void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
   // _n0 = _Cn * _ne(_x);
 
