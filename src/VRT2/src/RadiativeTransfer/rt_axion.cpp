@@ -52,6 +52,16 @@ void RT_Axion::reinitialize(FourVector<double>& x, FourVector<double>& k)
 
 void RT_Axion::set_constants() // Start-up functions/quantities, things that can be defined only at very beginning.
 {
+  // NEEDED CONSTANTS:  (ZHIREN)
+  // 1. beta 
+  // 2. omega_axion
+  // 3. wave function normalization
+  // 4. alpha  [ sqrt(9/4-alpha) ]
+
+
+
+
+  // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // // Emission constant (in cgs units)
   // _Cjnu = VRT2_Constants::me * VRT2_Constants::c * VRT2_Constants::re
   //   * std::pow( 3.0, _spectral_index + 0.5 ) * std::exp(gammln(0.5*_spectral_index + 11.0/6.0) + gammln(0.5*_spectral_index + 1.0/6.0))
@@ -79,6 +89,16 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
+  // NEEDED FUNCTIONS/EVALUATIONS:  (ZHIREN)
+  // 0. da/dt
+  // 1. da/dr
+  // 2. da/dtheta
+  // 3. da/dphi
+
+
+
+
+  // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // _n0 = _Cn * _ne(_x);
 
   // FourVector<double> u = _u(_x);
