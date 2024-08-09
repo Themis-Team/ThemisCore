@@ -88,7 +88,8 @@ class RT_Axion : public RadiativeTransfer
   double _sn, _cs; // sine and cosine of the angle between the field defined Stokes basis and the fiducial Stokes basis
 
   // Set constants only once
-  void set_constants();
+  // void set_constants();
+  std::tuple<double, double, double> set_constants(double alpha);
 
   // Get common functions
   void set_common_funcs();
@@ -98,6 +99,23 @@ class RT_Axion : public RadiativeTransfer
 
   // Computes dlambda/dl
   double dl_dlambda(const double dydx[]);
+
+  static constexpr double hbar = 1.054571817e-34; // reduced Planck's constant
+  static constexpr double c = 299792458;          // speed of light
+  static constexpr double G = 6.67408e-11;        // gravitational constant
+  static constexpr double M_sgra = 8.55e36;       // SgrA* mass
+
+  double Ma_alpha(double alpha);
+  double alpha_term(double alpha);
+  double E_21(double alpha);
+  double beta_axion(double alpha);
+  double omega_21(double alpha);
+  double pre_factor_A();
+
+  double dadr(double t, double r, double theta, double phi, double alpha);
+  double dadtheta(double t, double r, double theta, double phi, double alpha);
+  double dadphi(double t, double r, double theta, double phi, double alpha);
+  double dadt(double t, double r, double theta, double phi, double alpha);
 };
 
 
