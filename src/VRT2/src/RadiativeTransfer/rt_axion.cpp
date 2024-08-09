@@ -4,8 +4,8 @@
 namespace VRT2 {
 RT_Axion::RT_Axion(Metric& g,
 		   AccretionFlowVelocity& u,
-		   double dn, double ma, double ga, int n,int l, int m)
-  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga), _n(n), _l(l), _m(m)
+		   double M, double dn, double ma, double ga)
+  : RadiativeTransfer(g), _u(u), _M(M), _dn(dn), _ma(ma), _ga(ga)
 {
   set_constants();
 }
@@ -50,9 +50,14 @@ void RT_Axion::reinitialize(FourVector<double>& x, FourVector<double>& k)
   set_common_funcs();
 }
 
-// void RT_Axion::set_constants() // Start-up functions/quantities, things that can be defined only at very beginning.
-std::tuple<double, double, double> RT_Axion::set_constants(double alpha)
+void RT_Axion::set_constants() // Start-up functions/quantities, things that can be defined only at very beginning.
+// std::tuple<double, double, double> RT_Axion::set_constants(double alpha)
 {
+  double Mg = VRT2::VRT2_Constants::M_sun * _M; // Black hole mass in g (from Msun)
+  double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
+
+  _alpha = VRT2::VRT2_Constants::G * Mg * mg   / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c);
+
 
   // NEEDED CONSTANTS:  (ZHIREN)
   // 1. beta 
@@ -60,10 +65,11 @@ std::tuple<double, double, double> RT_Axion::set_constants(double alpha)
   // 3. wave function normalization
   // 4. alpha  [ sqrt(9/4-alpha) ]
 
-  double beta = beta_axion(alpha);
-  double omega = omega_21(alpha);
-  double pre_factor = pre_factor_A();
-  return std::make_tuple(beta, omega, pre_factor);
+  _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G * Mg / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
+  _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G * Mg / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
+  _pre_factor = pre_factor_A();
+
+  _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _pre_factor * _beta
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // // Emission constant (in cgs units)
@@ -93,7 +99,7 @@ std::tuple<double, double, double> RT_Axion::set_constants(double alpha)
 
 double RT_Axion::Ma_alpha(double alpha)
 {
-  return hbar * c * alpha / (G * M_sgra);
+  return VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c * alpha / (VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::Msun * _M);
 }
 
 double RT_Axion::alpha_term(double alpha)
@@ -104,26 +110,27 @@ double RT_Axion::alpha_term(double alpha)
 double RT_Axion::E_21(double alpha)
 {
   double denom = std::sqrt(1 + alpha * alpha / std::pow(alpha_term(alpha), 2));
-  return Ma_alpha(alpha) * c * c / denom;
+  return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / denom;
 }
 
 double RT_Axion::beta_axion(double alpha)
 {
-  return 2 * std::sqrt(std::pow(Ma_alpha(alpha), 2) * std::pow(c, 4) - std::pow(E_21(alpha), 2)) / (hbar * c);
+  return 2 * std::sqrt(std::pow(Ma_alpha(alpha), 2) * std::pow(VRT2::VRT2_Constants::c, 4) - std::pow(E_21(alpha), 2)) / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c);
 }
 
 double RT_Axion::omega_21(double alpha)
 {
-  return Ma_alpha(alpha) * c * c / hbar * (1 - alpha * alpha / 8 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8);
+  return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
 }
 
 double RT_Axion::pre_factor_A()
 {
-  return 1;
+  return 1.0; // TBD
 }
 
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
+
   // NEEDED FUNCTIONS/EVALUATIONS:  (ZHIREN)
   // 0. da/dt
   // 1. da/dr
@@ -172,11 +179,11 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
 double RT_Axion::dadr(double t, double r, double theta, double phi, double alpha)
 {
   // no change of sign
-  double beta_r = beta_axion(alpha) * r;
-  double norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * pre_factor_A() * beta_axion(alpha);
+  // double beta_r = beta_axion(alpha) * r;
+  double beta_r = _beta * r;
   double radial_part = std::pow(beta_r, alpha_term(alpha) - 1) * std::exp(-beta_r) * (alpha_term(alpha) - 1 - beta_r) / r;
-  double t_angular_part = std::cos(phi - omega_21(alpha) * t) * std::sin(theta);
-  return norm_factor * radial_part * t_angular_part;
+  double t_angular_part = std::cos(phi - _omega_axion * t) * std::sin(theta);
+  return _norm_factor * radial_part * t_angular_part;
 }
 
 double RT_Axion::dadt(double t, double r, double theta, double phi, double alpha)

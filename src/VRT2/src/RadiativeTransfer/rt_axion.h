@@ -77,19 +77,18 @@ class RT_Axion : public RadiativeTransfer
  private:
   AccretionFlowVelocity& _u;
 
+  double _M; // Mass of the black hole in solar masses
   double _dn; // Density normalization for the axion cloud in TBD.
   double _ma; // Compton wavelength of the axion in eV
   double _ga; // Axion-photon coupling constant in TBD.
-
-  int _n, _l, _m; // Quantum numbers for the axion cloud.
 
   double _omega; // Some common values among all return functions
   double _sn_alpha; // Sine of angle between field and k
   double _sn, _cs; // sine and cosine of the angle between the field defined Stokes basis and the fiducial Stokes basis
 
   // Set constants only once
-  // void set_constants();
-  std::tuple<double, double, double> set_constants(double alpha);
+  void set_constants();
+  //std::tuple<double, double, double> set_constants(double alpha);
 
   // Get common functions
   void set_common_funcs();
