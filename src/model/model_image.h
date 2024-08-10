@@ -41,6 +41,12 @@ namespace Themis {
   model_image();
   virtual ~model_image();
 
+  //! State switch to using the standard library exp, std::exp, in the construction of the DFT weights.  Once called, all future visibilities will be computed analytically until use_fast_exp_approx() is called.
+  void use_exact_exp();
+
+  //! State switch to using the fast polynomial approximation in utils::fast_img_exp, which exploits the fact that the DFT employs weights that use only exponentials with strictly imaginary arguments.  Once called, all future visibilities will be computed analytically until use_exact_exp() is called.
+  void use_fast_exp_approx();
+
   //! A user-supplied function that returns the number of the parameters the model expects
   virtual inline size_t size() const { return 1; };
 
@@ -106,7 +112,7 @@ namespace Themis {
   };
   
   
- protected:
+  //protected:
   MPI_Comm _comm;
 
   bool _generated_model; //!< True when a model is generated with generate_model.
@@ -122,7 +128,7 @@ namespace Themis {
   
 
 
- protected:
+  protected:
   // Space for image
   std::vector<std::vector<double> > _alpha; //!< 2D grid of horizonal pixel locations in radians, relative to the fiducial direction of the image (i.e., unrotated by the position angle).
   std::vector<std::vector<double> > _beta; //!< 2D grid of vertical pixel locations in radians, relative to the fiducial direction of the image (i.e., unrotated by the position angle).
@@ -153,6 +159,9 @@ namespace Themis {
 
   //! 2D shift utility function to center the zero-baseline modes at the center of the array
   virtual std::vector<std::vector<std::complex<double> > > fft_shift(const std::vector<std::vector<std::complex<double> > > &V);	//shift
+
+  bool _use_fast_exp_approx;
+
 };
 
 };

@@ -41,6 +41,7 @@ int main(int argc, char* argv[])
   Themis::model_image_gaussian GAUSSIAN;
   Themis::model_image_gaussian GAUSSIAN_NUM;
   GAUSSIAN_NUM.use_numerical_visibilities();
+  //GAUSSIAN_NUM.use_fast_exp_approx();
 
   GAUSSIAN.generate_model(p);
   GAUSSIAN_NUM.generate_model(p);
@@ -55,13 +56,12 @@ int main(int argc, char* argv[])
   CP = GAUSSIAN_NUM.closure_phase(d_CP, 0);
   std::cerr << "Numerical:  Generated CLOSURE PHASE:" << CP << std::endl;
 
-
+  /*
   std::vector<std::vector<double> > a, b, I;
   std::vector<std::vector<double> > aN, bN, IN;
   GAUSSIAN.get_image(a,b,I);
   GAUSSIAN.get_image(aN,bN,IN);
 
-  /*
   std::cerr << a.size() << " " << b.size() << " " << I.size() << '\n';
   std::cerr << aN.size() << " " << bN.size() << " " << IN.size() << '\n';
   std::cout << "\n\n";
@@ -73,7 +73,6 @@ int main(int argc, char* argv[])
 		<< '\n';
   std::cout << "\n\n" << std::endl;;
   */
-
 
   for (int i=0; i<1000; ++i)
   {

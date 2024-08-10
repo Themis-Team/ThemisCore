@@ -21,7 +21,7 @@
 namespace Themis {
 
 model_image::model_image()
-  : _comm(MPI_COMM_WORLD), _generated_model(false), _generated_visibilities(false), _use_spline(false), _position_angle(0.0)
+  : _comm(MPI_COMM_WORLD), _generated_model(false), _generated_visibilities(false), _use_spline(false), _position_angle(0.0), _use_fast_exp_approx(false)
 {
 }
 
@@ -29,6 +29,26 @@ model_image::~model_image()
 {
 }
 
+
+void model_image::use_exact_exp()
+{
+  int world_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  
+  std::cout << "Using std:exp in DFTs in rank " << world_rank << std::endl;
+  
+  _use_fast_exp_approx = false;
+}
+
+void model_image::use_fast_exp_approx()
+{
+  int world_rank;
+  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+  
+  std::cout << "Using fast exponential approximation in DFTs in rank " << world_rank << std::endl;
+  
+  _use_fast_exp_approx = true;
+}
 
 void model_image::write_model_tag_file(std::string tagfilename) const
 {
@@ -404,10 +424,22 @@ void model_image::compute_raw_visibilities()
       _v[i][j] = -vl_max + d_vl*((double)j);// - 0.5*d_vl;
       //we also need to phase center which is slightly annoying since we define intensities at pixel centers
       //_V[i][j] *= norm*std::exp(-std::complex<double>(0,2.0*M_PI) * (_u[i][j]*_alpha[0][0] + _v[i][j]*_beta[0][0]) );
-      _V[i][j] *= norm * utils::fast_img_exp7( -(_u[i][j]*_alpha[0][0] + _v[i][j]*_beta[0][0]) );
+      //_V[i][j] *= norm * utils::fast_img_exp7( -(_u[i][j]*_alpha[0][0] + _v[i][j]*_beta[0][0]) );
     }
   }
-
+  //we also need to phase center which is slightly annoying since we define intensities at pixel centers
+  if (_use_fast_exp_approx)
+  {
+    for (size_t i=0; i<nrow; ++i)
+      for (size_t j=0; j<ncol; ++j)
+	_V[i][j] *= norm * utils::fast_img_exp7( -(_u[i][j]*_alpha[0][0] + _v[i][j]*_beta[0][0]) );
+  } 
+  else
+  {
+    for (size_t i=0; i<nrow; ++i)
+      for (size_t j=0; j<ncol; ++j)
+	_V[i][j] *= norm*std::exp(-std::complex<double>(0,2.0*M_PI) * (_u[i][j]*_alpha[0][0] + _v[i][j]*_beta[0][0]) );
+  } 
 
 
   //assign magnitude and phase(log of complex))
