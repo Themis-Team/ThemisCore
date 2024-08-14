@@ -90,19 +90,27 @@ class RT_Axion : public RadiativeTransfer
   void set_constants();
   //std::tuple<double, double, double> set_constants(double alpha);
 
+  double _alpha; // Fine structure constant
+  double _E21; // Energy of axion at n=2, l=1
+  double _beta; // Parameter beta to save time
+  double _omega_axion; // Eigenfrequency
+  double _alpha_term; // Alpha term to save time
+  double _pre_factor; // A prefactor A in the normalization factor
+  double _norm_factor; // Normalization factor for the axion cloud
+
   // Get common functions
   void set_common_funcs();
 
+  double beta_r; // Dimensionless r
+  double common_radial_part;
+  double common_argument;
+
   // Get rotation angle to align with z-aligned Stokes basis
-  void get_Stokes_alignment_angle(FourVector<double>& u, FourVector<double>& b, double& cs, double& sn);
+  void
+  get_Stokes_alignment_angle(FourVector<double> &u, FourVector<double> &b, double &cs, double &sn);
 
   // Computes dlambda/dl
   double dl_dlambda(const double dydx[]);
-
-  static constexpr double hbar = 1.054571817e-34; // reduced Planck's constant
-  static constexpr double c = 299792458;          // speed of light
-  static constexpr double G = 6.67408e-11;        // gravitational constant
-  static constexpr double M_sgra = 8.55e36;       // SgrA* mass
 
   double Ma_alpha(double alpha);
   double alpha_term(double alpha);

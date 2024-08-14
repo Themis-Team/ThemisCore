@@ -56,7 +56,7 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   double Mg = VRT2::VRT2_Constants::M_sun * _M; // Black hole mass in g (from Msun)
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
 
-  _alpha = VRT2::VRT2_Constants::G * Mg * mg   / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c);
+  _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
 
 
   // NEEDED CONSTANTS:  (ZHIREN)
@@ -64,12 +64,13 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // 2. omega_axion
   // 3. wave function normalization
   // 4. alpha  [ sqrt(9/4-alpha) ]
-
+  _E21 = E_21(_alpha); // Still in SI/cgs units
   _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G * Mg / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
   _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G * Mg / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
+  _alpha_term = alpha_term(_alpha); 
   _pre_factor = pre_factor_A();
 
-  _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _pre_factor * _beta
+  _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _pre_factor * _beta;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // // Emission constant (in cgs units)
@@ -99,7 +100,7 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 
 double RT_Axion::Ma_alpha(double alpha)
 {
-  return VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c * alpha / (VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::Msun * _M);
+  return VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c * alpha / (VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::M_sun * _M);
 }
 
 double RT_Axion::alpha_term(double alpha)
@@ -136,6 +137,9 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   // 1. da/dr
   // 2. da/dtheta
   // 3. da/dphi
+  beta_r = _beta * r;
+  common_radial_part = std::pow(beta_r, _alpha_term - 1) * std::exp(-beta_r);
+  common_argument = phi - _omega_axion * t;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // _n0 = _Cn * _ne(_x);
@@ -179,41 +183,30 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
 double RT_Axion::dadr(double t, double r, double theta, double phi, double alpha)
 {
   // no change of sign
-  // double beta_r = beta_axion(alpha) * r;
-  double beta_r = _beta * r;
-  double radial_part = std::pow(beta_r, alpha_term(alpha) - 1) * std::exp(-beta_r) * (alpha_term(alpha) - 1 - beta_r) / r;
-  double t_angular_part = std::cos(phi - _omega_axion * t) * std::sin(theta);
-  return _norm_factor * radial_part * t_angular_part;
+  double radial_derivative_part = (alpha_term(alpha) - 1 - beta_r) / r;
+  double t_angular_part = std::cos(common_argument) * std::sin(theta);
+  return _norm_factor * common_radial_part * radial_derivative_part * t_angular_part;
 }
 
 double RT_Axion::dadt(double t, double r, double theta, double phi, double alpha)
 {
   // no change of sign
-  double beta_r = beta_axion(alpha) * r;
-  double norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * pre_factor_A() * beta_axion(alpha);
-  double radial_part = std::pow(beta_r, alpha_term(alpha) - 1) * std::exp(-beta_r);
-  double t_angular_part = omega_21(alpha) * std::sin(phi - omega_21(alpha) * t) * std::sin(theta);
-  return norm_factor * radial_part * t_angular_part;
+  double t_angular_part = _omega_axion * std::sin(common_argument) * std::sin(theta);
+  return _norm_factor * common_radial_part * t_angular_part;
 }
 
 double RT_Axion::dadtheta(double t, double r, double theta, double phi, double alpha)
 {
   // no change of sign
-  double beta_r = beta_axion(alpha) * r;
-  double norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * pre_factor_A() * beta_axion(alpha);
-  double radial_part = std::pow(beta_r, alpha_term(alpha) - 1) * std::exp(-beta_r);
-  double t_angular_part = std::cos(phi - omega_21(alpha) * t) * std::cos(theta);
-  return norm_factor * radial_part * t_angular_part;
+  double t_angular_part = std::cos(common_argument) * std::cos(theta);
+  return _norm_factor * common_radial_part * t_angular_part;
 }
 
 double RT_Axion::dadphi(double t, double r, double theta, double phi, double alpha)
 {
-  // change of sign
-  double beta_r = beta_axion(alpha) * r;
-  double norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * pre_factor_A() * beta_axion(alpha);
-  double radial_part = std::pow(beta_r, alpha_term(alpha) - 1) * std::exp(-beta_r);
-  double t_angular_part = -std::sin(phi - omega_21(alpha) * t) * std::sin(theta);
-  return norm_factor * radial_part * t_angular_part;
+  // change of sign!
+  double t_angular_part = - std::sin(common_argument) * std::sin(theta);
+  return _norm_factor * common_radial_part * t_angular_part;
 }
 
 // void RT_Axion::get_Stokes_alignment_angle(FourVector<double>& u, FourVector<double>& b, double& cs, double& sn)
