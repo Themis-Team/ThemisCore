@@ -11,15 +11,15 @@ RT_Axion::RT_Axion(Metric& g,
 }
 RT_Axion::RT_Axion(const double y[], Metric& g,
 		   AccretionFlowVelocity& u,
-		   double dn, double ma, double ga, int n,int l, int m)
-  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga), _n(n), _l(l), _m(m)
+		   double dn, double ma, double ga) //, int n,int l, int m)
+  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
 {
   set_constants();
 }
 RT_Axion::RT_Axion(FourVector<double>& x, FourVector<double>& k, Metric& g,
 		   AccretionFlowVelocity& u,
-		   double dn, double ma, double ga, int n,int l, int m)
-  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga), _n(n), _l(l), _m(m)
+		   double dn, double ma, double ga) //, int n,int l, int m)
+  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
 {
   set_constants();
 }
@@ -65,10 +65,10 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // 3. wave function normalization
   // 4. alpha  [ sqrt(9/4-alpha) ]
   _E21 = E_21(_alpha); // Still in SI/cgs units
-  _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G * Mg / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
-  _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G * Mg / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
-  _alpha_term = alpha_term(_alpha); 
-  _pre_factor = pre_factor_A();
+  _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
+  _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
+  _alpha_term = alpha_term(_alpha);
+  _pre_factor = pre_factor_A(_alpha) * std::pow(VRT2::VRT2_Constants::G, 0.5) / VRT2::VRT2_Constants::c; // correct dimension M^-0.5?
 
   _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _pre_factor * _beta;
 
@@ -124,9 +124,11 @@ double RT_Axion::omega_21(double alpha)
   return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
 }
 
-double RT_Axion::pre_factor_A()
+double RT_Axion::pre_factor_A(double alpha)
 {
-  return 1.0; // TBD
+  double nomi = std::pow(beta_axion(alpha), 0.5) * std::pow(2, alpha_term(alpha) + 0.5);
+  double gamma_param = 2 * alpha_term(alpha) + 1;
+  return nomi / std::pow(std::tgamma(gamma_param), 0.5); 
 }
 
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
