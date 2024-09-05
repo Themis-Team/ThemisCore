@@ -1,25 +1,26 @@
 #include "rt_axion.h"
 #include "fast_math.h"
 
+//ma should be in M^-1
 namespace VRT2 {
 RT_Axion::RT_Axion(Metric& g,
 		   AccretionFlowVelocity& u,
-		   double M, double ma, double ga)
-  : RadiativeTransfer(g), _u(u), _M(M), _ma(ma), _ga(ga)
+		   double M, double dn, double ma, double ga)
+  : RadiativeTransfer(g), _u(u), _M(M), _dn(dn), _ma(ma), _ga(ga)
 {
   set_constants();
 }
 RT_Axion::RT_Axion(const double y[], Metric& g,
 		   AccretionFlowVelocity& u,
-		   double M, double ma, double ga)
-  : RadiativeTransfer(y,g), _u(u), _M(M), _ma(ma), _ga(ga)
+		   double M, double dn, double ma, double ga) //, int n,int l, int m)
+  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
 {
   set_constants();
 }
 RT_Axion::RT_Axion(FourVector<double>& x, FourVector<double>& k, Metric& g,
 		   AccretionFlowVelocity& u,
-		   double M, double ma, double ga)
-  : RadiativeTransfer(x,k,g), _u(u), _M(M), _ma(ma), _ga(ga)
+		   double M, double dn, double ma, double ga) //, int n,int l, int m)
+  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
 {
   set_constants();
 }
@@ -55,22 +56,34 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 {
   double Mg = VRT2::VRT2_Constants::M_sun * _M; // Black hole mass in g (from Msun)
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
+  double a = 0.99 * Mg;             // Black hole spin
 
-  _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
-
+  // _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
 
   // NEEDED CONSTANTS:  (ZHIREN)
-  // 1. beta 
+  // 1. beta
   // 2. omega_axion
   // 3. wave function normalization
   // 4. alpha  [ sqrt(9/4-alpha) ]
-  _E21 = E_21(_alpha); // Still in SI/cgs units
-  _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
-  _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
-  _alpha_term = alpha_term(_alpha);
-  _pre_factor = pre_factor_A(_alpha) * std::pow(VRT2::VRT2_Constants::G, 0.5) / VRT2::VRT2_Constants::c; // correct dimension M^-0.5?
 
-  _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _pre_factor * _beta;
+  // cgs or natural?
+  _rp = r_p(Mg, a);
+  _rm = r_m(Mg, a);
+  _omega_crit = omega_crit(Mg, a);
+  _omega_21 = omega_21(mg, Mg, a);
+  _sigma = sigma(mg, Mg, a);
+  _q = q_term(mg, Mg, a);
+  _chi = x_term(mg, Mg, a);
+  _R_norm_factor = 1; // my a0, how to use incomplete gamma function?
+  _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
+
+  // _E21 = E_21(_alpha); // Still in SI/cgs units
+  // _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
+  // _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
+  // _alpha_term = alpha_term(_alpha);
+  // _pre_factor = pre_factor_A(_alpha) * std::pow(VRT2::VRT2_Constants::G, 0.5) / VRT2::VRT2_Constants::c; // correct dimension M^-0.5?
+
+  // _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _pre_factor * _beta;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // // Emission constant (in cgs units)
@@ -98,38 +111,71 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // _Calphanu *= _length_scale;
 }
 
-double RT_Axion::Ma_alpha(double alpha)
+// These functions are all in natural units G=hbar=c=1
+double RT_Axion::r_p(double M, double a)
 {
-  return VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c * alpha / (VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::M_sun * _M);
+  return M + std::sqrt(M * M - a * a);
 }
 
-double RT_Axion::alpha_term(double alpha)
+double RT_Axion::r_m(double M, double a)
 {
-  return 0.5 + std::sqrt(9.0 / 4.0 - alpha * alpha);
+  return M - std::sqrt(M * M - a * a);
 }
 
-double RT_Axion::E_21(double alpha)
+double RT_Axion::omega_crit(double M, double a)
 {
-  double denom = std::sqrt(1 + alpha * alpha / std::pow(alpha_term(alpha), 2));
-  return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / denom;
+  return a * 1 / (2 * M * r_p(M, a)); // m=1
 }
 
-double RT_Axion::beta_axion(double alpha)
+double RT_Axion::omega_21(double ma, double M, double a)
 {
-  return 2 * std::sqrt(std::pow(Ma_alpha(alpha), 2) * std::pow(VRT2::VRT2_Constants::c, 4) - std::pow(E_21(alpha), 2)) / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c);
+  //return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
+  double alpha = M * ma; //ma in M^-1
+  return ma * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0 + (2 * a * std::pow(alpha, 5)) / (3 * M)); // n=2, l=m=1
 }
 
-double RT_Axion::omega_21(double alpha)
+double RT_Axion::sigma(double ma, double M, double a)
 {
-  return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
+  return (2 * r_p(M, a) * (omega_21(ma, M, a) - omega_crit(M, a))) / (r_p(M, a) - r_m(M, a));
 }
 
-double RT_Axion::pre_factor_A(double alpha)
+double RT_Axion::q_term(double ma, double M, double a)
 {
-  double nomi = std::pow(beta_axion(alpha), 0.5) * std::pow(2, alpha_term(alpha) + 0.5);
-  double gamma_param = 2 * alpha_term(alpha) + 1;
-  return nomi / std::pow(std::tgamma(gamma_param), 0.5); 
+  return -std::sqrt(ma * ma - omega_21(ma, M, a) * omega_21(ma, M, a));
 }
+
+double RT_Axion::x_term(double ma, double M, double a)
+{
+  return M * (ma * ma - 2 * omega_21(ma, M, a) * omega_21(ma, M, a)) / q_term(ma, M, a); 
+}
+
+// double RT_Axion::Ma_alpha(double alpha)
+// {
+//   return VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c * alpha / (VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::M_sun * _M);
+// }
+
+// double RT_Axion::alpha_term(double alpha)
+// {
+//   return 0.5 + std::sqrt(9.0 / 4.0 - alpha * alpha);
+// }
+
+// double RT_Axion::E_21(double alpha)
+// {
+//   double denom = std::sqrt(1 + alpha * alpha / std::pow(alpha_term(alpha), 2));
+//   return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / denom;
+// }
+
+// double RT_Axion::beta_axion(double alpha)
+// {
+//   return 2 * std::sqrt(std::pow(Ma_alpha(alpha), 2) * std::pow(VRT2::VRT2_Constants::c, 4) - std::pow(E_21(alpha), 2)) / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c);
+// }
+
+// double RT_Axion::pre_factor_A(double alpha)
+// {
+//   double nomi = std::pow(beta_axion(alpha), 0.5) * std::pow(2, alpha_term(alpha) + 0.5);
+//   double gamma_param = 2 * alpha_term(alpha) + 1;
+//   return nomi / std::pow(std::tgamma(gamma_param), 0.5); 
+// }
 
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
@@ -139,9 +185,13 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   // 1. da/dr
   // 2. da/dtheta
   // 3. da/dphi
-  beta_r = _beta * r;
-  common_radial_part = std::pow(beta_r, _alpha_term - 1) * std::exp(-beta_r);
-  common_argument = phi - _omega_axion * t;
+
+  _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
+
+  // beta_r = _beta * r;
+  // common_radial_part = std::pow(beta_r, _alpha_term - 1) * std::exp(-beta_r);
+  // common_argument = phi - _omega_axion * t;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // _n0 = _Cn * _ne(_x);
@@ -185,30 +235,41 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
 double RT_Axion::dadr(double t, double r, double theta, double phi, double alpha)
 {
   // no change of sign
-  double radial_derivative_part = (alpha_term(alpha) - 1 - beta_r) / r;
-  double t_angular_part = std::cos(common_argument) * std::sin(theta);
-  return _norm_factor * common_radial_part * radial_derivative_part * t_angular_part;
+
+  // double radial_derivative_part = (alpha_term(alpha) - 1 - beta_r) / r;
+  // double t_angular_part = std::cos(common_argument) * std::sin(theta);
+  // return _norm_factor * common_radial_part * radial_derivative_part * t_angular_part;
+  double first_part = _R1 / ((r - _rm) * (r - _rp));
+  double second_part = (r - _rp) * (-1 + _q * (r - _rm) + _chi) * std::cos(_arg);
+  double third_part = _sigma * (_rp - _rm) * std::sin(_arg);
+  return _norm_factor * first_part * (second_part + third_part) * std::sin(theta);
 }
 
 double RT_Axion::dadt(double t, double r, double theta, double phi, double alpha)
 {
   // no change of sign
-  double t_angular_part = _omega_axion * std::sin(common_argument) * std::sin(theta);
-  return _norm_factor * common_radial_part * t_angular_part;
+
+  // double t_angular_part = _omega_axion * std::sin(common_argument) * std::sin(theta);
+  // return _norm_factor * common_radial_part * t_angular_part;
+  return _norm_factor * _R1 * _omega_21 * std::sin(_arg) * std::sin(theta);
 }
 
 double RT_Axion::dadtheta(double t, double r, double theta, double phi, double alpha)
 {
   // no change of sign
-  double t_angular_part = std::cos(common_argument) * std::cos(theta);
-  return _norm_factor * common_radial_part * t_angular_part;
+
+  // double t_angular_part = std::cos(common_argument) * std::cos(theta);
+  // return _norm_factor * common_radial_part * t_angular_part;
+  return _norm_factor * _R1 * _omega_21 * std::cos(_arg) * std::cos(theta);
 }
 
 double RT_Axion::dadphi(double t, double r, double theta, double phi, double alpha)
 {
   // change of sign!
-  double t_angular_part = - std::sin(common_argument) * std::sin(theta);
-  return _norm_factor * common_radial_part * t_angular_part;
+
+  // double t_angular_part = - std::sin(common_argument) * std::sin(theta);
+  // return _norm_factor * common_radial_part * t_angular_part;
+  return -_norm_factor * _R1 * _omega_21 * std::sin(_arg) * std::sin(theta);
 }
 
 // void RT_Axion::get_Stokes_alignment_angle(FourVector<double>& u, FourVector<double>& b, double& cs, double& sn)
@@ -284,20 +345,7 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   // And you need various constants to get to K with ga.
   // 
 
-  // K = -2 ga da/dlambda = -2 ga (da/dx).(dl/dlambda)
-
-  FourVector<double> da_dx(_g);
-  da_dx.mkcov(dadt(_x.con(0),_x.con(1),_x.con(2),_x.con(3)),
-	      dadr(_x.con(0),_x.con(1),_x.con(2),_x.con(3)),
-	      dadtheta(_x.con(0),_x.con(1),_x.con(2),_x.con(3)),
-	      dadphi(_x.con(0),_x.con(1),_x.con(2),_x.con(3)));
-
-  // Note that dx_dlam^2 = 0 b.c. this is a null geodesic!
-  FourVector<double> dx_dlam(_g);
-  dx_dlam.mkcon(dydx);
-
-
-  double K = -2*_ga * (da_dx*dx_dlam);
+  double K = 0;
 
   // I, Q, U, V
   _iquv_abs[0] = 0.0;

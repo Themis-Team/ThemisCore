@@ -35,41 +35,39 @@ class RT_Axion : public RadiativeTransfer
 {
  public:
   // Constructor
-  RT_Axion(Metric& g,
-	   AccretionFlowVelocity& u,
-	   double M, double ma, double ga);
-  RT_Axion(const double y[], Metric& g,
-	   AccretionFlowVelocity& u,
-	   double M, double ma, double ga);
-  RT_Axion(FourVector<double>& x, FourVector<double>& k, Metric& g,
-	   AccretionFlowVelocity& u,
-	   double M, double ma, double ga);
-  virtual ~RT_Axion() { };
+   RT_Axion(Metric &g,
+            AccretionFlowVelocity &u,
+            double M, double dn, double ma, double ga);
+   RT_Axion(const double y[], Metric &g,
+            AccretionFlowVelocity &u,
+            double M, double dn, double ma, double ga);
+   RT_Axion(FourVector<double> &x, FourVector<double> &k, Metric &g,
+            AccretionFlowVelocity &u,
+            double M, double dn, double ma, double ga);
+   virtual ~RT_Axion() {};
 
-  // Set frequency scale
-  virtual void set_frequency_scale(double omega0);
+   // Set frequency scale
+   virtual void set_frequency_scale(double omega0);
 
-  // Set length scale
-  virtual void set_length_scale(double L);
+   // Set length scale
+   virtual void set_length_scale(double L);
 
-  // Reinitialize
-  virtual void reinitialize(const double y[]);
-  virtual void reinitialize(FourVector<double>& x, FourVector<double>& k);
+   // Reinitialize
+   virtual void reinitialize(const double y[]);
+   virtual void reinitialize(FourVector<double> &x, FourVector<double> &k);
 
-  // Characteristic local length to affine parameter difference
-  //virtual double dlambda(const double y[], const double dydx[]);
+   // Characteristic local length to affine parameter difference
+   // virtual double dlambda(const double y[], const double dydx[]);
 
-  // RT Coeffs (must include dl/dlambda!)
-  // absorptivity
-  virtual std::valarray<double>& IQUV_abs(const double iquv[], const double dydx[]);
-  // isotropic absorptivity for calculating optical depth
-  virtual double isotropic_absorptivity(const double dydx[]);
-  // emissivity
-  virtual std::valarray<double>& IQUV_ems(const double dydx[]);
+   // RT Coeffs (must include dl/dlambda!)
+   // absorptivity
+   virtual std::valarray<double> &IQUV_abs(const double iquv[], const double dydx[]);
+   // isotropic absorptivity for calculating optical depth
+   virtual double isotropic_absorptivity(const double dydx[]);
+   // emissivity
+   virtual std::valarray<double> &IQUV_ems(const double dydx[]);
 
-
-
-  virtual void dump(std::ostream& dout, double dydx[]);
+   virtual void dump(std::ostream &dout, double dydx[]);
 
  private:
   AccretionFlowVelocity& _u;
@@ -87,20 +85,34 @@ class RT_Axion : public RadiativeTransfer
   void set_constants();
   //std::tuple<double, double, double> set_constants(double alpha);
 
-  double _alpha; // Fine structure constant
-  double _E21; // Energy of axion at n=2, l=1
-  double _beta; // Parameter beta to save time
-  double _omega_axion; // Eigenfrequency
-  double _alpha_term; // Alpha term to save time
-  double _pre_factor; // A prefactor A in the normalization factor
-  double _norm_factor; // Normalization factor for the axion cloud
+  // double _alpha; // Fine structure constant
+  // double _E21; // Energy of axion at n=2, l=1
+  // double _beta; // Parameter beta to save time
+  // double _omega_axion; // Eigenfrequency
+  // double _alpha_term; // Alpha term to save time
+  // double _pre_factor; // A prefactor A in the normalization factor
+  // double _norm_factor; // Normalization factor for the axion cloud
+  double _rp; // outer event horzion
+  double _rm; // inner event horzion
+  double _omega_crit; // Critical frequency of superradiance
+  double _omega_21; // Eigenfrequency of axion at n=2, l=1
+  double _sigma; // Dolan 2007 defined
+  double _q; // same as above
+  double _chi; // same as above
+  double _R_norm_factor; // Normalization factor for the radial function
+  double _norm_factor; // totoal normalization factor for the axion field
 
   // Get common functions
   void set_common_funcs();
 
-  double beta_r; // Dimensionless r
-  double common_radial_part;
-  double common_argument;
+  // double beta_r; // Dimensionless r
+  double r;
+  double _R1; // common radial part
+  double _arg; // common argument
+  // double common_radial_part;
+  // double common_argument;
+  double phi;
+  double t;
 
   // Get rotation angle to align with z-aligned Stokes basis
   void
@@ -109,18 +121,24 @@ class RT_Axion : public RadiativeTransfer
   // Computes dlambda/dl
   double dl_dlambda(const double dydx[]);
 
-  double Ma_alpha(double alpha);
-  double alpha_term(double alpha);
-  double E_21(double alpha);
-  double beta_axion(double alpha);
-  double omega_21(double alpha);
-  double pre_factor_A(double alpha);
+  // double Ma_alpha(double alpha);
+  // double alpha_term(double alpha);
+  // double E_21(double alpha);
+  // double beta_axion(double alpha);
+  // double omega_21(double alpha);
+  // double pre_factor_A(double alpha);
+  double r_p(double M, double a);
+  double r_m(double M, double a);
+  double omega_crit(double M, double a);
+  double omega_21(double ma, double M, double a);
+  double sigma(double ma, double M, double a);
+  double q_term(double ma, double M, double a);
+  double x_term(double ma, double M, double a);
 
   double dadr(double t, double r, double theta, double phi, double alpha);
   double dadtheta(double t, double r, double theta, double phi, double alpha);
   double dadphi(double t, double r, double theta, double phi, double alpha);
   double dadt(double t, double r, double theta, double phi, double alpha);
-
 };
 
 
