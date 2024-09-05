@@ -4,22 +4,22 @@
 namespace VRT2 {
 RT_Axion::RT_Axion(Metric& g,
 		   AccretionFlowVelocity& u,
-		   double M, double dn, double ma, double ga)
-  : RadiativeTransfer(g), _u(u), _M(M), _dn(dn), _ma(ma), _ga(ga)
+		   double M, double ma, double ga)
+  : RadiativeTransfer(g), _u(u), _M(M), _ma(ma), _ga(ga)
 {
   set_constants();
 }
 RT_Axion::RT_Axion(const double y[], Metric& g,
 		   AccretionFlowVelocity& u,
-		   double dn, double ma, double ga) //, int n,int l, int m)
-  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
+		   double M, double ma, double ga)
+  : RadiativeTransfer(y,g), _u(u), _M(M), _ma(ma), _ga(ga)
 {
   set_constants();
 }
 RT_Axion::RT_Axion(FourVector<double>& x, FourVector<double>& k, Metric& g,
 		   AccretionFlowVelocity& u,
-		   double dn, double ma, double ga) //, int n,int l, int m)
-  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
+		   double M, double ma, double ga)
+  : RadiativeTransfer(x,k,g), _u(u), _M(M), _ma(ma), _ga(ga)
 {
   set_constants();
 }

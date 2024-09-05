@@ -37,13 +37,13 @@ class RT_Axion : public RadiativeTransfer
   // Constructor
   RT_Axion(Metric& g,
 	   AccretionFlowVelocity& u,
-	   double dn, double ma, double ga);
+	   double M, double ma, double ga);
   RT_Axion(const double y[], Metric& g,
 	   AccretionFlowVelocity& u,
-	   double dn, double ma, double ga);
+	   double M, double ma, double ga);
   RT_Axion(FourVector<double>& x, FourVector<double>& k, Metric& g,
 	   AccretionFlowVelocity& u,
-	   double dn, double ma, double ga);
+	   double M, double ma, double ga);
   virtual ~RT_Axion() { };
 
   // Set frequency scale
