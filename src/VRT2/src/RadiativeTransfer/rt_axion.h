@@ -120,6 +120,7 @@ class RT_Axion : public RadiativeTransfer
   double dadtheta(double t, double r, double theta, double phi, double alpha);
   double dadphi(double t, double r, double theta, double phi, double alpha);
   double dadt(double t, double r, double theta, double phi, double alpha);
+
 };
 
 

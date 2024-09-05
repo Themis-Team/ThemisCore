@@ -284,7 +284,20 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   // And you need various constants to get to K with ga.
   // 
 
-  double K = 0;
+  // K = -2 ga da/dlambda = -2 ga (da/dx).(dl/dlambda)
+
+  FourVector<double> da_dx(_g);
+  da_dx.mkcov(dadt(_x.con(0),_x.con(1),_x.con(2),_x.con(3)),
+	      dadr(_x.con(0),_x.con(1),_x.con(2),_x.con(3)),
+	      dadtheta(_x.con(0),_x.con(1),_x.con(2),_x.con(3)),
+	      dadphi(_x.con(0),_x.con(1),_x.con(2),_x.con(3)));
+
+  // Note that dx_dlam^2 = 0 b.c. this is a null geodesic!
+  FourVector<double> dx_dlam(_g);
+  dx_dlam.mkcon(dydx);
+
+
+  double K = -2*_ga * (da_dx*dx_dlam);
 
   // I, Q, U, V
   _iquv_abs[0] = 0.0;
