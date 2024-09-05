@@ -56,7 +56,7 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 {
   double Mg = VRT2::VRT2_Constants::M_sun * _M; // Black hole mass in g (from Msun)
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
-  double a = 0.99 * Mg;             // Black hole spin
+  double spin = _g.ang_mom()/_g.mass();
 
   // _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
 
@@ -67,13 +67,13 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // 4. alpha  [ sqrt(9/4-alpha) ]
 
   // cgs or natural?
-  _rp = r_p(Mg, a);
-  _rm = r_m(Mg, a);
-  _omega_crit = omega_crit(Mg, a);
-  _omega_21 = omega_21(mg, Mg, a);
-  _sigma = sigma(mg, Mg, a);
-  _q = q_term(mg, Mg, a);
-  _chi = x_term(mg, Mg, a);
+  _rp = r_p(Mg, spin);
+  _rm = r_m(Mg, spin);
+  _omega_crit = omega_crit(Mg, spin);
+  _omega_21 = omega_21(mg, Mg, spin);
+  _sigma = sigma(mg, Mg, spin);
+  _q = q_term(mg, Mg, spin);
+  _chi = x_term(mg, Mg, spin);
   _R_norm_factor = 1; // my a0, how to use incomplete gamma function?
   _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
 
@@ -112,41 +112,41 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 }
 
 // These functions are all in natural units G=hbar=c=1
-double RT_Axion::r_p(double M, double a)
+double RT_Axion::r_p(double M, double spin)
 {
-  return M + std::sqrt(M * M - a * a);
+  return M + std::sqrt(M * M - spin * spin);
 }
 
-double RT_Axion::r_m(double M, double a)
+double RT_Axion::r_m(double M, double spin)
 {
-  return M - std::sqrt(M * M - a * a);
+  return M - std::sqrt(M * M - spin * spin);
 }
 
-double RT_Axion::omega_crit(double M, double a)
+double RT_Axion::omega_crit(double M, double spin)
 {
-  return a * 1 / (2 * M * r_p(M, a)); // m=1
+  return spin * 1 / (2 * M * r_p(M, spin)); // m=1
 }
 
-double RT_Axion::omega_21(double ma, double M, double a)
+double RT_Axion::omega_21(double ma, double M, double spin)
 {
   //return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
   double alpha = M * ma; //ma in M^-1
-  return ma * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0 + (2 * a * std::pow(alpha, 5)) / (3 * M)); // n=2, l=m=1
+  return ma * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0 + (2 * spin * std::pow(alpha, 5)) / (3 * M)); // n=2, l=m=1
 }
 
-double RT_Axion::sigma(double ma, double M, double a)
+double RT_Axion::sigma(double ma, double M, double spin)
 {
-  return (2 * r_p(M, a) * (omega_21(ma, M, a) - omega_crit(M, a))) / (r_p(M, a) - r_m(M, a));
+  return (2 * r_p(M, spin) * (omega_21(ma, M, spin) - omega_crit(M, spin))) / (r_p(M, spin) - r_m(M, spin));
 }
 
-double RT_Axion::q_term(double ma, double M, double a)
+double RT_Axion::q_term(double ma, double M, double spin)
 {
-  return -std::sqrt(ma * ma - omega_21(ma, M, a) * omega_21(ma, M, a));
+  return -std::sqrt(ma * ma - omega_21(ma, M, spin) * omega_21(ma, M, spin));
 }
 
-double RT_Axion::x_term(double ma, double M, double a)
+double RT_Axion::x_term(double ma, double M, double spin)
 {
-  return M * (ma * ma - 2 * omega_21(ma, M, a) * omega_21(ma, M, a)) / q_term(ma, M, a); 
+  return M * (ma * ma - 2 * omega_21(ma, M, spin) * omega_21(ma, M, spin)) / q_term(ma, M, spin); 
 }
 
 // double RT_Axion::Ma_alpha(double alpha)
@@ -346,6 +346,20 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   // 
 
   double K = 0;
+
+  // K = -2 ga da/dlambda = -2 ga (da/dx).(dl/dlambda)
+
+  FourVector<double> da_dx(_g);
+  da_dx.mkcov(dadt(_x.con(0), _x.con(1), _x.con(2), _x.con(3)),
+              dadr(_x.con(0), _x.con(1), _x.con(2), _x.con(3)),
+              dadtheta(_x.con(0), _x.con(1), _x.con(2), _x.con(3)),
+              dadphi(_x.con(0), _x.con(1), _x.con(2), _x.con(3)));
+
+  // Note that dx_dlam^2 = 0 b.c. this is a null geodesic!
+  FourVector<double> dx_dlam(_g);
+  dx_dlam.mkcon(dydx);
+
+  double K = -2 * _ga * (da_dx * dx_dlam);
 
   // I, Q, U, V
   _iquv_abs[0] = 0.0;

@@ -127,13 +127,13 @@ class RT_Axion : public RadiativeTransfer
   // double beta_axion(double alpha);
   // double omega_21(double alpha);
   // double pre_factor_A(double alpha);
-  double r_p(double M, double a);
-  double r_m(double M, double a);
-  double omega_crit(double M, double a);
-  double omega_21(double ma, double M, double a);
-  double sigma(double ma, double M, double a);
-  double q_term(double ma, double M, double a);
-  double x_term(double ma, double M, double a);
+  double r_p(double M, double spin);
+  double r_m(double M, double spin);
+  double omega_crit(double M, double spin);
+  double omega_21(double ma, double M, double spin);
+  double sigma(double ma, double M, double spin);
+  double q_term(double ma, double M, double spin);
+  double x_term(double ma, double M, double spin);
 
   double dadr(double t, double r, double theta, double phi, double alpha);
   double dadtheta(double t, double r, double theta, double phi, double alpha);
