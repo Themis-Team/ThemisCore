@@ -85,9 +85,10 @@ class RT_Axion : public RadiativeTransfer
   void set_constants();
   //std::tuple<double, double, double> set_constants(double alpha);
 
-  // double _alpha; // Fine structure constant
+  double _alpha; // Fine structure constant
+  double _mu; // ALP mass in Planck units
   // double _E21; // Energy of axion at n=2, l=1
-  // double _beta; // Parameter beta to save time
+  // double _beta; // Parameter beta to save times
   // double _omega_axion; // Eigenfrequency
   // double _alpha_term; // Alpha term to save time
   // double _pre_factor; // A prefactor A in the normalization factor
@@ -99,7 +100,8 @@ class RT_Axion : public RadiativeTransfer
   double _sigma; // Dolan 2007 defined
   double _q; // same as above
   double _chi; // same as above
-  double _R_norm_factor; // Normalization factor for the radial function
+  double _Re_a_max; // the maximum value of Re(a) unnormalized
+  // double _R_norm_factor; // Normalization factor for the radial function
   double _norm_factor; // totoal normalization factor for the axion field
 
   // Get common functions
@@ -134,11 +136,13 @@ class RT_Axion : public RadiativeTransfer
   double sigma(double ma, double M, double spin);
   double q_term(double ma, double M, double spin);
   double x_term(double ma, double M, double spin);
+  double Re_a_not_normed(double t, double r, double theta, double phi);
+  double find_max_Re_a_not_normed(double t, double theta, double phi, double r_min, double r_max, double step);
 
-  double dadr(double t, double r, double theta, double phi, double alpha);
-  double dadtheta(double t, double r, double theta, double phi, double alpha);
-  double dadphi(double t, double r, double theta, double phi, double alpha);
-  double dadt(double t, double r, double theta, double phi, double alpha);
+  double dadr(double t, double r, double theta, double phi);
+  double dadtheta(double t, double r, double theta, double phi);
+  double dadphi(double t, double r, double theta, double phi);
+  double dadt(double t, double r, double theta, double phi);
 };
 
 

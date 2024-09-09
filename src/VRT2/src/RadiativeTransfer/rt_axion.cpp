@@ -58,24 +58,35 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
   double spin = _g.ang_mom()/_g.mass();
 
-  // _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
-
+  _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
+  _mu = _alpha / _M; // ALP mass in Planck units
   // NEEDED CONSTANTS:  (ZHIREN)
   // 1. beta
   // 2. omega_axion
   // 3. wave function normalization
   // 4. alpha  [ sqrt(9/4-alpha) ]
 
-  // cgs or natural?
-  _rp = r_p(Mg, spin);
-  _rm = r_m(Mg, spin);
-  _omega_crit = omega_crit(Mg, spin);
-  _omega_21 = omega_21(mg, Mg, spin);
-  _sigma = sigma(mg, Mg, spin);
-  _q = q_term(mg, Mg, spin);
-  _chi = x_term(mg, Mg, spin);
-  _R_norm_factor = 1; // my a0, how to use incomplete gamma function?
-  _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
+  // _M should be dimensionless, in terms of M_sun, _mu the same
+  _rp = r_p(_M, spin);
+  _rm = r_m(_M, spin);
+  _omega_crit = omega_crit(_M, spin);
+  _omega_21 = omega_21(_mu, _M, spin);
+  _sigma = sigma(_mu, _M, spin);
+  _q = q_term(_mu, _M, spin);
+  _chi = x_term(_mu, _M, spin);
+
+  // Find the maximum value of Re(a) to normalize it first
+  double _t_find_max = 0;
+  double _theta_find_max = M_PI / 2;
+  double _phi_find_max = 0;
+  double r_min = 2.0;
+  double r_max = 302.0;
+  double step = 0.1;
+  _Re_a_max = find_max_Re_a_not_normed(_t_find_max, _theta_find_max, _phi_find_max, r_min, r_max, step);
+  
+  // _R_norm_factor = 1; // my a0
+  // _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
+  _norm_factor = std::pow(10, 24) / _Re_a_max; // can merge R and Y normed factors plus the scaling factor to make amax ~ fa. Pick fa = 10^15 GeV = 10^24 eV
 
   // _E21 = E_21(_alpha); // Still in SI/cgs units
   // _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
@@ -149,6 +160,31 @@ double RT_Axion::x_term(double ma, double M, double spin)
   return M * (ma * ma - 2 * omega_21(ma, M, spin) * omega_21(ma, M, spin)) / q_term(ma, M, spin); 
 }
 
+
+double RT_Axion::Re_a_not_normed(double t, double r, double theta, double phi)
+{
+  // note that norm factor is 1
+  return _R1 * std::cos(_arg) * std::sin(theta);
+}
+
+double RT_Axion::find_max_Re_a_not_normed(double t, double theta, double phi, double r_min, double r_max, double step)
+{
+  double max_value = -1e20; // Initialize to a very small value
+  double max_r = r_min;     // Store the r corresponding to the max value
+
+  for (double r = r_min; r <= r_max; r += step)
+  {
+    // Calculate Re_a_not_normed at (t=0, theta=pi/2, phi=0)
+    double value = Re_a_not_normed(t, r, theta, phi);
+
+    if (value > max_value)
+    {
+      max_value = value;
+      max_r = r; // Store the r value where max occurs
+    }
+  }
+  return max_value;
+}
 // double RT_Axion::Ma_alpha(double alpha)
 // {
 //   return VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c * alpha / (VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::M_sun * _M);
@@ -232,7 +268,7 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   // get_Stokes_alignment_angle(u,b,_cs,_sn);
 }
 
-double RT_Axion::dadr(double t, double r, double theta, double phi, double alpha)
+double RT_Axion::dadr(double t, double r, double theta, double phi)
 {
   // no change of sign
 
@@ -245,7 +281,7 @@ double RT_Axion::dadr(double t, double r, double theta, double phi, double alpha
   return _norm_factor * first_part * (second_part + third_part) * std::sin(theta);
 }
 
-double RT_Axion::dadt(double t, double r, double theta, double phi, double alpha)
+double RT_Axion::dadt(double t, double r, double theta, double phi)
 {
   // no change of sign
 
@@ -254,22 +290,22 @@ double RT_Axion::dadt(double t, double r, double theta, double phi, double alpha
   return _norm_factor * _R1 * _omega_21 * std::sin(_arg) * std::sin(theta);
 }
 
-double RT_Axion::dadtheta(double t, double r, double theta, double phi, double alpha)
+double RT_Axion::dadtheta(double t, double r, double theta, double phi)
 {
   // no change of sign
 
   // double t_angular_part = std::cos(common_argument) * std::cos(theta);
   // return _norm_factor * common_radial_part * t_angular_part;
-  return _norm_factor * _R1 * _omega_21 * std::cos(_arg) * std::cos(theta);
+  return _norm_factor * _R1 *  std::cos(_arg) * std::cos(theta);
 }
 
-double RT_Axion::dadphi(double t, double r, double theta, double phi, double alpha)
+double RT_Axion::dadphi(double t, double r, double theta, double phi)
 {
   // change of sign!
 
   // double t_angular_part = - std::sin(common_argument) * std::sin(theta);
   // return _norm_factor * common_radial_part * t_angular_part;
-  return -_norm_factor * _R1 * _omega_21 * std::sin(_arg) * std::sin(theta);
+  return -_norm_factor * _R1  * std::sin(_arg) * std::sin(theta);
 }
 
 // void RT_Axion::get_Stokes_alignment_angle(FourVector<double>& u, FourVector<double>& b, double& cs, double& sn)
