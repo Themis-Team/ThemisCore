@@ -58,8 +58,8 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
   double spin = _g.ang_mom()/_g.mass();
 
-  _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
-  _mu = _alpha / _M; // ALP mass in Planck units
+  // _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
+  _mu = mg * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar; // ALP mass in Planck units
   // NEEDED CONSTANTS:  (ZHIREN)
   // 1. beta
   // 2. omega_axion
