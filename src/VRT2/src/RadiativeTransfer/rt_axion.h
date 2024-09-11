@@ -37,13 +37,13 @@ class RT_Axion : public RadiativeTransfer
   // Constructor
    RT_Axion(Metric &g,
             AccretionFlowVelocity &u,
-            double M, double dn, double ma, double ga);
+            double M, double ma, double ga);
    RT_Axion(const double y[], Metric &g,
             AccretionFlowVelocity &u,
-            double M, double dn, double ma, double ga);
+            double M, double ma, double ga);
    RT_Axion(FourVector<double> &x, FourVector<double> &k, Metric &g,
             AccretionFlowVelocity &u,
-            double M, double dn, double ma, double ga);
+            double M, double ma, double ga);
    virtual ~RT_Axion() {};
 
    // Set frequency scale
@@ -69,11 +69,14 @@ class RT_Axion : public RadiativeTransfer
 
    virtual void dump(std::ostream &dout, double dydx[]);
 
+
+   // Axion Period Access
+   double period() const { return 2.0*M_PI/_omega_21; };
+
  private:
   AccretionFlowVelocity& _u;
 
   double _M; // Mass of the black hole in solar masses
-  double _dn; // Density normalization for the axion cloud in TBD.
   double _ma; // Compton wavelength of the axion in eV
   double _ga; // Axion-photon coupling constant in TBD.
 
