@@ -143,7 +143,7 @@ void model_polarized_image_general_riaf_waxion::generate_polarized_image(std::ve
   VRT2::AFV_ZAMO afv_zamo(g);
   VRT2::RT_Axion rt_ax(g,afv_zamo,parameters[0],parameters[13],parameters[14]); // M in Msun, ma  in eV, ga (dimensionless)
   _axion_period = rt_ax.period();
-  //rts.push_back(&rt_ax);
+  rts.push_back(&rt_ax);
   
   // DEFINE AGGREGATE RT OBJECT
   VRT2::RT_Multi rt(g,rts);
