@@ -5,22 +5,22 @@
 namespace VRT2 {
 RT_Axion::RT_Axion(Metric& g,
 		   AccretionFlowVelocity& u,
-		   double M, double dn, double ma, double ga)
-  : RadiativeTransfer(g), _u(u), _M(M), _dn(dn), _ma(ma), _ga(ga)
+		   double M, double ma, double ga)
+  : RadiativeTransfer(g), _u(u), _M(M), _ma(ma), _ga(ga)
 {
   set_constants();
 }
 RT_Axion::RT_Axion(const double y[], Metric& g,
 		   AccretionFlowVelocity& u,
-		   double M, double dn, double ma, double ga) //, int n,int l, int m)
-  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
+		   double M, double ma, double ga) //, int n,int l, int m)
+  : RadiativeTransfer(g), _u(u), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
 {
   set_constants();
 }
 RT_Axion::RT_Axion(FourVector<double>& x, FourVector<double>& k, Metric& g,
 		   AccretionFlowVelocity& u,
-		   double M, double dn, double ma, double ga) //, int n,int l, int m)
-  : RadiativeTransfer(g), _u(u), _dn(dn), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
+		   double M, double ma, double ga) //, int n,int l, int m)
+  : RadiativeTransfer(g), _u(u), _ma(ma), _ga(ga) //, _n(n), _l(l), _m(m)
 {
   set_constants();
 }
@@ -170,7 +170,7 @@ double RT_Axion::Re_a_not_normed(double t, double r, double theta, double phi)
 double RT_Axion::find_max_Re_a_not_normed(double t, double theta, double phi, double r_min, double r_max, double step)
 {
   double max_value = -1e20; // Initialize to a very small value
-  double max_r = r_min;     // Store the r corresponding to the max value
+  //double max_r = r_min;     // Store the r corresponding to the max value
 
   for (double r = r_min; r <= r_max; r += step)
   {
@@ -180,7 +180,7 @@ double RT_Axion::find_max_Re_a_not_normed(double t, double theta, double phi, do
     if (value > max_value)
     {
       max_value = value;
-      max_r = r; // Store the r value where max occurs
+      //max_r = r; // Store the r value where max occurs
     }
   }
   return max_value;
@@ -381,7 +381,7 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   // And you need various constants to get to K with ga.
   // 
 
-  double K = 0;
+  // double K = 0;
 
   // K = -2 ga da/dlambda = -2 ga (da/dx).(dl/dlambda)
 
