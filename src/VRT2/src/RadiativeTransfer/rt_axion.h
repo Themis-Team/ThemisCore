@@ -111,13 +111,14 @@ class RT_Axion : public RadiativeTransfer
   void set_common_funcs();
 
   // double beta_r; // Dimensionless r
-  double r;
   double _R1; // common radial part
   double _arg; // common argument
   // double common_radial_part;
   // double common_argument;
-  double phi;
-  double t;
+
+  double r; // WHAT IS THIS?
+  double phi; // WHAT IS THIS? 
+  double t; // WHAT IS THIS?
 
   // Get rotation angle to align with z-aligned Stokes basis
   void

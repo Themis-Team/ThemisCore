@@ -67,8 +67,8 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // 4. alpha  [ sqrt(9/4-alpha) ]
 
   // _M should be dimensionless, in terms of M_sun, _mu the same
-  _rp = r_p(_M, spin);
-  _rm = r_m(_M, spin);
+  _rp = r_p(_M, spin); // THIS DOESN'T MAKE SENSE
+  _rm = r_m(_M, spin); // THIS DOESN'T MAKE SENSE
   _omega_crit = omega_crit(_M, spin);
   _omega_21 = omega_21(_mu, _M, spin);
   _sigma = sigma(_mu, _M, spin);
@@ -221,6 +221,10 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   // 1. da/dr
   // 2. da/dtheta
   // 3. da/dphi
+
+  double t = _x.con(0); // This is t
+  double r = _x.con(1); // This is r
+  double phi = _x.con(3); // This is phi
 
   _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
   _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
@@ -396,6 +400,27 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   dx_dlam.mkcon(dydx);
 
   double K = -2 * _ga * (da_dx * dx_dlam);
+
+  std::cout << "K:" 
+	    << std::setw(15) << K 
+	    << std::setw(15) << _ga 
+	    << " | "
+	    << std::setw(15) << dx_dlam.con(0)
+	    << std::setw(15) << dx_dlam.con(1)
+	    << std::setw(15) << dx_dlam.con(2)
+	    << std::setw(15) << dx_dlam.con(3)
+	    << " | "
+	    << std::setw(15) << da_dx.cov(0)
+	    << std::setw(15) << da_dx.cov(1)
+	    << std::setw(15) << da_dx.cov(2)
+	    << std::setw(15) << da_dx.cov(3)
+	    << " | "
+	    << std::setw(15) << (dx_dlam*dx_dlam)
+	    << std::setw(15) << (da_dx*da_dx)
+	    << std::setw(15) << (_k*_k)
+	    << " | "
+	    << std::setw(15) << K 
+	    << std::endl;
 
   // I, Q, U, V
   _iquv_abs[0] = 0.0;
