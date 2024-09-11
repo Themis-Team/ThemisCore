@@ -107,7 +107,8 @@ class PolarizationMap{
   inline int xi_size(){return _N_xi;};
   inline int eta_size(){return _N_eta;};
   
-  // Set
+  // Set initial time
+  void set_tobs(double tobs=0) { _tobs = tobs; };
   
  protected:
   Metric &_g; // local metric
@@ -145,6 +146,9 @@ class PolarizationMap{
 #ifdef VRT2_USE_MPI_MAP
   void collect(int rank=0); // Collect into single array at end
 #endif
+
+
+  double _tobs;
 };
 };
 #endif

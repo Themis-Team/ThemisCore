@@ -14,7 +14,7 @@ namespace VRT2 {
 int first_leg;
 
 PolarizationMap::PolarizationMap(Metric& g, Ray& ray, double M, double D, int verbosity, bool rescale_intensity)
-  : _g(g), _ray(ray), _verbosity(verbosity), _frequency0(1.0),  _BHM(M), _BHD(D), _rI(rescale_intensity)
+  : _g(g), _ray(ray), _verbosity(verbosity), _frequency0(1.0),  _BHM(M), _BHD(D), _rI(rescale_intensity), _tobs(0.0)
 {
   set_R_THETA(500.0,30.0);
   set_progress_stream(std::cerr);
@@ -44,7 +44,7 @@ PolarizationMap::PolarizationMap(Metric& g, Ray& ray, double M, double D, int ve
 
 #ifdef VRT2_USE_MPI_MAP
 PolarizationMap::PolarizationMap(Metric& g, Ray& ray, double M, double D, MPI_Comm& comm, int verbosity, bool rescale_intensity)
-  : _g(g), _ray(ray), _verbosity(verbosity), _frequency0(1.0),  _BHM(M), _BHD(D), _rI(rescale_intensity), _pmap_communicator(comm)
+  : _g(g), _ray(ray), _verbosity(verbosity), _frequency0(1.0),  _BHM(M), _BHD(D), _rI(rescale_intensity), _pmap_communicator(comm), _tobs(0.0)
 {
   set_R_THETA(500.0,30.0);
   set_progress_stream(std::cerr);
@@ -1658,7 +1658,7 @@ int PolarizationMap::init_conds(double frequency, double xi, double eta,
   double x0[4], k0[4];
 
   // Set x0
-  x0[0] = 0.0;
+  x0[0] = _tobs;
   x0[1] = sqrt( xi*xi + eta*eta + _R*_R );
   x0[2] = std::fabs( std::atan2( std::sqrt(std::pow(_R*std::sin(_THETA)-eta*std::cos(_THETA),2) + xi*xi) ,
      _R*std::cos(_THETA)+eta*std::sin(_THETA) ) );
