@@ -11,7 +11,7 @@
 #include "cmdline_parser.h"
 
 #include "interpolator1D.h"
-#include "model_image_general_riaf_waxion.h"
+#include "model_polarized_image_general_riaf_waxion.h"
 #include "model_image_sum.h"
 #include "model_image_symmetric_gaussian.h"
 #include "vrt2.h"
@@ -123,7 +123,7 @@ int main(int argc, char* argv[])
   int number_of_model_colors = world_size/procs_per_model();
   MPI_Comm_split(MPI_COMM_WORLD, model_color, world_rank, &model_comm);
   
-  Themis::model_image_general_riaf_waxion riaf;
+  Themis::model_polarized_image_general_riaf_waxion riaf;
   riaf.set_image_resolution(npix(), nref());
   riaf.set_screen_size(fov()/2.0);
   riaf.set_mpi_communicator(model_comm);
@@ -161,8 +161,8 @@ int main(int argc, char* argv[])
     params[11] = infall;
     params[12] = start_parameter_list[p][4];
     // Axion parameters
-    params[13] = start_parameter-list[p][5];
-    params[14] = 0.0; // start_parameter-list[p][6];
+    params[13] = start_parameter_list[p][5];
+    params[14] = 0.0; // start_parameter_list[p][6];
     // PA
     params[15] = pos;
     
@@ -265,20 +265,31 @@ int main(int argc, char* argv[])
     //Reset resolutions and other stuff
     params[3] = ne_initial;
     params[8] = ne_initial*start_parameter_list[p][3];
-    params[14] = start_parameter-list[p][6];
+    params[14] = start_parameter_list[p][6];
     riaf.set_image_resolution(npix(), nref());
-    riaf.generate_model(params);
-    riaf.generate_complex_visibilities();
+    double axion_period = riaf.axion_period();
+
+    for (int j=0; j<frames_per_period(); ++j)
+    {
+      riaf.set_tobs(j*axion_period/double(frames_per_period()));
+      riaf.generate_model(params);
+
+      riaf.generate_complex_visibilities();
     
-    std::stringstream outstream;
-    outstream << outname() << "_"
-              << std::setfill('0')
-              << std::setw(8)
-              << index_list[p]
-	      << ".dat";
-    if ( mc_rank == 0 ){
-      std::cout << "Saving image. Final flux: " << riaf.flux() << std::endl;
-      riaf.output_image(outstream.str());
+      std::stringstream outstream;
+      outstream << outname() << "_"
+		<< std::setfill('0')
+		<< std::setw(8)
+		<< index_list[p]
+		<< "_"
+		<< std::setfill('0')
+		<< std::setw(3)
+		<< j
+		<< ".dat";
+      if ( mc_rank == 0 ){
+	std::cout << "Saving image. Final flux: " << riaf.flux() << std::endl;
+	riaf.output_image(outstream.str());
+      }
     }
   }
 
