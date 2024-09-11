@@ -468,10 +468,10 @@ void model_polarized_image::output_image(std::string fname, bool rotate)
     for ( size_t ii = 0; ii < _alpha.size(); ++ii)
       for ( size_t jj = 0; jj < _alpha[0].size(); ++jj)
       {
-        Irot[ii][jj] = _I[ii][jj];
-        Qrot[ii][jj] = _Q[ii][jj];
-        Urot[ii][jj] = _U[ii][jj];
-        Vrot[ii][jj] = _V[ii][jj];
+        Irot[ii][jj] = _I[_alpha.size()-1-ii][jj];
+        Qrot[ii][jj] = _Q[_alpha.size()-1-ii][jj];
+        Urot[ii][jj] = _U[_alpha.size()-1-ii][jj];
+        Vrot[ii][jj] = _V[_alpha.size()-1-ii][jj];
       }
   }
   
@@ -489,10 +489,10 @@ void model_polarized_image::output_image(std::string fname, bool rotate)
         << std::endl
         << std::setw(5) << "i"
         << std::setw(5) << "j"
-        << std::setw(15) << "I (Jy/px)"
-        << std::setw(15) << "Q (Jy/px)"
-        << std::setw(15) << "U (Jy/px)"
-        << std::setw(15) << "V (Jy/px)"
+        << std::setw(15) << "I (Jy/str)"
+        << std::setw(15) << "Q (Jy/str)"
+        << std::setw(15) << "U (Jy/str)"
+        << std::setw(15) << "V (Jy/str)"
         << std::endl;
   double psize_x = _alpha[1][1] - _alpha[0][0];
   double psize_y = _beta[1][1] - _beta[0][0];
@@ -500,10 +500,10 @@ void model_polarized_image::output_image(std::string fname, bool rotate)
     for (size_t iy=0; iy<_alpha.size(); iy++)
       imout << std::setw(5) << iy
             << std::setw(5) << ix
-            << std::setw(15) << Irot[iy][ix]*psize_x*psize_y
-            << std::setw(15) << Qrot[iy][ix]*psize_x*psize_y
-            << std::setw(15) << Urot[iy][ix]*psize_x*psize_y
-            << std::setw(15) << Vrot[iy][ix]*psize_x*psize_y 
+            << std::setw(15) << Irot[iy][ix] //*psize_x*psize_y
+            << std::setw(15) << Qrot[iy][ix] //*psize_x*psize_y
+            << std::setw(15) << Urot[iy][ix] //*psize_x*psize_y
+            << std::setw(15) << Vrot[iy][ix] //*psize_x*psize_y 
 	    << std::endl;
   imout.close();
   
