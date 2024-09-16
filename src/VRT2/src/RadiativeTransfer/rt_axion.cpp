@@ -58,8 +58,8 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
   double spin = _g.ang_mom()/_g.mass();
 
-  // _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
-  _mu = mg * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar; // ALP mass in Planck units
+  _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
+  _mu = _alpha / _M; // ALP mass in 1/M
   // NEEDED CONSTANTS:  (ZHIREN)
   // 1. beta
   // 2. omega_axion
@@ -138,26 +138,26 @@ double RT_Axion::omega_crit(double M, double spin)
   return spin * 1 / (2 * M * r_p(M, spin)); // m=1
 }
 
-double RT_Axion::omega_21(double ma, double M, double spin)
+double RT_Axion::omega_21(double mu, double M, double spin)
 {
   //return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
-  double alpha = M * ma; //ma in M^-1
-  return ma * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0 + (2 * spin * std::pow(alpha, 5)) / (3 * M)); // n=2, l=m=1
+  // double alpha = M * ma; //ma in M^-1
+  return mu * (1 - _alpha * _alpha / 8.0 - std::pow(_alpha, 4) / 128 - std::pow(_alpha, 4) / 8.0 + (2 * spin * std::pow(_alpha, 5)) / (3 * M)); // n=2, l=m=1
 }
 
-double RT_Axion::sigma(double ma, double M, double spin)
+double RT_Axion::sigma(double mu, double M, double spin)
 {
-  return M * (2 * r_p(M, spin) * (omega_21(ma, M, spin) - omega_crit(M, spin))) / (r_p(M, spin) - r_m(M, spin));
+  return M * (2 * r_p(M, spin) * (omega_21(mu, M, spin) - omega_crit(M, spin))) / (r_p(M, spin) - r_m(M, spin));
 }
 
-double RT_Axion::q_term(double ma, double M, double spin)
+double RT_Axion::q_term(double mu, double M, double spin)
 {
-  return -std::sqrt(ma * ma - omega_21(ma, M, spin) * omega_21(ma, M, spin));
+  return -std::sqrt(mu * mu - omega_21(mu, M, spin) * omega_21(mu, M, spin));
 }
 
-double RT_Axion::x_term(double ma, double M, double spin)
+double RT_Axion::x_term(double mu, double M, double spin)
 {
-  return M * (ma * ma - 2 * omega_21(ma, M, spin) * omega_21(ma, M, spin)) / q_term(ma, M, spin); 
+  return M * (mu * mu - 2 * omega_21(mu, M, spin) * omega_21(mu, M, spin)) / q_term(mu, M, spin); 
 }
 
 
