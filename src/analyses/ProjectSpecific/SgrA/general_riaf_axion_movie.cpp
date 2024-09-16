@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
   Themis::CMDLineParser::IntArg end_line (argp,"-e,--end","Sets *line* after that at which to end.",false);
   Themis::CMDLineParser::StringArg outname(argp,"-o,--out-prefix","Prefix of output name.  Files will be named <prefix>_<index>.dat","riaf",false);
   Themis::CMDLineParser::FloatArg flux_target(argp,"-F,--flux-target","Sets the target flux in Jy.",2.5,false);
-  Themis::CMDLineParser::IntArg procs_per_model(argp,"-mp,--procs-per-model","Sets the number of processes to use per model evaluation.  Parallelizes library construction on remaining dimension.",4,false);
+  Themis::CMDLineParser::IntArg procs_per_model(argp,"-mp,--procs-per-model","Sets the number of processes to use per model evaluation.  Parallelizes library construction on remaining dimension.",std::min(world_size,4),false);
   // Themis::CMDLineParser::FloatArg axion_alpha(argp,"-aa,--axion-alpha","Sets the alpha for the axion, proportional to the ratio of axion and black hole masses.",0.1,false);
   // Themis::CMDLineParser::FloatArg axion_coupling(argp,"-ag,--axion-g","Sets the dimensionless coupling constant for the axion field.",,false);
   Themis::CMDLineParser::IntArg frames_per_period(argp,"-fpp,--frame-per-period","Sets the number of fames to compute per axion period.",32,false);

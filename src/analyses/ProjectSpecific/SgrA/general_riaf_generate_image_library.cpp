@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
   Themis::CMDLineParser::IntArg end_line (argp,"-e,--end","Sets *line* after that at which to end.",false);
   Themis::CMDLineParser::StringArg outname(argp,"-o,--out-prefix","Prefix of output name.  Files will be named <prefix>_<index>.dat","riaf",false);
   Themis::CMDLineParser::FloatArg flux_target(argp,"-F,--flux-target","Sets the target flux in Jy.",2.5,false);
-  Themis::CMDLineParser::IntArg procs_per_model(argp,"-mp,--procs-per-model","Sets the number of processes to use per model evaluation.  Parallelizes library construction on remaining dimension.",4,false);
+  Themis::CMDLineParser::IntArg procs_per_model(argp,"-mp,--procs-per-model","Sets the number of processes to use per model evaluation.  Parallelizes library construction on remaining dimension.",std::min(world_size,4),false);
 
   // Parse command line
   argp.parse_args(argc,argv,true);
