@@ -57,9 +57,9 @@ void model_polarized_image_general_riaf_waxion::set_image_resolution(int Nray, i
   MPI_Comm_rank(_comm,&rank);
   //std::cout << "model_polarized_image_general_riaf_waxion: Rank " << rank << " using image resolution " << _Nray << std::endl;
   
-  //if (number_of_refines!=0)
-  //  std::cout << "model_polarized_image_general_riaf_waxion: VRT2 refine turned on! Refining base map " 
-  //            << number_of_refines << " times on rank " << rank << std::endl;
+  if (number_of_refines!=0)
+    std::cout << "model_polarized_image_general_riaf_waxion: VRT2 refine turned on! Refining base map " 
+	      << number_of_refines << " times on rank " << rank << std::endl;
 }
   
 std::string model_polarized_image_general_riaf_waxion::model_tag() const
@@ -174,7 +174,12 @@ void model_polarized_image_general_riaf_waxion::generate_polarized_image(std::ve
   pmap.integrate();
 
   for ( int ir = 0; ir < _number_of_refines; ir++)
+  {
+    //std::cout << "Refined! Before: " << pmap.xi_size() << std::endl;
     pmap.refine();
+    //std::cout << "Refined! After: " << pmap.xi_size() << std::endl;
+  }
+
 
   int Nray_x = pmap.xi_size();
   int Nray_y = pmap.eta_size();
