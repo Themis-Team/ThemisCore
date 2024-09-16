@@ -147,7 +147,7 @@ double RT_Axion::omega_21(double ma, double M, double spin)
 
 double RT_Axion::sigma(double ma, double M, double spin)
 {
-  return (2 * r_p(M, spin) * (omega_21(ma, M, spin) - omega_crit(M, spin))) / (r_p(M, spin) - r_m(M, spin));
+  return M * (2 * r_p(M, spin) * (omega_21(ma, M, spin) - omega_crit(M, spin))) / (r_p(M, spin) - r_m(M, spin));
 }
 
 double RT_Axion::q_term(double ma, double M, double spin)
