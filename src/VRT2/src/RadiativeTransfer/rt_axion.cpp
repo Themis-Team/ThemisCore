@@ -56,7 +56,7 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 {
   double Mg = VRT2::VRT2_Constants::M_sun * _M; // Black hole mass in g (from Msun)
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
-  double spin = _g.ang_mom()/_g.mass();
+  double spin = _M * _g.ang_mom()/_g.mass();
 
   _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
   _mu = _alpha / _M; // ALP mass in 1/M
@@ -76,14 +76,15 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   _chi = x_term(_mu, _M, spin);
 
   // Find the maximum value of Re(a) to normalize it first
-  double _t_find_max = 0;
-  double _theta_find_max = M_PI / 2;
-  double _phi_find_max = 0;
+  // double _t_find_max = 0;
+  // double _theta_find_max = M_PI / 2;
+  // double _phi_find_max = 0;
   double r_min = 2.0;
   double r_max = 302.0;
   double step = 0.1;
-  _Re_a_max = find_max_Re_a_not_normed(_t_find_max, _theta_find_max, _phi_find_max, r_min, r_max, step);
-  
+  // _Re_a_max = find_max_Re_a_not_normed(_t_find_max, _theta_find_max, _phi_find_max, r_min, r_max, step);
+  _Re_a_max = find_max_Re_a_not_normed(r_min, r_max, step);
+
   // _R_norm_factor = 1; // my a0
   // _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
   _norm_factor = std::pow(10, 24) / _Re_a_max; // can merge R and Y normed factors plus the scaling factor to make amax ~ fa. Pick fa = 10^15 GeV = 10^24 eV
@@ -142,7 +143,7 @@ double RT_Axion::omega_21(double mu, double M, double spin)
 {
   //return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
   // double alpha = M * ma; //ma in M^-1
-  return mu * (1 - _alpha * _alpha / 8.0 - std::pow(_alpha, 4) / 128 - std::pow(_alpha, 4) / 8.0 + (2 * spin * std::pow(_alpha, 5)) / (3 * M)); // n=2, l=m=1
+  return mu * (1 - _alpha * _alpha / 8.0 - std::pow(_alpha, 4) / 128 - std::pow(_alpha, 4) / 8.0 + (2 * spin * std::pow(_alpha, 5)) / (3 * M * 8)); // n=2, l=m=1
 }
 
 double RT_Axion::sigma(double mu, double M, double spin)
@@ -161,13 +162,14 @@ double RT_Axion::x_term(double mu, double M, double spin)
 }
 
 
-double RT_Axion::Re_a_not_normed(double t, double r, double theta, double phi)
+double RT_Axion::Re_a_not_normed(double r)
 {
-  // note that norm factor is 1
-  return _R1 * std::cos(_arg) * std::sin(theta);
+  // note that norm factor is 1, suppose we're at t=phi=0, theta=pi/2
+  // return _R1 * std::cos(_arg) * std::sin(theta);
+  return std::pow((r - _rm), _chi - 1) * std::exp(_q * r) * std::cos(_sigma * std::log((r - _rm) / (r - _rp)));
 }
 
-double RT_Axion::find_max_Re_a_not_normed(double t, double theta, double phi, double r_min, double r_max, double step)
+double RT_Axion::find_max_Re_a_not_normed(double r_min, double r_max, double step)
 {
   double max_value = -1e20; // Initialize to a very small value
   //double max_r = r_min;     // Store the r corresponding to the max value
@@ -175,7 +177,7 @@ double RT_Axion::find_max_Re_a_not_normed(double t, double theta, double phi, do
   for (double r = r_min; r <= r_max; r += step)
   {
     // Calculate Re_a_not_normed at (t=0, theta=pi/2, phi=0)
-    double value = Re_a_not_normed(t, r, theta, phi);
+    double value = Re_a_not_normed(r);
 
     if (value > max_value)
     {

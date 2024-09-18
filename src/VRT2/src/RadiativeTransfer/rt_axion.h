@@ -140,8 +140,8 @@ class RT_Axion : public RadiativeTransfer
   double sigma(double mu, double M, double spin);
   double q_term(double mu, double M, double spin);
   double x_term(double mu, double M, double spin);
-  double Re_a_not_normed(double t, double r, double theta, double phi);
-  double find_max_Re_a_not_normed(double t, double theta, double phi, double r_min, double r_max, double step);
+  double Re_a_not_normed(double r);
+  double find_max_Re_a_not_normed(double r_min, double r_max, double step);
 
   double dadr(double t, double r, double theta, double phi);
   double dadtheta(double t, double r, double theta, double phi);
