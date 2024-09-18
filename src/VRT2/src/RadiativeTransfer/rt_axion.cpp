@@ -79,9 +79,9 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // double _t_find_max = 0;
   // double _theta_find_max = M_PI / 2;
   // double _phi_find_max = 0;
-  double r_min = 2.0;
-  double r_max = 302.0;
-  double step = 0.1;
+  double r_min = 2.0 * _M; // start from 2M
+  double r_max = 302.0 * _M; // end at 302M, which is enough to cover the maximum for low alpha
+  double step = 0.1 * _M; // step size
   // _Re_a_max = find_max_Re_a_not_normed(_t_find_max, _theta_find_max, _phi_find_max, r_min, r_max, step);
   _Re_a_max = find_max_Re_a_not_normed(r_min, r_max, step);
 
@@ -241,10 +241,14 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   double r = _x.con(1); // This is r
   double phi = _x.con(3); // This is phi
 
-  _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  _R1_left = std::pow((r - _rm), _chi - 1);
+  _R1_right = std::exp(_q * r);
+  _R1 = _R1_left * _R1_right;
   _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
   std::cout << "Common functions:"
+      << std::setw(15) << "_R1_left:" << _R1_left
+      << std::setw(15) << "_R1_right:" << _R1_right
       << std::setw(15) << "_R1:" << _R1
       << std::setw(15) << "_arg:" << _arg
       << std::endl;

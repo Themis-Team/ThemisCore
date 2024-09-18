@@ -111,6 +111,8 @@ class RT_Axion : public RadiativeTransfer
   void set_common_funcs();
 
   // double beta_r; // Dimensionless r
+  double _R1_left;
+  double _R1_right;
   double _R1; // common radial part
   double _arg; // common argument
   // double common_radial_part;
