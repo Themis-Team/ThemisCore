@@ -89,6 +89,19 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
   _norm_factor = std::pow(10, 24) / _Re_a_max; // can merge R and Y normed factors plus the scaling factor to make amax ~ fa. Pick fa = 10^15 GeV = 10^24 eV
 
+  std::cout << "Constants:"
+      << std::setw(15) << "_alpha:" << _alpha
+      << std::setw(15) << "_mu:" << _mu
+      << std::setw(15) << "_rp:" << _rp
+      << std::setw(15) << "_rm:" << _rm
+      << std::setw(15) << "_omega_crit:" << _omega_crit
+      << std::setw(15) << "_omega_21:" << _omega_21
+      << std::setw(15) << "_sigma:" << _sigma
+      << std::setw(15) << "_q:" << _q
+      << std::setw(15) << "_chi:" << _chi
+      << std::setw(15) << "_Re_a_max:" << _Re_a_max
+      << std::setw(15) << "_norm_factor:" << _norm_factor
+      << std::endl;
   // _E21 = E_21(_alpha); // Still in SI/cgs units
   // _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
   // _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
@@ -231,6 +244,11 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
   _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
+  std::cout << "Common functions:"
+      << std::setw(15) << "_R1:" << _R1
+      << std::setw(15) << "_arg:" << _arg
+      << std::endl;
+
   // beta_r = _beta * r;
   // common_radial_part = std::pow(beta_r, _alpha_term - 1) * std::exp(-beta_r);
   // common_argument = phi - _omega_axion * t;
@@ -284,6 +302,13 @@ double RT_Axion::dadr(double t, double r, double theta, double phi)
   double first_part = _R1 / ((r - _rm) * (r - _rp));
   double second_part = (r - _rp) * (-1 + _q * (r - _rm) + _chi) * std::cos(_arg);
   double third_part = _sigma * (_rp - _rm) * std::sin(_arg);
+
+  std::cout << "Parts of dadr:"
+      << std::setw(15) << "first_part:" << first_part
+      << std::setw(15) << "second_part:" << second_part
+      << std::setw(15) << "third_part:" << third_part
+      << std::endl;
+
   return _norm_factor * first_part * (second_part + third_part) * std::sin(theta);
 }
 
