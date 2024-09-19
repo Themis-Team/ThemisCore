@@ -58,13 +58,8 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
   double spin = _M * _g.ang_mom()/_g.mass();
 
-  _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // Would it be better to initialize alpha instead of ma?
+  _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // calculate coupling constant alpha
   _mu = _alpha / _M; // ALP mass in 1/M
-  // NEEDED CONSTANTS:  (ZHIREN)
-  // 1. beta
-  // 2. omega_axion
-  // 3. wave function normalization
-  // 4. alpha  [ sqrt(9/4-alpha) ]
 
   // _M should be dimensionless, in terms of M_sun, _mu the same
   _rp = r_p(_M, spin); // THIS DOESN'T MAKE SENSE
@@ -87,28 +82,21 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 
   // _R_norm_factor = 1; // my a0
   // _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
-  _norm_factor = std::pow(10, 24) / _Re_a_max; // can merge R and Y normed factors plus the scaling factor to make amax ~ fa. Pick fa = 10^15 GeV = 10^24 eV
+  _norm_factor = std::pow(10, 24) / _Re_a_max; // merge R and Y normed factors plus the scaling factor to make amax ~ fa. Pick fa = 10^15 GeV = 10^24 eV
 
-  std::cout << "Constants:"
-      << std::setw(15) << "_alpha:" << _alpha
-      << std::setw(15) << "_mu:" << _mu
-      << std::setw(15) << "_rp:" << _rp
-      << std::setw(15) << "_rm:" << _rm
-      << std::setw(15) << "_omega_crit:" << _omega_crit
-      << std::setw(15) << "_omega_21:" << _omega_21
-      << std::setw(15) << "_sigma:" << _sigma
-      << std::setw(15) << "_q:" << _q
-      << std::setw(15) << "_chi:" << _chi
-      << std::setw(15) << "_Re_a_max:" << _Re_a_max
-      << std::setw(15) << "_norm_factor:" << _norm_factor
-      << std::endl;
-  // _E21 = E_21(_alpha); // Still in SI/cgs units
-  // _beta = beta_axion(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
-  // _omega_axion = omega_21(_alpha) * VRT2::VRT2_Constants::G / (VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c*VRT2::VRT2_Constants::c); // Units of 1/M
-  // _alpha_term = alpha_term(_alpha);
-  // _pre_factor = pre_factor_A(_alpha) * std::pow(VRT2::VRT2_Constants::G, 0.5) / VRT2::VRT2_Constants::c; // correct dimension M^-0.5?
-
-  // _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _pre_factor * _beta;
+  // std::cout << "Constants:"
+  //     << std::setw(15) << "_alpha:" << _alpha
+  //     << std::setw(15) << "_mu:" << _mu
+  //     << std::setw(15) << "_rp:" << _rp
+  //     << std::setw(15) << "_rm:" << _rm
+  //     << std::setw(15) << "_omega_crit:" << _omega_crit
+  //     << std::setw(15) << "_omega_21:" << _omega_21
+  //     << std::setw(15) << "_sigma:" << _sigma
+  //     << std::setw(15) << "_q:" << _q
+  //     << std::setw(15) << "_chi:" << _chi
+  //     << std::setw(15) << "_Re_a_max:" << _Re_a_max
+  //     << std::setw(15) << "_norm_factor:" << _norm_factor
+  //     << std::endl;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // // Emission constant (in cgs units)
@@ -136,7 +124,7 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // _Calphanu *= _length_scale;
 }
 
-// These functions are all in natural units G=hbar=c=1
+// These helper functions are all in natural units G=hbar=c=1
 double RT_Axion::r_p(double M, double spin)
 {
   return M + std::sqrt(M * M - spin * spin);
@@ -154,8 +142,6 @@ double RT_Axion::omega_crit(double M, double spin)
 
 double RT_Axion::omega_21(double mu, double M, double spin)
 {
-  //return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / VRT2::VRT2_Constants::hbar * (1 - alpha * alpha / 8.0 - std::pow(alpha, 4) / 128 - std::pow(alpha, 4) / 8.0);
-  // double alpha = M * ma; //ma in M^-1
   return mu * (1 - _alpha * _alpha / 8.0 - std::pow(_alpha, 4) / 128 - std::pow(_alpha, 4) / 8.0 + (2 * spin * std::pow(_alpha, 5)) / (3 * M * 8)); // n=2, l=m=1
 }
 
@@ -200,64 +186,28 @@ double RT_Axion::find_max_Re_a_not_normed(double r_min, double r_max, double ste
   }
   return max_value;
 }
-// double RT_Axion::Ma_alpha(double alpha)
-// {
-//   return VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c * alpha / (VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::M_sun * _M);
-// }
-
-// double RT_Axion::alpha_term(double alpha)
-// {
-//   return 0.5 + std::sqrt(9.0 / 4.0 - alpha * alpha);
-// }
-
-// double RT_Axion::E_21(double alpha)
-// {
-//   double denom = std::sqrt(1 + alpha * alpha / std::pow(alpha_term(alpha), 2));
-//   return Ma_alpha(alpha) * VRT2::VRT2_Constants::c * VRT2::VRT2_Constants::c / denom;
-// }
-
-// double RT_Axion::beta_axion(double alpha)
-// {
-//   return 2 * std::sqrt(std::pow(Ma_alpha(alpha), 2) * std::pow(VRT2::VRT2_Constants::c, 4) - std::pow(E_21(alpha), 2)) / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c);
-// }
-
-// double RT_Axion::pre_factor_A(double alpha)
-// {
-//   double nomi = std::pow(beta_axion(alpha), 0.5) * std::pow(2, alpha_term(alpha) + 0.5);
-//   double gamma_param = 2 * alpha_term(alpha) + 1;
-//   return nomi / std::pow(std::tgamma(gamma_param), 0.5); 
-// }
 
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
-
-  // NEEDED FUNCTIONS/EVALUATIONS:  (ZHIREN)
-  // 0. da/dt
-  // 1. da/dr
-  // 2. da/dtheta
-  // 3. da/dphi
 
   double t = _x.con(0); // This is t
   double r = _x.con(1); // This is r
   double phi = _x.con(3); // This is phi
 
-  _R1_left_low = r - _rm;
-  _R1_left = std::pow(_R1_left_low, _chi - 1);
-  _R1_right = std::exp(_q * r);
-  _R1 = _R1_left * _R1_right;
+  // _R1_left_low = r - _rm;
+  // _R1_left = std::pow(_R1_left_low, _chi - 1);
+  // _R1_right = std::exp(_q * r);
+  // _R1 = _R1_left * _R1_right;
+  _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
   _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
-  std::cout << "Common functions:"
-      << std::setw(15) << "_R1_left_low:" << _R1_left_low
-      << std::setw(15) << "_R1_left:" << _R1_left
-      << std::setw(15) << "_R1_right:" << _R1_right
-      << std::setw(15) << "_R1:" << _R1
-      << std::setw(15) << "_arg:" << _arg
-      << std::endl;
-
-  // beta_r = _beta * r;
-  // common_radial_part = std::pow(beta_r, _alpha_term - 1) * std::exp(-beta_r);
-  // common_argument = phi - _omega_axion * t;
+  // std::cout << "Common functions:"
+  //     << std::setw(15) << "_R1_left_low:" << _R1_left_low
+  //     << std::setw(15) << "_R1_left:" << _R1_left
+  //     << std::setw(15) << "_R1_right:" << _R1_right
+  //     << std::setw(15) << "_R1:" << _R1
+  //     << std::setw(15) << "_arg:" << _arg
+  //     << std::endl;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // _n0 = _Cn * _ne(_x);
@@ -302,18 +252,15 @@ double RT_Axion::dadr(double t, double r, double theta, double phi)
 {
   // no change of sign
 
-  // double radial_derivative_part = (alpha_term(alpha) - 1 - beta_r) / r;
-  // double t_angular_part = std::cos(common_argument) * std::sin(theta);
-  // return _norm_factor * common_radial_part * radial_derivative_part * t_angular_part;
   double first_part = _R1 / ((r - _rm) * (r - _rp));
   double second_part = (r - _rp) * (-1 + _q * (r - _rm) + _chi) * std::cos(_arg);
   double third_part = _sigma * (_rp - _rm) * std::sin(_arg);
 
-  std::cout << "Parts of dadr:"
-      << std::setw(15) << "first_part:" << first_part
-      << std::setw(15) << "second_part:" << second_part
-      << std::setw(15) << "third_part:" << third_part
-      << std::endl;
+  // std::cout << "Parts of dadr:"
+  //     << std::setw(15) << "first_part:" << first_part
+  //     << std::setw(15) << "second_part:" << second_part
+  //     << std::setw(15) << "third_part:" << third_part
+  //     << std::endl;
 
   return _norm_factor * first_part * (second_part + third_part) * std::sin(theta);
 }
@@ -322,8 +269,6 @@ double RT_Axion::dadt(double t, double r, double theta, double phi)
 {
   // no change of sign
 
-  // double t_angular_part = _omega_axion * std::sin(common_argument) * std::sin(theta);
-  // return _norm_factor * common_radial_part * t_angular_part;
   return _norm_factor * _R1 * _omega_21 * std::sin(_arg) * std::sin(theta);
 }
 
@@ -331,8 +276,6 @@ double RT_Axion::dadtheta(double t, double r, double theta, double phi)
 {
   // no change of sign
 
-  // double t_angular_part = std::cos(common_argument) * std::cos(theta);
-  // return _norm_factor * common_radial_part * t_angular_part;
   return _norm_factor * _R1 *  std::cos(_arg) * std::cos(theta);
 }
 
@@ -340,8 +283,6 @@ double RT_Axion::dadphi(double t, double r, double theta, double phi)
 {
   // change of sign!
 
-  // double t_angular_part = - std::sin(common_argument) * std::sin(theta);
-  // return _norm_factor * common_radial_part * t_angular_part;
   return -_norm_factor * _R1  * std::sin(_arg) * std::sin(theta);
 }
 
@@ -413,14 +354,6 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   //   * the theta position _x.con(2)
   //   * the phi position _x.con(3)
   // in Boyer-Lindquist coords.
-  
-  // I think you need to determine the Axion cloud density, given, dn, ma, n, l, m. 
-  // And you need various constants to get to K with ga.
-  // 
-
-  // double K = 0;
-
-  // K = -2 ga da/dlambda = -2 ga (da/dx).(dl/dlambda)
 
   FourVector<double> da_dx(_g);
   da_dx.mkcov(dadt(_x.con(0), _x.con(1), _x.con(2), _x.con(3)),
@@ -434,26 +367,26 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
 
   double K = -2 * _ga * (da_dx * dx_dlam);
 
-  std::cout << "K:" 
-	    << std::setw(15) << K 
-	    << std::setw(15) << _ga 
-	    << " | "
-	    << std::setw(15) << dx_dlam.con(0)
-	    << std::setw(15) << dx_dlam.con(1)
-	    << std::setw(15) << dx_dlam.con(2)
-	    << std::setw(15) << dx_dlam.con(3)
-	    << " | "
-	    << std::setw(15) << da_dx.cov(0)
-	    << std::setw(15) << da_dx.cov(1)
-	    << std::setw(15) << da_dx.cov(2)
-	    << std::setw(15) << da_dx.cov(3)
-	    << " | "
-	    << std::setw(15) << (dx_dlam*dx_dlam)
-	    << std::setw(15) << (da_dx*da_dx)
-	    << std::setw(15) << (_k*_k)
-	    << " | "
-	    << std::setw(15) << K 
-	    << std::endl;
+  // std::cout << "K:" 
+	//     << std::setw(15) << K 
+	//     << std::setw(15) << _ga 
+	//     << " | "
+	//     << std::setw(15) << dx_dlam.con(0)
+	//     << std::setw(15) << dx_dlam.con(1)
+	//     << std::setw(15) << dx_dlam.con(2)
+	//     << std::setw(15) << dx_dlam.con(3)
+	//     << " | "
+	//     << std::setw(15) << da_dx.cov(0)
+	//     << std::setw(15) << da_dx.cov(1)
+	//     << std::setw(15) << da_dx.cov(2)
+	//     << std::setw(15) << da_dx.cov(3)
+	//     << " | "
+	//     << std::setw(15) << (dx_dlam*dx_dlam)
+	//     << std::setw(15) << (da_dx*da_dx)
+	//     << std::setw(15) << (_k*_k)
+	//     << " | "
+	//     << std::setw(15) << K 
+	//     << std::endl;
 
   // I, Q, U, V
   _iquv_abs[0] = 0.0;

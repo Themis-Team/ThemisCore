@@ -90,12 +90,7 @@ class RT_Axion : public RadiativeTransfer
 
   double _alpha; // Fine structure constant
   double _mu; // ALP mass in Planck units
-  // double _E21; // Energy of axion at n=2, l=1
-  // double _beta; // Parameter beta to save times
-  // double _omega_axion; // Eigenfrequency
-  // double _alpha_term; // Alpha term to save time
-  // double _pre_factor; // A prefactor A in the normalization factor
-  // double _norm_factor; // Normalization factor for the axion cloud
+
   double _rp; // outer event horzion
   double _rm; // inner event horzion
   double _omega_crit; // Critical frequency of superradiance
@@ -104,24 +99,16 @@ class RT_Axion : public RadiativeTransfer
   double _q; // same as above
   double _chi; // same as above
   double _Re_a_max; // the maximum value of Re(a) unnormalized
-  // double _R_norm_factor; // Normalization factor for the radial function
   double _norm_factor; // totoal normalization factor for the axion field
 
   // Get common functions
   void set_common_funcs();
 
-  // double beta_r; // Dimensionless r
-  double _R1_left_low;
-  double _R1_left;
-  double _R1_right;
+  // double _R1_left_low;
+  // double _R1_left;
+  // double _R1_right;
   double _R1; // common radial part
   double _arg; // common argument
-  // double common_radial_part;
-  // double common_argument;
-
-  double r; // WHAT IS THIS?
-  double phi; // WHAT IS THIS? 
-  double t; // WHAT IS THIS?
 
   // Get rotation angle to align with z-aligned Stokes basis
   void
@@ -130,12 +117,6 @@ class RT_Axion : public RadiativeTransfer
   // Computes dlambda/dl
   double dl_dlambda(const double dydx[]);
 
-  // double Ma_alpha(double alpha);
-  // double alpha_term(double alpha);
-  // double E_21(double alpha);
-  // double beta_axion(double alpha);
-  // double omega_21(double alpha);
-  // double pre_factor_A(double alpha);
   double r_p(double M, double spin);
   double r_m(double M, double spin);
   double omega_crit(double M, double spin);
