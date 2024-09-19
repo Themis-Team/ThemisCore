@@ -190,8 +190,8 @@ double RT_Axion::find_max_Re_a_not_normed(double r_min, double r_max, double ste
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
 
-  double t = _x.con(0); // This is t
-  double r = _x.con(1); // This is r
+  double t = _x.con(0) * _M; // This is t
+  double r = _x.con(1) * _M; // This is r
   double phi = _x.con(3); // This is phi
 
   // _R1_left_low = r - _rm;
