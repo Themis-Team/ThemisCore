@@ -97,6 +97,7 @@ class model_polarized_image_general_riaf_waxion : public model_polarized_image
 
   //! Set the observation time
   void set_tobs(double tobs=0.0) {
+    _generated_model = false;
     _tobs = tobs;
   };
 
