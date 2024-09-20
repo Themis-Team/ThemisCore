@@ -199,7 +199,14 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   // _R1_right = std::exp(_q * r);
   // _R1 = _R1_left * _R1_right;
   _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
-  _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
+  _arg = phi - _omega_21 * (t/_M) + _sigma * std::log((r - _rm) / (r - _rp));
+
+  // std::cout << "RT_Axion time = "
+  // 	    << std::setw(15) << t/_M
+  // 	    << " _omega_21*t = "
+  // 	    << std::setw(15) << _omega_21*(t/_M)
+  // 	    << std::endl;
+
 
   // std::cout << "Common functions:"
   //     << std::setw(15) << "_R1_left_low:" << _R1_left_low
