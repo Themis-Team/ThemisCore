@@ -272,7 +272,7 @@ int main(int argc, char* argv[])
     for (int j=0; j<frames_per_period(); ++j)
     {
       // std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
-      riaf.set_tobs(j*axion_period/double(frames_per_period()));
+      riaf.set_tobs((j-frames_per_period())*axion_period/double(frames_per_period()));
       riaf.generate_model(params);
 
       riaf.generate_complex_visibilities();
