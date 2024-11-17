@@ -423,9 +423,17 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
 
   // Check finite difference
   double _dadr_4rg = dadr(_x.con(0), 4.0, _theta_test, _phi_test);
-  double _delta_ar_4rg = (Real_a(_x.con(0), 4.00001, _theta_test, _phi_test) - Real_a(_x.con(0), 4.00001, _theta_test, _phi_test)) / 0.00002;
+
+  double _delta_ar_4rg_p = Real_a(_x.con(0), 4 + 0.00001, _theta_test, _phi_test);
+  double _delta_ar_4rg_m = Real_a(_x.con(0), 4-0.00001, _theta_test, _phi_test);
+  double _delta_ar_4rg_cd = (_delta_ar_4rg_p - _delta_ar_4rg_m) / 0.00002;
+
   double _dadr_7rg = dadr(_x.con(0), _r_test, _theta_test, _phi_test);
-  double _delta_ar_7rg = (Real_a(_x.con(0), _r_test+0.00001, _theta_test, _phi_test) - Real_a(_x.con(0), _r_test-0.00001, _theta_test, _phi_test))/0.00002;
+
+  double _delta_ar_7rg_p = Real_a(_x.con(0), _r_test + 0.00001, _theta_test, _phi_test);
+  double _delta_ar_7rg_m = Real_a(_x.con(0), _r_test - 0.00001, _theta_test, _phi_test);
+  double _delta_ar_7rg_cd = (_delta_ar_7rg_p - _delta_ar_7rg_m) / 0.00002;
+
 
   FourVector<double>
       da_dx_test(_g);
@@ -454,9 +462,14 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
             << std::setw(15) << da_dx_test.cov(3)
             << " | "
             << std::setw(15) << _dadr_4rg
-            << std::setw(15) << _delta_ar_4rg
+            << std::setw(15) << _delta_ar_4rg_p
+            << std::setw(15) << _delta_ar_4rg_m
+            << std::setw(15) << _delta_ar_4rg_cd
+            << " | "
             << std::setw(15) << _dadr_7rg
-            << std::setw(15) << _delta_ar_7rg
+            << std::setw(15) << _delta_ar_7rg_p
+            << std::setw(15) << _delta_ar_7rg_m
+            << std::setw(15) << _delta_ar_7rg_cd
             // << std::setw(15) << (dx_dlam*dx_dlam)
             // << std::setw(15) << (da_dx*da_dx)
             // << std::setw(15) << (_k*_k)
