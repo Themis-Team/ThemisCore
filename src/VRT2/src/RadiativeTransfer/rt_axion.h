@@ -72,7 +72,7 @@ class RT_Axion : public RadiativeTransfer
 
 
    // Axion Period Access
-   double period() const { return (2.0 * M_PI * VRT2::VRT2_Constants::G * VRT2::VRT2_Constants::M_sun) / std::pow(VRT2::VRT2_Constants::c, 3) * _omega_21; };
+   double period() const { return 2.0 * M_PI / _omega_21; };
 
  private:
   AccretionFlowVelocity& _u;
