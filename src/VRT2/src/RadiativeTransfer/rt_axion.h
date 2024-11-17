@@ -21,6 +21,7 @@ using namespace std;
 #include <vector>
 #include <valarray>
 #include <complex>
+// #include <fstream>
 
 // Special Headers
 #include "metric.h"
@@ -71,7 +72,7 @@ class RT_Axion : public RadiativeTransfer
 
 
    // Axion Period Access
-   double period() const { return 2.0*M_PI/_omega_21; };
+   double period() const { return 2.0 * M_PI / _omega_21; };
 
  private:
   AccretionFlowVelocity& _u;
@@ -117,15 +118,18 @@ class RT_Axion : public RadiativeTransfer
   // Computes dlambda/dl
   double dl_dlambda(const double dydx[]);
 
-  double r_p(double M, double spin);
-  double r_m(double M, double spin);
-  double omega_crit(double M, double spin);
-  double omega_21(double mu, double M, double spin);
-  double sigma(double mu, double M, double spin);
-  double q_term(double mu, double M, double spin);
-  double x_term(double mu, double M, double spin);
+  double r_p(double spin);
+  double r_m(double spin);
+  double omega_crit(double spin);
+  double omega_21(double mu, double spin);
+  double sigma(double mu, double spin);
+  double q_term(double mu, double spin);
+  double x_term(double mu, double spin);
   double Re_a_not_normed(double r);
   double find_max_Re_a_not_normed(double r_min, double r_max, double step);
+  // void plot_Re_a_not_normed(double r_min, double r_max, double step);
+
+  double Real_a(double t, double r, double theta, double phi);
 
   double dadr(double t, double r, double theta, double phi);
   double dadtheta(double t, double r, double theta, double phi);

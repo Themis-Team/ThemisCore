@@ -55,36 +55,54 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 // std::tuple<double, double, double> RT_Axion::set_constants(double alpha)
 {
   double Mg = VRT2::VRT2_Constants::M_sun * _M; // Black hole mass in g (from Msun)
+  // std::cout << "Mg (Black hole mass in grams): " << Mg << std::endl;
   double mg = _ma * 1.78266192e-33; // Axion mass in g (from eV)
-  double spin = _M * _g.ang_mom()/_g.mass();
+  // std::cout << "mg (Axion mass in grams): " << mg << std::endl;
+  double spin =  _g.ang_mom() / _g.mass();
+  // std::cout << "spin: " << spin << std::endl;
 
   _alpha = VRT2::VRT2_Constants::G * Mg * mg / (VRT2::VRT2_Constants::hbar * VRT2::VRT2_Constants::c); // calculate coupling constant alpha
-  _mu = _alpha / _M; // ALP mass in 1/M
+  // std::cout << "_alpha (Coupling constant alpha): " << _alpha << std::endl;
+  _mu = _alpha / 1.0 ; // ALP mass in 1/M_sgra
+  // std::cout << "_mu (ALP mass in  1/M_sgra): " << _mu << std::endl;
 
   // _M should be dimensionless, in terms of M_sun, _mu the same
-  _rp = r_p(_M, spin); // THIS DOESN'T MAKE SENSE
-  _rm = r_m(_M, spin); // THIS DOESN'T MAKE SENSE
-  _omega_crit = omega_crit(_M, spin);
-  _omega_21 = omega_21(_mu, _M, spin);
-  _sigma = sigma(_mu, _M, spin);
-  _q = q_term(_mu, _M, spin);
-  _chi = x_term(_mu, _M, spin);
+  _rp = r_p(spin); // THIS DOESN'T MAKE SENSE
+  _rm = r_m(spin); // THIS DOESN'T MAKE SENSE
+  _omega_crit = omega_crit(spin);
+  _omega_21 = omega_21(_mu, spin);
+  _sigma = sigma(_mu, spin);
+  _q = q_term(_mu, spin);
+  _chi = x_term(_mu, spin);
+
+  // std::cout << "_rp (Event horizon radius r+): " << _rp << std::endl;
+  // std::cout << "_rm (Event horizon radius r-): " << _rm << std::endl;
+  // std::cout << "_omega_crit (Critical angular frequency): " << _omega_crit << std::endl;
+  // std::cout << "_omega_21 (Transition frequency omega_21): " << _omega_21 << std::endl;
+  // std::cout << "_sigma: " << _sigma << std::endl;
+  // std::cout << "_q (q-term): " << _q << std::endl;
+  // std::cout << "_chi (x-term): " << _chi << std::endl;
 
   // Find the maximum value of Re(a) to normalize it first
   // double _t_find_max = 0;
   // double _theta_find_max = M_PI / 2;
   // double _phi_find_max = 0;
-  double r_min = 2.0 * _M; // start from 2M
-  double r_max = 302.0 * _M; // end at 302M, which is enough to cover the maximum for low alpha
-  double step = 0.1 * _M; // step size
+  double r_min = 2.0 ;   // start from 2M_sgra
+  double r_max = 302.0 ; // end at 302M_sgra, which is enough to cover the maximum for low alpha
+  double step = 0.1 ;    // step size
   // _Re_a_max = find_max_Re_a_not_normed(_t_find_max, _theta_find_max, _phi_find_max, r_min, r_max, step);
   _Re_a_max = find_max_Re_a_not_normed(r_min, r_max, step);
+  // std::cout << "_Re_a_max (Maximum Re(a) not normalized): " << _Re_a_max << std::endl;
 
   // _R_norm_factor = 1; // my a0
   // _norm_factor = -0.5 * std::sqrt(3 / (2 * M_PI)) * _R_norm_factor;
   _norm_factor = std::pow(10, 24) / _Re_a_max; // merge R and Y normed factors plus the scaling factor to make amax ~ fa. Pick fa = 10^15 GeV = 10^24 eV
+  // std::cout << "_norm_factor (Normalization factor): " << _norm_factor << std::endl;
+
+  // plot_Re_a_not_normed(r_min, r_max, step);
 
   // std::cout << "Constants:"
+  //     << std::setw(15) << "spin: " << spin
   //     << std::setw(15) << "_alpha:" << _alpha
   //     << std::setw(15) << "_mu:" << _mu
   //     << std::setw(15) << "_rp:" << _rp
@@ -124,40 +142,40 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
   // _Calphanu *= _length_scale;
 }
 
-// These helper functions are all in natural units G=hbar=c=1
-double RT_Axion::r_p(double M, double spin)
+// These helper functions are all in natural units G=hbar=c=1 and in M_sgrA
+double RT_Axion::r_p(double spin)
 {
-  return M + std::sqrt(M * M - spin * spin);
+  return 1 + std::sqrt(1 - spin * spin);
 }
 
-double RT_Axion::r_m(double M, double spin)
+double RT_Axion::r_m(double spin)
 {
-  return M - std::sqrt(M * M - spin * spin);
+  return 1 - std::sqrt(1 - spin * spin);
 }
 
-double RT_Axion::omega_crit(double M, double spin)
+double RT_Axion::omega_crit(double spin)
 {
-  return spin * 1 / (2 * M * r_p(M, spin)); // m=1
+  return spin * 1 / (2 * r_p(spin)); // m=1
 }
 
-double RT_Axion::omega_21(double mu, double M, double spin)
+double RT_Axion::omega_21(double mu, double spin)
 {
-  return mu * (1 - _alpha * _alpha / 8.0 - std::pow(_alpha, 4) / 128 - std::pow(_alpha, 4) / 8.0 + (2 * spin * std::pow(_alpha, 5)) / (3 * M * 8)); // n=2, l=m=1
+  return mu * (1 - _alpha * _alpha / 8.0 - std::pow(_alpha, 4) / 128 - std::pow(_alpha, 4) / 8.0 + (spin * std::pow(_alpha, 5)) / 12); // n=2, l=m=1
 }
 
-double RT_Axion::sigma(double mu, double M, double spin)
+double RT_Axion::sigma(double mu, double spin)
 {
-  return M * (2 * r_p(M, spin) * (omega_21(mu, M, spin) - omega_crit(M, spin))) / (r_p(M, spin) - r_m(M, spin));
+  return (2 * r_p(spin) * (omega_21(mu, spin) - omega_crit(spin))) / (r_p(spin) - r_m(spin));
 }
 
-double RT_Axion::q_term(double mu, double M, double spin)
+double RT_Axion::q_term(double mu, double spin)
 {
-  return -std::sqrt(mu * mu - omega_21(mu, M, spin) * omega_21(mu, M, spin));
+  return -std::sqrt(mu * mu - omega_21(mu, spin) * omega_21(mu, spin));
 }
 
-double RT_Axion::x_term(double mu, double M, double spin)
+double RT_Axion::x_term(double mu, double spin)
 {
-  return M * (mu * mu - 2 * omega_21(mu, M, spin) * omega_21(mu, M, spin)) / q_term(mu, M, spin); 
+  return (mu * mu - 2 * omega_21(mu, spin) * omega_21(mu, spin)) / q_term(mu, spin); 
 }
 
 
@@ -187,11 +205,30 @@ double RT_Axion::find_max_Re_a_not_normed(double r_min, double r_max, double ste
   return max_value;
 }
 
+// #include <fstream> // Include this for file operations
+
+// void RT_Axion::plot_Re_a_not_normed(double r_min, double r_max, double step)
+// {
+//     std::ofstream outfile("Re_a_vs_r.txt"); // Open a file to write data
+//     if (!outfile)
+//     {
+//         std::cerr << "Error opening file for writing." << std::endl;
+//         return;
+//     }
+
+//     for (double r = r_min; r <= r_max; r += step)
+//     {
+//         double value = Re_a_not_normed(r);
+//         outfile << r << " " << value << std::endl; // Write the data pair to the file
+//     }
+//     outfile.close(); // Close the file after writing
+// }
+
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
 
-  double t = _x.con(0) * _M; // This is t
-  double r = _x.con(1) * _M; // This is r
+  double t = _x.con(0); // This is t
+  double r = _x.con(1); // This is r
   double phi = _x.con(3); // This is phi
 
   // _R1_left_low = r - _rm;
@@ -199,14 +236,13 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   // _R1_right = std::exp(_q * r);
   // _R1 = _R1_left * _R1_right;
   _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
-  _arg = phi - _omega_21 * (t/_M) + _sigma * std::log((r - _rm) / (r - _rp));
+  _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
   // std::cout << "RT_Axion time = "
   // 	    << std::setw(15) << t/_M
   // 	    << " _omega_21*t = "
   // 	    << std::setw(15) << _omega_21*(t/_M)
   // 	    << std::endl;
-
 
   // std::cout << "Common functions:"
   //     << std::setw(15) << "_R1_left_low:" << _R1_left_low
@@ -215,6 +251,8 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   //     << std::setw(15) << "_R1:" << _R1
   //     << std::setw(15) << "_arg:" << _arg
   //     << std::endl;
+  // double _R1_tbc = std::pow((7 * _M - _rm), _chi - 1) * std::exp(_q * 7 * _M);
+  // double _arg_tbc = 0 - _omega_21 * (-1.05197e+08) + _sigma * std::log((7 * _M - _rm) / (7 * _M - _rp));
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // _n0 = _Cn * _ne(_x);
@@ -254,8 +292,13 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
   // // Get rotation coeffs to align Stokes bases
   // get_Stokes_alignment_angle(u,b,_cs,_sn);
 }
+double RT_Axion::Real_a(double t, double r, double theta, double phi)
+{
+  // The full form of Real axion field
+  return _norm_factor * _R1 * std::cos(_arg) * std::sin(theta);
+}
 
-double RT_Axion::dadr(double t, double r, double theta, double phi)
+    double RT_Axion::dadr(double t, double r, double theta, double phi)
 {
   // no change of sign
 
@@ -374,31 +417,57 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
 
   double K = -2 * _ga * (da_dx * dx_dlam);
 
-  // std::cout << "K:" 
-	//     << std::setw(15) << K 
-	//     << std::setw(15) << _ga 
-	//     << " | "
-	//     << std::setw(15) << dx_dlam.con(0)
-	//     << std::setw(15) << dx_dlam.con(1)
-	//     << std::setw(15) << dx_dlam.con(2)
-	//     << std::setw(15) << dx_dlam.con(3)
-	//     << " | "
-	//     << std::setw(15) << da_dx.cov(0)
-	//     << std::setw(15) << da_dx.cov(1)
-	//     << std::setw(15) << da_dx.cov(2)
-	//     << std::setw(15) << da_dx.cov(3)
-	//     << " | "
-	//     << std::setw(15) << (dx_dlam*dx_dlam)
-	//     << std::setw(15) << (da_dx*da_dx)
-	//     << std::setw(15) << (_k*_k)
-	//     << " | "
-	//     << std::setw(15) << K 
-	//     << std::endl;
+  double _r_test = 7.0;
+  double _theta_test = M_PI / 2;
+  double _phi_test = 0;
+
+  // Check finite difference
+  double _dadr_4rg = dadr(_x.con(0), 4.0, _theta_test, _phi_test);
+  double _delta_ar_4rg = (Real_a(_x.con(0), 4.00001, _theta_test, _phi_test) - Real_a(_x.con(0), 4.00001, _theta_test, _phi_test)) / 0.00002;
+  double _dadr_7rg = dadr(_x.con(0), _r_test, _theta_test, _phi_test);
+  double _delta_ar_7rg = (Real_a(_x.con(0), _r_test+0.00001, _theta_test, _phi_test) - Real_a(_x.con(0), _r_test-0.00001, _theta_test, _phi_test))/0.00002;
+
+  FourVector<double>
+      da_dx_test(_g);
+  da_dx_test.mkcov(dadt(_x.con(0), _r_test, _theta_test, _phi_test),
+                   dadr(_x.con(0), _r_test, _theta_test, _phi_test),
+                   dadtheta(_x.con(0), _r_test, _theta_test, _phi_test),
+                   dadphi(_x.con(0), _r_test, _theta_test, _phi_test));
+
+  std::cout << "K:"
+            << std::setw(15) << K
+            // << std::setw(15) << _ga
+            // << " | "
+            << std::setw(15) << _x.con(0)
+            // << std::setw(15) << _x.con(1)
+            // << std::setw(15) << _x.con(2)
+            // << std::setw(15) << _x.con(3)
+            // << " | "
+            // << std::setw(15) << dx_dlam.con(0)
+            // << std::setw(15) << dx_dlam.con(1)
+            // << std::setw(15) << dx_dlam.con(2)
+            // << std::setw(15) << dx_dlam.con(3)
+            << " | "
+            << std::setw(15) << da_dx_test.cov(0)
+            << std::setw(15) << da_dx_test.cov(1)
+            << std::setw(15) << da_dx_test.cov(2)
+            << std::setw(15) << da_dx_test.cov(3)
+            << " | "
+            << std::setw(15) << _dadr_4rg
+            << std::setw(15) << _delta_ar_4rg
+            << std::setw(15) << _dadr_7rg
+            << std::setw(15) << _delta_ar_7rg
+            // << std::setw(15) << (dx_dlam*dx_dlam)
+            // << std::setw(15) << (da_dx*da_dx)
+            // << std::setw(15) << (_k*_k)
+            // << " | "
+            // << std::setw(15) << K
+            << std::endl;
 
   // I, Q, U, V
   _iquv_abs[0] = 0.0;
-  _iquv_abs[1] = K*iquv[2];  // dQ/dz =  K U
-  _iquv_abs[2] = -K*iquv[1]; // dU/dz = -K Q
+  _iquv_abs[1] = K * iquv[2];  // dQ/dz =  K U
+  _iquv_abs[2] = -K * iquv[1]; // dU/dz = -K Q
   _iquv_abs[3] = 0.0;
 
   return _iquv_abs;
