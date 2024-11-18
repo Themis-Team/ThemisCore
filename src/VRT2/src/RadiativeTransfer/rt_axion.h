@@ -108,8 +108,8 @@ class RT_Axion : public RadiativeTransfer
   // double _R1_left_low;
   // double _R1_left;
   // double _R1_right;
-  double _R1; // common radial part
-  double _arg; // common argument
+  // double _R1; // common radial part
+  // double _arg; // common argument
 
   // Get rotation angle to align with z-aligned Stokes basis
   void

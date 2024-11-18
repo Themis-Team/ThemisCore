@@ -227,16 +227,16 @@ double RT_Axion::find_max_Re_a_not_normed(double r_min, double r_max, double ste
 void RT_Axion::set_common_funcs() // Every point functions that might be shared among radiative coefficients (ems, abs)
 {
 
-  double t = _x.con(0); // This is t
-  double r = _x.con(1); // This is r
-  double phi = _x.con(3); // This is phi
+  // double t = _x.con(0); // This is t
+  // double r = _x.con(1); // This is r
+  // double phi = _x.con(3); // This is phi
 
-  // _R1_left_low = r - _rm;
-  // _R1_left = std::pow(_R1_left_low, _chi - 1);
-  // _R1_right = std::exp(_q * r);
-  // _R1 = _R1_left * _R1_right;
-  _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
-  _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
+  // // _R1_left_low = r - _rm;
+  // // _R1_left = std::pow(_R1_left_low, _chi - 1);
+  // // _R1_right = std::exp(_q * r);
+  // // _R1 = _R1_left * _R1_right;
+  // _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  // _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
   // std::cout << "RT_Axion time = "
   // 	    << std::setw(15) << t/_M
@@ -295,12 +295,16 @@ void RT_Axion::set_common_funcs() // Every point functions that might be shared 
 double RT_Axion::Real_a(double t, double r, double theta, double phi)
 {
   // The full form of Real axion field
+  double _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  double _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
   return _norm_factor * _R1 * std::cos(_arg) * std::sin(theta);
 }
 
-    double RT_Axion::dadr(double t, double r, double theta, double phi)
+double RT_Axion::dadr(double t, double r, double theta, double phi)
 {
   // no change of sign
+  double _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  double _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
   double first_part = _R1 / ((r - _rm) * (r - _rp));
   double second_part = (r - _rp) * (-1 + _q * (r - _rm) + _chi) * std::cos(_arg);
@@ -318,6 +322,8 @@ double RT_Axion::Real_a(double t, double r, double theta, double phi)
 double RT_Axion::dadt(double t, double r, double theta, double phi)
 {
   // no change of sign
+  double _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  double _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
   return _norm_factor * _R1 * _omega_21 * std::sin(_arg) * std::sin(theta);
 }
@@ -325,6 +331,8 @@ double RT_Axion::dadt(double t, double r, double theta, double phi)
 double RT_Axion::dadtheta(double t, double r, double theta, double phi)
 {
   // no change of sign
+  double _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  double _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
 
   return _norm_factor * _R1 *  std::cos(_arg) * std::cos(theta);
 }
@@ -332,7 +340,9 @@ double RT_Axion::dadtheta(double t, double r, double theta, double phi)
 double RT_Axion::dadphi(double t, double r, double theta, double phi)
 {
   // change of sign!
-
+  double _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
+  double _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
+  
   return -_norm_factor * _R1  * std::sin(_arg) * std::sin(theta);
 }
 
