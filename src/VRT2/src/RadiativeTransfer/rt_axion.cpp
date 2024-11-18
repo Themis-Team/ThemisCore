@@ -101,20 +101,20 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 
   // plot_Re_a_not_normed(r_min, r_max, step);
 
-  // std::cout << "Constants:"
-  //     << std::setw(15) << "spin: " << spin
-  //     << std::setw(15) << "_alpha:" << _alpha
-  //     << std::setw(15) << "_mu:" << _mu
-  //     << std::setw(15) << "_rp:" << _rp
-  //     << std::setw(15) << "_rm:" << _rm
-  //     << std::setw(15) << "_omega_crit:" << _omega_crit
-  //     << std::setw(15) << "_omega_21:" << _omega_21
-  //     << std::setw(15) << "_sigma:" << _sigma
-  //     << std::setw(15) << "_q:" << _q
-  //     << std::setw(15) << "_chi:" << _chi
-  //     << std::setw(15) << "_Re_a_max:" << _Re_a_max
-  //     << std::setw(15) << "_norm_factor:" << _norm_factor
-  //     << std::endl;
+  std::cout << "Constants:"
+      << std::setw(15) << "spin: " << spin
+      << std::setw(15) << "_alpha:" << _alpha
+      << std::setw(15) << "_mu:" << _mu
+      << std::setw(15) << "_rp:" << _rp
+      << std::setw(15) << "_rm:" << _rm
+      << std::setw(15) << "_omega_crit:" << _omega_crit
+      << std::setw(15) << "_omega_21:" << _omega_21
+      << std::setw(15) << "_sigma:" << _sigma
+      << std::setw(15) << "_q:" << _q
+      << std::setw(15) << "_chi:" << _chi
+      << std::setw(15) << "_Re_a_max:" << _Re_a_max
+      << std::setw(15) << "_norm_factor:" << _norm_factor
+      << std::endl;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // // Emission constant (in cgs units)
@@ -431,18 +431,18 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   double _theta_test = M_PI / 2;
   double _phi_test = 0;
 
-  // Check finite difference
-  double _dadr_4rg = dadr(_x.con(0), 4.0, _theta_test, _phi_test);
+  // // Check finite difference
+  // double _dadr_4rg = dadr(_x.con(0), 4.0, _theta_test, _phi_test);
 
-  double _delta_ar_4rg_p = Real_a(_x.con(0), 4 + 0.00001, _theta_test, _phi_test);
-  double _delta_ar_4rg_m = Real_a(_x.con(0), 4 - 0.00001, _theta_test, _phi_test);
-  double _delta_ar_4rg_cd = (_delta_ar_4rg_p - _delta_ar_4rg_m) / 0.00002;
+  // double _delta_ar_4rg_p = Real_a(_x.con(0), 4 + 0.00001, _theta_test, _phi_test);
+  // double _delta_ar_4rg_m = Real_a(_x.con(0), 4 - 0.00001, _theta_test, _phi_test);
+  // double _delta_ar_4rg_cd = (_delta_ar_4rg_p - _delta_ar_4rg_m) / 0.00002;
 
-  double _dadr_7rg = dadr(_x.con(0), _r_test, _theta_test, _phi_test);
+  // double _dadr_7rg = dadr(_x.con(0), _r_test, _theta_test, _phi_test);
 
-  double _delta_ar_7rg_p = Real_a(_x.con(0), _r_test + 0.00001, _theta_test, _phi_test);
-  double _delta_ar_7rg_m = Real_a(_x.con(0), _r_test - 0.00001, _theta_test, _phi_test);
-  double _delta_ar_7rg_cd = (_delta_ar_7rg_p - _delta_ar_7rg_m) / 0.00002;
+  // double _delta_ar_7rg_p = Real_a(_x.con(0), _r_test + 0.00001, _theta_test, _phi_test);
+  // double _delta_ar_7rg_m = Real_a(_x.con(0), _r_test - 0.00001, _theta_test, _phi_test);
+  // double _delta_ar_7rg_cd = (_delta_ar_7rg_p - _delta_ar_7rg_m) / 0.00002;
 
 
   FourVector<double>
@@ -470,16 +470,16 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
             << std::setw(15) << da_dx_test.cov(1)
             << std::setw(15) << da_dx_test.cov(2)
             << std::setw(15) << da_dx_test.cov(3)
-            << " | "
-            << std::setw(15) << _dadr_4rg
-            << std::setw(15) << _delta_ar_4rg_p
-            << std::setw(15) << _delta_ar_4rg_m
-            << std::setw(15) << _delta_ar_4rg_cd
-            << " | "
-            << std::setw(15) << _dadr_7rg
-            << std::setw(15) << _delta_ar_7rg_p
-            << std::setw(15) << _delta_ar_7rg_m
-            << std::setw(15) << _delta_ar_7rg_cd
+            // << " | "
+            // << std::setw(15) << _dadr_4rg
+            // << std::setw(15) << _delta_ar_4rg_p
+            // << std::setw(15) << _delta_ar_4rg_m
+            // << std::setw(15) << _delta_ar_4rg_cd
+            // << " | "
+            // << std::setw(15) << _dadr_7rg
+            // << std::setw(15) << _delta_ar_7rg_p
+            // << std::setw(15) << _delta_ar_7rg_m
+            // << std::setw(15) << _delta_ar_7rg_cd
             // << std::setw(15) << (dx_dlam*dx_dlam)
             // << std::setw(15) << (da_dx*da_dx)
             // << std::setw(15) << (_k*_k)
