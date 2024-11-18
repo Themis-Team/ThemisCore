@@ -342,7 +342,7 @@ double RT_Axion::dadphi(double t, double r, double theta, double phi)
   // change of sign!
   double _R1 = std::pow((r - _rm), _chi - 1) * std::exp(_q * r);
   double _arg = phi - _omega_21 * t + _sigma * std::log((r - _rm) / (r - _rp));
-  
+
   return -_norm_factor * _R1  * std::sin(_arg) * std::sin(theta);
 }
 
@@ -434,15 +434,15 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   // Check finite difference
   double _dadr_4rg = dadr(-2031.38, 4.0, _theta_test, _phi_test);
 
-  double _delta_ar_4rg_p = Real_a(-2031.38, 4 + 1, _theta_test, _phi_test);
-  double _delta_ar_4rg_m = Real_a(-2031.38, 4 - 1, _theta_test, _phi_test);
-  double _delta_ar_4rg_cd = (_delta_ar_4rg_p - _delta_ar_4rg_m) / 2;
+  double _delta_ar_4rg_p = Real_a(-2031.38, 4 + 0.00001, _theta_test, _phi_test);
+  double _delta_ar_4rg_m = Real_a(-2031.38, 4 - 0.00001, _theta_test, _phi_test);
+  double _delta_ar_4rg_cd = (_delta_ar_4rg_p - _delta_ar_4rg_m) / 0.00002;
 
   double _dadr_7rg = dadr(-2031.38, _r_test, _theta_test, _phi_test);
 
-  double _delta_ar_7rg_p = Real_a(-2031.38, _r_test + 1, _theta_test, _phi_test);
-  double _delta_ar_7rg_m = Real_a(-2031.38, _r_test - 1, _theta_test, _phi_test);
-  double _delta_ar_7rg_cd = (_delta_ar_7rg_p - _delta_ar_7rg_m) / 2;
+  double _delta_ar_7rg_p = Real_a(-2031.38, _r_test + 0.00001, _theta_test, _phi_test);
+  double _delta_ar_7rg_m = Real_a(-2031.38, _r_test - 0.00001, _theta_test, _phi_test);
+  double _delta_ar_7rg_cd = (_delta_ar_7rg_p - _delta_ar_7rg_m) / 0.00002;
 
 
   FourVector<double>
