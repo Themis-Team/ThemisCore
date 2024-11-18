@@ -443,7 +443,9 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
   // double _delta_ar_7rg_p = Real_a(_x.con(0), _r_test + 0.00001, _theta_test, _phi_test);
   // double _delta_ar_7rg_m = Real_a(_x.con(0), _r_test - 0.00001, _theta_test, _phi_test);
   // double _delta_ar_7rg_cd = (_delta_ar_7rg_p - _delta_ar_7rg_m) / 0.00002;
-
+  // Check "Common functions"
+  double _R1 = std::pow((_r_test - _rm), _chi - 1) * std::exp(_q * _r_test);
+  double _arg = _phi_test - _omega_21 * (-2031.38) + _sigma * std::log((_r_test - _rm) / (_r_test - _rp));
 
   FourVector<double>
       da_dx_test(_g);
@@ -483,7 +485,9 @@ std::valarray<double>& RT_Axion::IQUV_abs(const double iquv[], const double dydx
             // << std::setw(15) << (dx_dlam*dx_dlam)
             // << std::setw(15) << (da_dx*da_dx)
             // << std::setw(15) << (_k*_k)
-            // << " | "
+            << " | "
+            << std::setw(15) << _R1
+            << std::setw(15) << _arg
             // << std::setw(15) << K
             << std::endl;
 
