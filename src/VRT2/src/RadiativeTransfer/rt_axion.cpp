@@ -101,20 +101,20 @@ void RT_Axion::set_constants() // Start-up functions/quantities, things that can
 
   // plot_Re_a_not_normed(r_min, r_max, step);
 
-  // std::cout << "Constants:"
+  std::cout << "Constants:"
   //     << std::setw(15) << "spin: " << spin
-  //     << std::setw(15) << "_alpha:" << _alpha
+       << std::setw(15) << "_alpha:" << _alpha
   //     << std::setw(15) << "_mu:" << _mu
   //     << std::setw(15) << "_rp:" << _rp
   //     << std::setw(15) << "_rm:" << _rm
   //     << std::setw(15) << "_omega_crit:" << _omega_crit
-  //     << std::setw(15) << "_omega_21:" << _omega_21
+       << std::setw(15) << "_omega_21:" << _omega_21
   //     << std::setw(15) << "_sigma:" << _sigma
   //     << std::setw(15) << "_q:" << _q
   //     << std::setw(15) << "_chi:" << _chi
   //     << std::setw(15) << "_Re_a_max:" << _Re_a_max
   //     << std::setw(15) << "_norm_factor:" << _norm_factor
-  //     << std::endl;
+       << std::endl;
 
   // CONSTANTS FROM SYNCHROTRON, NOT NECESSARY BUT PROVIDES GUIDANCE.
   // // Emission constant (in cgs units)
