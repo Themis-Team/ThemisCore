@@ -1,10 +1,10 @@
 /*!
-    \file themaging_complex.cpp
-    \author Roman Gold, Avery Broderick, Paul Tiede
-    \date Oct, 2020
-    \brief Generic driver for image reconstruction with Themis with complex visibilities including noise modeling and ngEHT.
-    \details TBD
-    \todo N/A
+  \file analyses/Imaging/imrecad_complex_nuts_diag.cpp
+  \author Roman Gold, Avery Broderick, Paul Tiede
+  \date Oct 2020
+  \brief Generic driver for image reconstruction with Themis with complex visibilities including noise modeling and ngEHT.
+
+  \details TBD
 */
 
 // data
@@ -19,6 +19,7 @@
 #include "model_image_symmetric_gaussian.h"
 #include "model_image_asymmetric_gaussian.h"
 #include "model_image_xsringauss.h"
+#include "model_image_stretch.h"
 #include "model_image_polynomial_variable.h"
 #include "model_image_fixed_lightcurve.h"
 #include "model_image.h"
@@ -28,6 +29,7 @@
 #include "uncertainty_visibility_loose_change.h"
 #include "uncertainty_visibility_power_change.h"
 #include "uncertainty_visibility_broken_power_change.h"
+#include "read_data.h"
 
 // likelihood
 #include "likelihood.h"
@@ -62,6 +64,20 @@
 
 #include <cstring>
 
+/*
+ * Reads in a config file and returns a vector with the parameters
+ * like the config file
+ * #                      Percentile
+#         param           0.5%           2.5%            25%            50%            75%          97.5%          99.5%
+              a      0.0187211      0.0228614      0.0618002        0.18952       0.472129       0.934031       0.988063
+             u0      0.0313386      0.0797632       0.333633       0.625367        1.26685         3.0245        3.86391
+              b       0.954535        1.42388        2.35213        2.86059        3.37849        4.55225        6.14047
+              c      0.0600666       0.328347        3.42426        7.14147        10.9416        14.6142        14.9329
+          a@4Gl      0.0104484      0.0109439      0.0123039      0.0130988      0.0139344      0.0157996       0.017002
+
+ */
+std::vector<std::vector<double>> read_config(std::string file);
+
 int main(int argc, char* argv[])
 {
   MPI_Init(&argc, &argv);
@@ -72,7 +88,7 @@ int main(int argc, char* argv[])
   std::cout << "MPI Initiated - Processor Node: " << world_rank << " executing main." << std::endl;
 
   // Parse the command line inputs
-  std::string v_file="";
+  std::string v_file="", nc_file="";
   int Number_of_steps = 10; 
   size_t Number_start_params = 0;
   std::string param_file="";
@@ -80,7 +96,7 @@ int main(int argc, char* argv[])
   bool Reconstruct_gains = false;
   std::string lc_file="";
   bool model_noise = false;
-  bool model_noise_priors_sgra = false;
+  //bool model_noise_priors_sgra = false;
   std::vector<std::string> gain_file_list;
 
   size_t Number_of_pixels_x = 4;
@@ -88,10 +104,11 @@ int main(int argc, char* argv[])
   double Field_of_view_x = 0;
   double Field_of_view_y = 0;
   double Position_angle = -999;
-  
+
+  int Number_temperatures = 0;
   double initial_ladder_spacing = 1.15;
   int thin_factor = 1;
-  int Temperature_stride = 50;
+  int Temperature_stride = 20;
   std::string annealing_ladder_file = "";
   int refresh_rate = 1;
   int tree_depth = 6;
@@ -99,22 +116,27 @@ int main(int argc, char* argv[])
   int Ckpt_frequency = 10; // per swaps
   int verbosity = 0;
   
-  size_t Number_of_reps = 7;
+  size_t Number_of_reps = 11;
 
   bool add_background_gaussian=false;
   bool add_ring=false;
+  bool add_stretch=false;
   bool add_roving_gaussian=false;
 
   // Start features
   bool add_background_gaussian_start=false;
   bool add_ring_start=false;
+  bool add_stretch_start=false;
   double initial_ring_diameter=40.0;
   bool add_roving_gaussian_start=false;
   size_t start_Number_of_pixels_x=0;
   size_t start_Number_of_pixels_y=0;
   bool scatter=false;
+  bool model_noise_start = false;
 
   bool restart_flag = false;
+
+  bool use_fast_exp_approx = false;
   
   bool preoptimize_flag = false;
   //bool postoptimize_flag = false;
@@ -149,6 +171,17 @@ int main(int argc, char* argv[])
       {
 	if (world_rank==0)
 	  std::cerr << "ERROR: A string argument must be provided after --visibilities, -v.\n";
+	std::exit(1);
+      }
+    }
+    else if (opt == "--noise-config" || opt=="-nc")
+    {
+      if (k<argc)
+	nc_file = std::string(argv[k++]);
+      else
+      {
+	if (world_rank==0)
+	  std::cerr << "ERROR: A string argument must be provided after --noise-config, -nc.\n";
 	std::exit(1);
       }
     }
@@ -335,6 +368,17 @@ int main(int argc, char* argv[])
 	std::exit(1);
       }
     }
+    else if (opt=="--number-of-temperatures" || opt=="-not")
+    {
+      if (k<argc)
+	Number_temperatures = atoi(argv[k++]);
+      else
+      {
+	if (world_rank==0)
+	  std::cerr << "ERROR: An int argument must be provided after --number-of-temperatures, -not.\n";
+	std::exit(1);
+      }
+    }
     else if (opt=="--initial-ladder-spacing" || opt=="-ils")
     {
       if (k<argc)
@@ -383,6 +427,10 @@ int main(int argc, char* argv[])
     {
       Reconstruct_gains=true;
     }
+    else if (opt=="-fea" || opt=="--fast-exp-approx")
+    {
+      use_fast_exp_approx=true;
+    }
     else if (opt=="-lc" || opt=="--light-curve")
     {
       if (k<argc)
@@ -398,10 +446,14 @@ int main(int argc, char* argv[])
     {
       model_noise=true;
     }    
-    else if (opt=="-nmprsgra" || opt=="--noise-prior-sgra")
+    else if (opt=="--model-noise-start" || opt=="-n-start")
     {
-      model_noise_priors_sgra=true;
-    }    
+      model_noise_start=true;
+    }
+    // else if (opt=="-nmprsgra" || opt=="--noise-prior-sgra")
+    // {
+    //   //model_noise_priors_sgra=true;
+    // }    
     else if (opt=="-gh" || opt=="--gain-file-hi")
     {
       if (k<argc)
@@ -435,6 +487,26 @@ int main(int argc, char* argv[])
         std::exit(1);
       }
     }
+    else if (opt=="--stretched-ring" || opt=="-sX")
+    {
+      add_stretch=true;
+      add_ring=true;
+    }
+    else if (opt=="--stretched-ring-diameter" || opt=="-sXD")
+    {
+      if ( k <argc )
+      {
+	add_stretch=true;
+	add_ring=true;
+	initial_ring_diameter = atof(argv[k++]);
+      }
+      else
+      {
+        if ( world_rank == 0 )
+          std::cerr << "ERROR: An int argument must be provided after --ring-diameter, -XD.\n";
+        std::exit(1);
+      }
+    }
     else if (opt=="--roving-gassian" || opt=="-rg")
     {
       add_roving_gaussian=true;
@@ -446,6 +518,11 @@ int main(int argc, char* argv[])
     else if (opt=="--ring-start" || opt=="-X-start")
     {
       add_ring_start=true;
+    }
+    else if (opt=="--stretched-ring-start" || opt=="-sX-start")
+    {
+      add_ring_start=true;
+      add_stretch_start=true;
     }
     else if (opt=="--roving-gaussian-start" || opt=="-rg-start")
     {
@@ -578,6 +655,9 @@ int main(int argc, char* argv[])
 		  << "DESCRIPTION\n"
 		  << "\t-h,--help\n"
 		  << "\t\tPrint this message.\n"
+                  << "\t-nc, --noise-config <string>\n"
+                  << "\t\tSets the name of the noise prior configuration file.\n"
+                  << "\t\tFile must exist on disk"
 		  << "\t-p, --parameter-file <int> <string>\n"
 		  << "\t\tNumber of parameters to set and name of parameter list file, formatted as\n"
 		  << "\t\tfit_summaries_*.txt.  Parameters are set in order (i.e., you must fit parameter 0\n"
@@ -595,8 +675,12 @@ int main(int argc, char* argv[])
 		  << "\t\tSpecifies that the parameter file has an asymmetric background gaussian.\n"
 		  << "\t--ring-start, -X-start\n"
 		  << "\t\tSpecifies that the parameter file has a ring.\n"
+		  << "\t--stetched-ring-start, -sX-start\n"
+		  << "\t\tSpecifies that the parameter file has a stretched ring.\n"
 		  << "\t--roving-gaussian-start, -rg-start\n"
 		  << "\t\tSpecifies that the parameter file has an asymmetric roving gaussian.\n"
+		  << "\t--model-noise-start, -n-start\n"
+		  << "\t\tSpecifies that the parameter file has a set of noise parameters.\n"
 		  << "\t-Ns <int>\n"
 		  << "\t\tSets the number of MCMC steps to take for each repetition chain.  Defaults to 1000.\n"
 		  << "\t-Npx <int>\n"
@@ -622,6 +706,8 @@ int main(int argc, char* argv[])
 		  << "\t\tReconstructs unknown station gains.  Default off.\n"
 		  << "\t-gh, --gain-file-hi <filename>\n"
 		  << "\t\tSets the high-band gains to those in the specified file name.\n"
+	          << "\t-fea, --fast-exp-approx <file>\n"
+		  << "\t\tUse fast exponetial approximation in image DFT computation, can improve performance by large factors.  Default: false.\n"
 	          << "\t-lc, --light-curve <file>\n"
 		  << "\t\tNormalize the image by the light curve in file specified.  If not set, no light curve is set.  Default: none.\n"
 	          << "\t-n, --model-noise\n"
@@ -633,6 +719,10 @@ int main(int argc, char* argv[])
 		  << "\t\tAdds a narrow ring feature (based on xsringauss).\n"
 		  << "\t--ring-diameter, -XD <float>\n"
 		  << "\t\tAdds a narrow ring feature (based on xsringauss) and initializes its diameter to the value given in microarcseconds.  Implies -X.\n"
+		  << "\t--stretched-ring, -sX\n"
+		  << "\t\tAdds a stretched, narrow ring feature (based on xsringauss).\n"
+		  << "\t--stretched-ring-diameter, -sXD <float>\n"
+		  << "\t\tAdds a stretched, narrow ring feature (based on xsringauss) and initializes its diameter to the value given in microarcseconds.  Implies -X.\n"
 		  << "\t--roving-gaussian, -rg\n"
 		  << "\t\tAdds an asymmetric roving gaussian.\n"
 		  << "\t--tempering-levels <int>\n"
@@ -773,6 +863,8 @@ int main(int argc, char* argv[])
   // Generate image model
   Themis::model_image_adaptive_splined_raster image_pulse(Number_of_pixels_x,Number_of_pixels_y);
   image_pulse.use_analytical_visibilities();
+  if (use_fast_exp_approx)
+    image_pulse.use_fast_exp_approx();
   Themis::model_image* image_ptr = &image_pulse;
 
   // Generate model image sum to create shift and possibly add components
@@ -787,10 +879,17 @@ int main(int argc, char* argv[])
 
   // Ring
   Themis::model_image_xsringauss model_X;
+  Themis::model_image_stretch model_sX(model_X);
   model_X.use_analytical_visibilities();
   if (add_ring)
-    model_components.push_back(&model_X);
-
+  {
+    if (add_stretch) // with stretch
+      model_components.push_back(&model_sX);
+    else // without stretch
+      model_components.push_back(&model_X);
+  }
+  
+  
   // Create a roving asymmetric Gaussian
   //   Step 1: Make an asymmetric gaussian
   Themis::model_image_asymmetric_gaussian model_rg_a;
@@ -897,43 +996,28 @@ int main(int argc, char* argv[])
   // Themis::uncertainty_visibility_broken_power_change& uncertainty=(*uncertainty_ptr); 
   Themis::uncertainty_visibility_broken_power_change uncertainty; 
   uncertainty.constrain_noise_at_4Glambda();
+  uncertainty.logarithmic_ranges();
   // Themis::uncertainty_visibility_broken_power_change& uncertainty=(*uncertainty_ptr); 
 
   // Themis::uncertainty_visibility_broken_power_change uncertainty; // must define in main scope or use pointer gymnastics
 
+  
   // Get the list of data files
   std::vector<std::string> v_file_name_list;
-  std::string v_file_name;
-  int strlng;
-  if (world_rank==0)
-  {
-    std::ifstream vin(v_file);
-    for (vin>>v_file_name; !vin.eof(); vin>>v_file_name)
-      v_file_name_list.push_back(v_file_name);
-    strlng = v_file_name.length()+1;
-  }
-  int ibuff = v_file_name_list.size();
-  MPI_Bcast(&ibuff,1,MPI_INT,0,MPI_COMM_WORLD);
-  for (int i=0; i<ibuff; ++i)
-  {
-    if (world_rank==0)
-      strlng = v_file_name_list[i].length()+1;
-    MPI_Bcast(&strlng,1,MPI_INT,0,MPI_COMM_WORLD);
+  Themis::utils::read_vfile_mpi(v_file_name_list, v_file, MPI_COMM_WORLD);
 
-    char* cbuff = new char[strlng];
-    if (world_rank==0)
-      strcpy(cbuff,v_file_name_list[i].c_str());
-    MPI_Bcast(&cbuff[0],strlng,MPI_CHAR,0,MPI_COMM_WORLD);
-    if (world_rank>0)
-      v_file_name_list.push_back(std::string(cbuff));
-    delete[] cbuff;
-  }
+
 
   double variance_weighted_time_average=0.0, vwta_var_norm=0.0, minimum_time=0, maximum_time=1;
   for (size_t j=0; j<v_file_name_list.size(); ++j)
   {
+    //std::cerr << "Rank " << world_rank << " reading " << v_file_name_list[j] << "\n";
+
     V_data.push_back( new Themis::data_visibility(v_file_name_list[j],"HH") );
     V_data[j]->set_default_frequency(frequency);
+
+    //std::cerr << "Rank " << world_rank << " has " << V_data[j]->size() << " data\n";
+
     
     // Get time particulars for roving Gaussian
     for (size_t k=0; k<V_data[j]->size(); ++k)
@@ -967,9 +1051,8 @@ int main(int argc, char* argv[])
     else if ( (Reconstruct_gains) && (model_noise) )
     {
       if (world_rank==0) 
-	{
 	  std::cout<<"Including uncertainty model in likelihood_optimal_complex_gain_visibility object"<<std::endl;
-	}
+      //std::cerr << "Rank " << world_rank << " pushed back " << V_data[j]->size() << " data\n";
       lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],image,uncertainty,station_codes,station_gain_priors) );
       L.push_back( lvg[j] );
 
@@ -1010,10 +1093,10 @@ int main(int argc, char* argv[])
   // Container of base prior class pointers
   std::vector<Themis::prior_base*> P;
   for (size_t j=0; j<Number_of_pixels_x*Number_of_pixels_y; ++j)
-    P.push_back(new Themis::prior_linear(30,50)); // Itotal
-  P.push_back(new Themis::prior_linear(0,5*Field_of_view_x)); // fovx
-  P.push_back(new Themis::prior_linear(0,5*Field_of_view_y)); // fovy
-  P.push_back(new Themis::prior_linear(-M_PI,M_PI)); // PA
+    P.push_back(new Themis::prior_linear(38,50)); // Itotal
+  P.push_back(new Themis::prior_linear(0.1*Field_of_view_x,5*Field_of_view_x)); // fovx
+  P.push_back(new Themis::prior_linear(0.1*Field_of_view_y,5*Field_of_view_y)); // fovy
+  P.push_back(new Themis::prior_linear(-M_PI/4,M_PI/4)); // PA
   
   // Generate a set of means for the initial conditions
   std::vector<double> means(Number_of_pixels_x*Number_of_pixels_y);
@@ -1028,7 +1111,7 @@ int main(int argc, char* argv[])
     {
       x = Field_of_view_x*double(i)/double(Number_of_pixels_x-1) - 0.5*Field_of_view_x;
       y = Field_of_view_y*double(j)/double(Number_of_pixels_y-1) - 0.5*Field_of_view_y;
-      means[k++] = std::min( std::max(norm  - (x*x+y*y)/(2.0*sig*sig),31.0) , 59.0 );
+      means[k++] = std::min( std::max(norm  - (x*x+y*y)/(2.0*sig*sig),38.1) , 59.0 );
     }
   means.push_back(Field_of_view_x);
   means.push_back(Field_of_view_y);
@@ -1113,6 +1196,19 @@ int main(int argc, char* argv[])
     //   8 Position angle
     P.push_back(new Themis::prior_linear(-M_PI,M_PI));
     means.push_back(0.5*M_PI);
+
+    // Add stretch parameters if desired
+    if (add_stretch)
+    {
+      // tau = 1-(semi-minor)/(semi-major) but let go negative (so semi-minor becomes semi-major)
+      P.push_back(new Themis::prior_linear(-0.5,0.5));
+      means.push_back(0.0);
+
+      // Orientation of semi-major in radians E of N (too large a range given the above, should be -pi/4 to pi/4 for uniqueness)
+      P.push_back(new Themis::prior_linear(-0.5*M_PI,0.5*M_PI));
+      means.push_back(0.0);
+    }
+
     //   9 x offset REVISIT
     P.push_back(new Themis::prior_linear(-40*uas2rad,40*uas2rad));
     means.push_back(0.0);
@@ -1201,72 +1297,109 @@ int main(int argc, char* argv[])
   }
 
   if (model_noise) { 
-  // if ((model_noise) && (Number_start_params==0)) { // RG: Only reset noise model parameters when start from scratch
-  // if ((model_noise) && (Number_start_params < Number_of_pixels_x*Number_of_pixels_y+5)) { // RG: reset the noise parameters -p only covers themage parameters, still assume we only themage (without nuisance Gaussians, rings etc)...
-
-    if (model_noise_priors_sgra) {
-      if (world_rank==0) std::cout<<"ADJUSTING NOISE MODELING PRIOR RANGES to SGRA* PRE-MODELING CONSTRAINTS"<<std::endl;
-      P.push_back(new Themis::prior_linear(0.,0.02));
-      // means.push_back(4.4031747e-08); // noise threshold
-
-      P.push_back(new Themis::prior_linear(0.,0.05));
-      // means.push_back(4.3051242e-08); // fractional (mimicking non-closing errors)
-      // P.push_back(new Themis::prior_linear(0.0188,0.025));
-      P.push_back(new Themis::prior_linear(0.01/sqrt(2.),0.03/sqrt(2.))); // this is a@u_0
-      // means.push_back(0.02); // zero-baseline error
-
-      P.push_back(new Themis::prior_linear(0.,2.24));
-      // means.push_back(2.0); // uv distance where two powerlaws break
-
-      P.push_back(new Themis::prior_linear(0.,6.));
-      // means.push_back(2.6744313); // long baseline index
-
+    if (nc_file == "") // Set default permissive priors
+    {
+      if (world_rank==0)
+	std::cout<<"ADJUSTING NOISE MODELING PRIOR RANGES to SGRA* PRE-MODELING CONSTRAINTS"<<std::endl;
+      P.push_back(new Themis::prior_gaussian(std::log(0.004),5.0));
+      P.push_back(new Themis::prior_gaussian(std::log(0.010),5.0));
+      // P.push_back(new Themis::prior_gaussian(std::log(0.010),5.0));
+      // P.push_back(new Themis::prior_gaussian(std::log(1.5),2.5));
+      P.push_back(new Themis::prior_linear(std::log(0.0001),std::log(0.1000)));
+      P.push_back(new Themis::prior_linear(std::log(0.01),std::log(10.0)));
+      P.push_back(new Themis::prior_linear(1.0,5.0));
       P.push_back(new Themis::prior_linear(1.5,2.5));
-      // means.push_back(1.2335595); // short baseline index
 
       // don't reset if restart. Check whether start_parameter_list was used prior to here in order to set these
-      if (Number_start_params < Number_of_pixels_x*Number_of_pixels_y+5) {
-        means.push_back(4.4031747e-08); // noise threshold
-	means.push_back(4.3051242e-08); // fractional (mimicking non-closing errors)
-	means.push_back(0.018/sqrt(2.)); // bpc noise amplitude at 4Glambda
-	means.push_back(2.0); // uv distance where two powerlaws break
+      // if (Number_start_params <= start_Number_of_pixels_x*start_Number_of_pixels_y+5) {
+      {
+        means.push_back(std::log(0.004)); // noise threshold
+	means.push_back(std::log(0.010)); // fractional (mimicking non-closing errors)
+	means.push_back(std::log(0.018)); // bpc noise amplitude at 4Glambda
+	means.push_back(std::log(1.5)); // uv distance where two powerlaws break
 	means.push_back(2.5); // long baseline index
 	means.push_back(2.0); // short baseline index        
-	// means.push_back(1.2335595); // short baseline index        
       }
-      else {
-	for (size_t k=Number_of_pixels_x*Number_of_pixels_y+5;k<Number_of_pixels_x*Number_of_pixels_y+5+6; k++) {
-	  if (world_rank==0) std::cout<<"k="<<k<<" "<<start_parameter_list[k]<<std::endl;
-	means.push_back(start_parameter_list[k]);
+      // else
+      // 	for (size_t k=start_Number_of_pixels_x*start_Number_of_pixels_y+5;k<start_Number_of_pixels_x*start_Number_of_pixels_y+5+6; k++)
+      // 	{
+      // 	  if (world_rank==0)
+      // 	    std::cout<<"k="<<k<<" "<<start_parameter_list[k]<<std::endl;
+      // 	  means.push_back(start_parameter_list[k]);
+      // 	}
+    }
+    else // Read in a bpl_stats.txt file and generate priors from them.
+    { 
+      double noise_sigma[4];
+      double noise_med[4];
+      double noise_lo[4], noise_hi[4];
+      //Set theshold and fractional components
+      P.push_back(new Themis::prior_gaussian(std::log(0.004),1.0));
+      P.push_back(new Themis::prior_gaussian(std::log(0.010),1.0));
+      //Now read in the config file for the others
+      if (world_rank == 0)
+      {
+	std::vector<std::vector<double> > params = read_config(nc_file);
+	for ( int nn=1; nn<=4; ++nn )
+	{
+	  // Interquartile range is about 1.35 * std dev.
+	  noise_sigma[nn%4] = (params[nn][4]-params[nn][2])/1.35;
+	  noise_med[nn%4] = params[nn][3];
+
+	  noise_lo[nn%4] = params[nn][2];
+	  noise_hi[nn%4] = params[nn][4];
+
+	  std::cerr << "Noise BPL intialized at [" << (nn%4) << "] = " << noise_med[nn%4] << " +- " << noise_sigma[nn%4]
+		    << "  log: " << std::log(noise_med[nn%4]) << " +- " << noise_sigma[nn%4]/noise_med[nn%4]
+		    << '\n';
 	}
       }
-    }
-    else {
-    // P.push_back(new Themis::prior_linear(0.,20.));
-      // means.push_back(0.01); // noise threshold
-      P.push_back(new Themis::prior_linear(0.,0.02));
-      means.push_back(4.4031747e-08); // noise threshold
-      // P.push_back(new Themis::prior_linear(0.,0.1));
-      // means.push_back(0.01); // fractional (mimicking non-closing errors)
-      P.push_back(new Themis::prior_linear(0.,0.1));
-      means.push_back(4.3051242e-08); // fractional (mimicking non-closing errors)
-      // P.push_back(new Themis::prior_linear(0.,0.5));
-      // P.push_back(new Themis::prior_linear(0.,0.3));
-      P.push_back(new Themis::prior_linear(0.,0.1));
-      // means.push_back(1e-3); // zero-baseline error
-      means.push_back(0.045433815/sqrt(2.)); // zero-baseline error
-      P.push_back(new Themis::prior_linear(1.,4.));
-      // P.push_back(new Themis::prior_linear(1.,10.));
-      // means.push_back(2.0); // uv distance where two powerlaws break
-      means.push_back(3.6836742); // uv distance where two powerlaws break
-      P.push_back(new Themis::prior_linear(1.,5.));
-      // means.push_back(3.); // long baseline index
-      means.push_back(2.6744313); // long baseline index
-      P.push_back(new Themis::prior_linear(0.,5.));
-      // means.push_back(1.0); // short baseline index
-      means.push_back(1.2335595); // short baseline index
+      //Now broadcast to everyone
+      MPI_Bcast(&noise_sigma[0], 4, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+      MPI_Bcast(&noise_med[0], 4, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+      MPI_Bcast(&noise_lo[0], 4, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+      MPI_Bcast(&noise_hi[0], 4, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+      //Now set the priors
+      // for ( size_t nt=0; nt<2; ++nt )
+      // 	P.push_back(new Themis::prior_gaussian(std::log(noise_med[nt]), noise_sigma[nt]/noise_med[nt]));
+
+      for (size_t nt=0; nt<2; ++nt)
+	P.push_back(new Themis::prior_linear(std::log(noise_lo[nt]),std::log(noise_hi[nt])));
+      
+      //for ( size_t nt=2; nt<4; ++nt )
+      //P.push_back(new Themis::prior_gaussian(noise_med[nt], noise_sigma[nt]));
+      //P.push_back(new Themis::prior_linear(1.0,5.0));
+      P.push_back(new Themis::prior_linear(noise_lo[2],noise_hi[2]));
+      P.push_back(new Themis::prior_linear(1.5,2.5));
+
+      if (world_rank==0)
+	std::cerr << "NOISE PRIOR INITIALIZATION: "
+		  << start_Number_of_pixels_x*start_Number_of_pixels_y+5 << " "
+		  << Number_start_params << '\n';
+																	  
+      // if (Number_start_params <= start_Number_of_pixels_x*start_Number_of_pixels_y+5)
+      {
+	means.push_back(std::log(0.004)); // noise threshold
+	means.push_back(std::log(0.01)); // fractional (mimicking non-closing errors)
+	means.push_back(std::log(noise_med[0])); // bpc noise amplitude at 4Glambda
+	means.push_back(std::log(noise_med[1])); // uv distance where two powerlaws break
+	means.push_back(noise_med[2]); // long baseline index
+	//means.push_back(noise_med[3]); // short baseline index        
+	//means.push_back(2.8); // long baseline index
+	means.push_back(2.0); // short baseline index        
+      }
+      // else
+      // 	for (size_t k=start_Number_of_pixels_x*start_Number_of_pixels_y+5;k<start_Number_of_pixels_x*start_Number_of_pixels_y+5+6; k++)
+      // 	{
+      // 	  if (world_rank==0)
+      // 	    std::cout<<"k="<<k<<" "<<start_parameter_list[k]<<std::endl;
+      // 	  means.push_back(start_parameter_list[k]);
+      // 	}
     }
   }
+  
+
+    
 
   
   ////////////////////////  Before checking for initial data
@@ -1281,7 +1414,7 @@ int main(int argc, char* argv[])
 	      << "  model_ptr size: " << model_ptr->size()
 	      << "  image_sum size: " << image_sum.size()
 	      << '\n';
-    for (size_t k=0; k<image.size()+int(model_noise)*6; ++k)
+    for (size_t k=0; k<image.size()+uncertainty.size()*model_noise; ++k)
       std::cerr << std::setw(15) << means[k]
 		<< '\n';
     std::cerr << "===========================================================\n";
@@ -1349,7 +1482,8 @@ int main(int argc, char* argv[])
 	}
 
 	// Set value
-	means[k++] = std::min( std::max( std::log(val*mask), 31.0 ), 59.0 );
+	//means[k++] = std::min( std::max( std::log(val*mask), 31.0 ), 59.0 );
+	means[k++] = std::min( std::max( std::log(val*mask), 38.1 ), 49.9 ); // New floor priors
       }
 
     means[k++] = Field_of_view_x;
@@ -1393,6 +1527,13 @@ int main(int argc, char* argv[])
 	std::cerr << "Adding ring to start values k=" << k  << "  kspl=" << kspl << std::endl;
       for (size_t j=0; j<model_X.size()+2; ++j)
 	means[k++] = start_parameter_list[kspl++];
+      if (add_stretch && add_stretch_start)
+      {
+	if (world_rank==0)
+	  std::cerr << "Adding stretch to start values k=" << k  << "  kspl=" << kspl << std::endl;
+	for (size_t j=0; j<2; ++j)
+	  means[k++] = start_parameter_list[kspl++];
+      }
     }
 
     if (add_roving_gaussian && add_roving_gaussian_start)
@@ -1400,6 +1541,14 @@ int main(int argc, char* argv[])
       if (world_rank==0)
 	std::cerr << "Adding roving Gaussian to start values k=" << k  << "  kspl=" << kspl << std::endl;
       for (size_t j=0; j<model_rg.size()+2; ++j)
+	means[k++] = start_parameter_list[kspl++];
+    }
+
+    if (model_noise && model_noise_start)
+    {
+      if (world_rank==0)
+	std::cerr << "Adding noise models to start values k=" << k  << "  kspl=" << kspl << std::endl;
+      for (size_t j=0; j<uncertainty.size(); ++j)
 	means[k++] = start_parameter_list[kspl++];
     }
   }
@@ -1416,7 +1565,7 @@ int main(int argc, char* argv[])
 	      << "  model_ptr size: " << model_ptr->size()
 	      << "  image_sum size: " << image_sum.size()
 	      << '\n';
-    for (size_t k=0; k<image.size()+int(model_noise)*6; ++k)
+    for (size_t k=0; k<image.size()+uncertainty.size()*model_noise; ++k)
     {
       std::cerr << "PriorCheck: "
 		<< std::setw(15) << means[k]
@@ -1441,9 +1590,9 @@ int main(int argc, char* argv[])
   Themis::likelihood L_obj(P, L, W);
   Themis::likelihood_power_tempered L_temp(L_obj);
   
-  double Lstart = L_obj(means);
-  if (world_rank==0)
-    std::cerr << "At initialization likelihood is " << Lstart << '\n';
+  // double Lstart = L_obj(means);
+  // if (world_rank==0)
+  //   std::cerr << "At initialization likelihood is " << Lstart << '\n';
 
   // Get the numbers of data points and parameters for DoF computations
   int Ndata = 0;
@@ -1532,23 +1681,23 @@ int main(int argc, char* argv[])
 	lvg[j]->set_iteration_limit(50);
     
     pbest = means;
+
+    if (Reconstruct_gains)
+      for (size_t j=0; j<lvg.size(); ++j)
+      {
+	std::stringstream gc_name, cgc_name;
+	gc_name << "kickout_powell"  << "_gain_corrections_" << std::setfill('0') << j << ".d";
+	cgc_name << "kickout_powell" << "_complex_gains_" << std::setfill('0') << j << ".d";
+	lvg[j]->output_gain_corrections(gc_name.str());
+	lvg[j]->output_gains(cgc_name.str());
+      }
   }
-
-
-  if (Reconstruct_gains)
-    for (size_t j=0; j<lvg.size(); ++j)
-    {
-      std::stringstream gc_name, cgc_name;
-      gc_name << "kickout_powell"  << "_gain_corrections_" << std::setfill('0') << j << ".d";
-      cgc_name << "kickout_powell" << "_complex_gains_" << std::setfill('0') << j << ".d";
-      lvg[j]->output_gain_corrections(gc_name.str());
-      lvg[j]->output_gains(cgc_name.str());
-    }
 
 
 
   //Create the tempering sampler which is templated off of the exploration sampler
   Themis::sampler_deo_tempering_MCMC<Themis::sampler_stan_adapt_diag_e_nuts_MCMC> DEO(seed, L_temp, var_names, means.size());
+  int round_start = 0;
 
   //Set the output stream which really just calls the hmc output steam.
   //The exploration sampler handles all the output.
@@ -1563,6 +1712,14 @@ int main(int argc, char* argv[])
   
   // Set a checkpoint
   DEO.set_checkpoint(Ckpt_frequency,"MCMC.ckpt");
+  
+  if (restart_flag && Themis::utils::isfile("MCMC.ckpt")){
+      DEO.read_checkpoint("MCMC.ckpt");
+      round_start = DEO.get_round();
+      restart_flag=false;
+  }else if (restart_flag && !Themis::utils::isfile("MCMC.ckpt")) {
+    std::cerr << "!!!Warning no ckpt found starting run from beginning!!!\n";
+  }
   
   //If you want to access the exploration sampler to change some setting you can!
   DEO.get_sampler()->set_max_depth(tree_depth);
@@ -1580,13 +1737,45 @@ int main(int argc, char* argv[])
   DEO.set_annealing_schedule(initial_spacing);  
   DEO.set_deo_round_params(Number_of_steps,Temperature_stride);
   
-  // If continuing
-  int round_start = 0;
-  if (restart_flag)
-  {
-    DEO.read_checkpoint("MCMC.ckpt");
-    round_start = DEO.get_round();
+  // // If continuing
+  // int round_start = 0;
+  // if (restart_flag)
+  // {
+  //   DEO.read_checkpoint("MCMC.ckpt");
+  //   round_start = DEO.get_round();
+  // }
+
+  if (Number_temperatures==0)
+    Number_temperatures = world_size;
+  int Number_per_likelihood = world_size/Number_temperatures;
+  if (world_size%Number_per_likelihood != 0){
+    if (world_rank == 0){
+      std::cerr << "The total number of MPI processes must be divisible by the number of cores per likelihood evaluation!\n";
+      std::cerr << "The distribution is currently: " << std::endl
+                << "\tNumber of procs: " << world_size << std::endl
+                << "\tNumber per lklhd: " << Number_per_likelihood << std::endl
+                << "\tRemainder: " << world_size%Number_per_likelihood << std::endl;
+    }
+    std::exit(1);
   }
+  DEO.set_cpu_distribution(Number_temperatures, Number_per_likelihood);
+
+  //// BECAUSE WE SHORT-CIRCUIT RECOMPUTATION, WE MUST DO THIS AFTER
+  //// SETTING THE PROCESS TOPOLOGY
+  double Lstart = L_obj(means);
+  if (world_rank==0)
+    std::cerr << "At initialization likelihood is " << Lstart << '\n';
+  
+  // if (world_rank==0)
+  //   std::cerr << "Set CPU distribution\n";
+  
+  // If continuing
+
+  //DEO.set_cpu_distribution(Number_temperatures, Number_per_likelihood);
+
+  
+  // if (world_rank==0)
+  //   std::cerr << "Read checkpoint\n";
   
   // Start looping over repetitions
   // Extra loop is to make final files
@@ -1631,8 +1820,11 @@ int main(int argc, char* argv[])
 	       << std::setw(15) << "gax"
 	       << std::setw(15) << "a"
 	       << std::setw(15) << "ig"
-	       << std::setw(15) << "PA"
-	       << std::setw(15) << "xsX"
+	       << std::setw(15) << "PA";
+	if (add_stretch)
+	  sumout << std::setw(15) << "s-tau"
+		 << std::setw(15) << "s-PA";
+	sumout << std::setw(15) << "xsX"
 	       << std::setw(15) << "ysX";
       }
       if (add_roving_gaussian)
@@ -1750,4 +1942,36 @@ int main(int argc, char* argv[])
   MPI_Finalize();
   return 0;
 }
+
+
+std::vector<std::vector<double> > read_config(std::string cfile)
+{
+    std::ifstream in(cfile); 
+    if (!in.is_open())
+    {
+        std::cerr << "read_config: Configuration file not found " << cfile << std::endl;
+        std::exit(1);
+    }
+    std::string line;
+    //skip first two lines
+    std::getline(in, line);
+    std::getline(in, line);
+    //get first parameter quantiles
+    std::string word;
+    std::vector<std::vector<double> > params;
+    for (int i = 0; i < 5; ++i)
+    {
+        in >> word; //skip first line since it is a character
+        std::vector<double> tmp(7, 0.0);
+        for ( int j = 0; j < 7; ++j )
+        {
+            in >> word;
+            tmp[j] = std::stod(word.c_str());
+        }
+        params.push_back(tmp);
+    }
+    in.close();
+    return params;
+}
+
 
