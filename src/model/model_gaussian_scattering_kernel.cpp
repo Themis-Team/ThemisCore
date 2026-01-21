@@ -8,7 +8,7 @@
 
 #include "model_gaussian_scattering_kernel.h"
 #include <cmath>
-
+#include <iostream>
 
 namespace Themis {
 
