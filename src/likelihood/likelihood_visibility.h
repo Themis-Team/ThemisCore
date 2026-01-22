@@ -36,7 +36,7 @@ namespace Themis{
     public:
       likelihood_visibility(data_visibility& data, model_visibility& model);
       likelihood_visibility(data_visibility& data, model_visibility& model, uncertainty_visibility& uncertainty);
-
+      likelihood_visibility(size_t d_idx, data_visibility& data, model_visibility& model); // CACHED EXP PHASE
       ~likelihood_visibility();
       
       virtual double operator()(std::vector<double>& x);
@@ -56,6 +56,7 @@ namespace Themis{
       model_visibility& _model;
       uncertainty_visibility _local_uncertainty; // Default if none is passed
       uncertainty_visibility& _uncertainty;
+      bool _use_cached_exp = false;
   };
 };
 

@@ -116,6 +116,11 @@ namespace Themis {
 	open_error_streams();
       };
 
+    std::complex<double> visibility(datum_visibility& d, double accuracy) override
+    {
+      return std::complex<double>(0.0, 0.0);
+    }
+
     protected:
       MPI_Comm _comm;
     

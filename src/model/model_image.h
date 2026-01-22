@@ -58,7 +58,15 @@ namespace Themis {
 
 
   //! Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
-  virtual std::complex<double> visibility(datum_visibility& d, double accuracy);
+  // Existing “base” 2-arg method
+virtual std::complex<double> visibility(datum_visibility& d, double accuracy) = 0;
+
+// New 3-arg method, default: ignore index
+// virtual std::complex<double> visibility(size_t d_idx, datum_visibility& d, double acc)
+// {
+//     return visibility(d, acc);  // fallback to 2-arg for base class users
+// }
+  //virtual std::complex<double> visibility(datum_visibility& d, double accuracy);
 
   //! Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   virtual double visibility_amplitude(datum_visibility_amplitude& d, double accuracy);
@@ -133,6 +141,7 @@ namespace Themis {
   std::vector<std::vector<double> > _alpha; //!< 2D grid of horizonal pixel locations in radians, relative to the fiducial direction of the image (i.e., unrotated by the position angle).
   std::vector<std::vector<double> > _beta; //!< 2D grid of vertical pixel locations in radians, relative to the fiducial direction of the image (i.e., unrotated by the position angle).
   std::vector<std::vector<double> > _I; //!< 2D grid of intensities at pixel locations in Jy/str.
+  std::vector<double> _I_flat; //!< flattened 1D grid of intensities at pixel locations in Jy/str.
 
  //private:
  protected:

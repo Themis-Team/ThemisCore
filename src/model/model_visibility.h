@@ -37,6 +37,11 @@ class model_visibility
 
 
   //! Returns complex visibility in Jy computed from the image given a datum_visibility object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
+  virtual std::complex<double> visibility(size_t d_idx, datum_visibility& d, double accuracy)
+  {
+    // default: ignore index
+    return visibility(d, accuracy);
+  }
   virtual std::complex<double> visibility(datum_visibility& d, double accuracy) = 0;
 
   //! Defines a set of processors provided to the model for parallel computation via an MPI communicator.  Only facilitates code parallelization if the model computation is parallelized via MPI.

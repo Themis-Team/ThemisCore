@@ -49,6 +49,9 @@ namespace Themis {
   void model_image_sum::add_model_image(model_image& image)
   {
     _images.push_back(&image);
+    if (auto cached_model = dynamic_cast<model_image_adaptive_splined_raster*>(&image))
+    _cached_images.push_back(cached_model);
+
     _size += image.size()+2;
 
     _x.push_back(0.0);
@@ -128,20 +131,26 @@ void model_image_sum::set_mpi_communicator(MPI_Comm comm)
     _images[i]->set_mpi_communicator(comm);
 }
 
-
-std::complex<double> model_image_sum::visibility(datum_visibility& d, double acc)
+  std::complex<double> model_image_sum::visibility(datum_visibility& d, double acc)
   {
-    const std::complex<double> i(0.0,1.0);
+    const std::complex<double> i(0.0, 1.0);
     std::complex<double> exponent;
-    std::complex<double> V(0.,0.);
-      
-    for (size_t j=0; j<_images.size(); ++j)
-    {
-      exponent =  - 2.0*M_PI* i * (_x[j]*(-d.u) + _y[j]*d.v);
-      V +=  std::exp(exponent) * _images[j]->visibility(d,acc);
-    }
-
-    return ( V );
+    std::complex<double> V(0.0, 0.0);
+    
+    // Loop over all component images
+    for (size_t idx = 0; idx < _images.size(); ++idx)
+      {
+        model_image* m = _images[idx];
+        if (!m) continue; // skip null pointers
+	
+        // Apply the offset for this component
+        exponent = -2.0 * M_PI * i * (_x[idx] * (-d.u) + _y[idx] * d.v);
+	
+        // Multiply by the component visibility
+        V += std::exp(exponent) * m->visibility(d, acc);
+      }
+    
+    return V;
   }
 
   double model_image_sum::visibility_amplitude(datum_visibility_amplitude& d, double acc)

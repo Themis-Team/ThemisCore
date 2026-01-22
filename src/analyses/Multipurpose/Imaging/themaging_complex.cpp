@@ -137,6 +137,7 @@ int main(int argc, char* argv[])
   bool restart_flag = false;
 
   bool use_fast_exp_approx = false;
+  bool use_cached_exp = false;
   
   bool preoptimize_flag = false;
   //bool postoptimize_flag = false;
@@ -430,6 +431,10 @@ int main(int argc, char* argv[])
     else if (opt=="-fea" || opt=="--fast-exp-approx")
     {
       use_fast_exp_approx=true;
+    }
+    else if (opt=="-c" || opt=="--cached-exp")
+    {
+      use_cached_exp=true;
     }
     else if (opt=="-lc" || opt=="--light-curve")
     {
@@ -865,6 +870,9 @@ int main(int argc, char* argv[])
   image_pulse.use_analytical_visibilities();
   if (use_fast_exp_approx)
     image_pulse.use_fast_exp_approx();
+  if (use_cached_exp) {
+    image_pulse.use_cached_exp();
+  }
   Themis::model_image* image_ptr = &image_pulse;
 
   // Generate model image sum to create shift and possibly add components
@@ -928,9 +936,10 @@ int main(int argc, char* argv[])
 
   // Generate reference for future use
   Themis::model_visibility& image=(*model_ptr);
-  
+
   // Read in data files
   std::vector<Themis::data_visibility*> V_data;
+  std::vector<Themis::datum_visibility> vis_datum_cache;
   std::vector<Themis::likelihood_base*> L;
   std::vector<Themis::likelihood_optimal_complex_gain_visibility*> lvg;
   std::vector<Themis::likelihood_visibility*> lv;
@@ -1034,7 +1043,12 @@ int main(int argc, char* argv[])
 	minimum_time = V_data[j]->datum(k).tJ2000;
       if (V_data[j]->datum(k).tJ2000>maximum_time)
 	maximum_time = V_data[j]->datum(k).tJ2000;
+
+    if (use_cached_exp)
+      // image_pulse.set_data(V_data[j]->datum(k)); // make whole dataset available to model for caching the exponential phase ...
+      vis_datum_cache.push_back(V_data[j]->datum(k));
     }
+
     
     if (Reconstruct_gains && (!model_noise) )
     {
@@ -1074,6 +1088,10 @@ int main(int argc, char* argv[])
       }
       L.push_back( lv[j] );
     }
+  }
+  // exp phase caching: One single call — after the loop
+  if (use_cached_exp) {
+    image_pulse.set_data(vis_datum_cache);
   }
   // Finish variance weighted time average and set the reference time for the rover
   variance_weighted_time_average /= vwta_var_norm;

@@ -1,7 +1,7 @@
 /*!
   \file model_image_adaptive_splined_raster.cpp
-  \author Avery Broderick
-  \date  October, 2017
+  \author Avery Broderick, Roman Gold
+  \date  October, 2017 and January 2026
   \brief Implements the model_image_splined_raster image class.
   \details To be added
 */
@@ -12,13 +12,85 @@
 #include <iomanip>
 #include <sstream>
 
+
 namespace Themis {
 
-  model_image_adaptive_splined_raster::model_image_adaptive_splined_raster(size_t Nx, size_t Ny, double a)
-    : _Nx(Nx), _Ny(Ny), _size(_Nx*_Ny+3), _defined_raster_grid(false), _a(a), _use_analytical_visibilities(false), _use_fast_exp_approx(false)
-  {
+  // Profiling
+  // --- Lightweight hash for doubles and vectors ---
+  // inline std::size_t hash_combine(std::size_t h, double v) {
+  //   // reinterpret bits to avoid FP -> int conversions
+  //   std::size_t x = std::hash<long long>{}(*reinterpret_cast<long long*>(&v));
+  //   h ^= x + 0x9e3779b97f4a7c15ULL + (h<<6) + (h>>2);
+  //   return h;
+  // }
+
+  std::size_t hash_parameters(const std::vector<double>& p) {
+    std::size_t h = 0;
+    for (double v : p) h = model_image_adaptive_splined_raster::hash_combine(h, v);
+    return h;
   }
 
+  // --- Lightweight hash for doubles and vectors ---    
+  // inline std::size_t hash_combine(std::size_t h, double v) {
+  //   // reinterpret bits to avoid FP -> int conversions
+  //   std::size_t x = std::hash<long long>{}(*reinterpret_cast<long long*>(&v));
+  //   h ^= x + 0x9e3779b97f4a7c15ULL + (h<<6) + (h>>2);
+  //   return h;
+  // }
+  
+  // inline std::size_t hash_parameters(const std::vector<double>& p) {
+  //   std::size_t h = 0;
+  //   for (double v : p) h = hash_combine(h, v);
+  //   return h;
+  // }
+
+
+  void model_image_adaptive_splined_raster::print_timing_summary(int mpi_rank) const
+  {
+    static const char* names[] = {
+				  "GenerateModel",
+				  "GenerateImage",
+				  "UpdatePhaseCache",
+				  "VisibilitySingle",
+				  "VisibilityCached",
+				  "VisibilityCached_Rotation",
+				  "VisibilityCached_Loop",
+				  "VisibilityCached_Kernel",
+				  "VisibilityCached_Scale",
+				  "VisibilityNumerical",
+				  "ClosurePhase",
+				  "ClosureAmplitude"
+    };
+    
+    if (mpi_rank < 0) {
+      MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    }
+    
+    std::cout << "\n===== Profiling summary (rank "
+	      << mpi_rank << ") =====\n";
+    
+    for (size_t i = 0; i < (size_t)TimerID::COUNT; ++i) {
+      double ms = timer_ns_[i] / 1.0e6;
+      std::uint64_t n = timer_calls_[i];
+      double avg = (n > 0) ? ms / n : 0.0;
+      
+      std::cout << std::setw(24) << names[i]
+		<< " : total = " << ms << " ms"
+		<< ", calls = " << n
+		<< ", avg = " << avg << " ms/call\n";
+    }
+    std::cout << "=================================\n\n";
+  }
+  
+  
+
+  // Profiling end
+  
+  model_image_adaptive_splined_raster::model_image_adaptive_splined_raster(size_t Nx, size_t Ny, double a)
+    : _Nx(Nx), _Ny(Ny), _size(_Nx*_Ny+3), _defined_raster_grid(false), _a(a), _use_analytical_visibilities(false), _use_fast_exp_approx(false), _use_cached_exp(false)
+  {
+  }
+  
   void model_image_adaptive_splined_raster::use_numerical_visibilities()
   {
     int world_rank;
@@ -58,13 +130,76 @@ namespace Themis {
 
     _use_fast_exp_approx = true;
   }
+
+  void model_image_adaptive_splined_raster::use_cached_exp()
+  {
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
   
+    std::cout << "Using cached exponential phase in DFTs in rank " << world_rank << std::endl;
+
+    _use_cached_exp = true;
+  }
+
   void model_image_adaptive_splined_raster::generate_model(std::vector<double> parameters)
   {
-    // Check to see if these differ from last set used.
+    // profiling
+    ScopedTimer T(TimerID::GenerateModel, timer_ns_, timer_calls_);
+
+    // ---- Timing initialization ----
+    if (!timing_initialized_) {
+      start_time_ = std::chrono::steady_clock::now();
+      timing_initialized_ = true;
+    }
+    // ---- Instrumentation: count parameter & geometry reuse ----
+    eval_count_++;
+    
+    // hash full parameter vector
+    std::size_t hp = hash_parameters(parameters);
+    param_hist_[hp]++;
+    
+    // hash current geometry-defining values
+    std::size_t hg = hash_geometry(_xmin, _xmax, _ymin, _ymax, _cpa, _spa);
+    geom_hist_[hg]++;
+    // profiling end
+
+    // if (_use_cached_exp && !phase_cache_valid_ && !_data->empty()) {
     if (_generated_model && parameters==_current_parameters)
-      return;
-    else
+      {
+	// ---- Periodic statistics output ----
+	// ---- Periodic statistics output ----
+	
+      if (eval_count_ % 5000 == 0) {
+	  
+	  const std::size_t unique_params = param_hist_.size();
+	  const std::size_t unique_geom   = geom_hist_.size();
+	  
+	  auto now = std::chrono::steady_clock::now();
+	  double elapsed_sec =
+	    std::chrono::duration_cast<std::chrono::duration<double>>(now - start_time_).count();
+	  
+	  double evals_per_sec = eval_count_ / elapsed_sec;
+	  
+	  int world_rank;
+	  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+	  
+	  std::cout
+	    << "\n[MCMC instrumentation | rank " << world_rank << "]\n"
+	    << "  walltime elapsed (s)         = " << elapsed_sec << "\n"
+	    << "  total likelihood evaluations = " << eval_count_ << "\n"
+	    << "  evaluation rate (Hz)         = " << evals_per_sec << "\n"
+	    << "  unique parameter vectors     = " << unique_params << "\n"
+	    << "  unique geometry signatures   = " << unique_geom << "\n"
+	    << "  avg reuse per parameter vec  = "
+	    << static_cast<double>(eval_count_) / unique_params << "\n"
+	    << "  avg reuse per geometry set   = "
+	    << static_cast<double>(eval_count_) / unique_geom << "\n"
+	    << std::endl;
+	}
+
+	return;
+      }
+    else // parameters have changed
     {
       _current_parameters = parameters;
 
@@ -80,12 +215,48 @@ namespace Themis {
 
       
       // Generate the image using the user-supplied routine
-      generate_image(parameters,_I,_alpha,_beta);
+      // generate_image(parameters,_I,_alpha,_beta);
+      generate_image(parameters,_I,_I_flat,_alpha,_beta);
       
       // Set some boolean flags for what is and is not defined
       _generated_model = true;
       _generated_visibilities = false;
+
+      // rebuild cache, some catch statements to guard memory errors
+      if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_)
+	update_phase_cache_all_data(*_data);
     }
+    // profiling
+    // ---- Periodic statistics output ----
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    if ((eval_count_ % 5000 == 0) && (world_rank==0)) {
+      
+      const std::size_t unique_params = param_hist_.size();
+      const std::size_t unique_geom   = geom_hist_.size();
+      
+      auto now = std::chrono::steady_clock::now();
+      double elapsed_sec =
+        std::chrono::duration_cast<std::chrono::duration<double>>(now - start_time_).count();
+      
+      double evals_per_sec = eval_count_ / elapsed_sec;
+            
+      std::cout
+	<< "\n[MCMC instrumentation | rank " << world_rank << "]\n"
+	<< "  walltime elapsed (s)         = " << elapsed_sec << "\n"
+	<< "  total likelihood evaluations = " << eval_count_ << "\n"
+	<< "  evaluation rate (Hz)         = " << evals_per_sec << "\n"
+	<< "  unique parameter vectors     = " << unique_params << "\n"
+	<< "  unique geometry signatures   = " << unique_geom << "\n"
+	<< "  avg reuse per parameter vec  = "
+	<< static_cast<double>(eval_count_) / unique_params << "\n"
+	<< "  avg reuse per geometry set   = "
+	<< static_cast<double>(eval_count_) / unique_geom << "\n"
+	<< std::endl;
+    
+    if (world_rank == 0) this->print_timing_summary(world_rank);
+    }
+    
   }
 
   std::string model_image_adaptive_splined_raster::model_tag() const
@@ -98,12 +269,23 @@ namespace Themis {
 
   void model_image_adaptive_splined_raster::generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta)
   {
+    // Ensure flat buffer exists
+    _I_flat.resize(_Nx * _Ny);
+
+    generate_image(parameters, I, _I_flat, alpha, beta);
+    model_image_adaptive_splined_raster::generate_image(parameters, I, _I_flat, alpha, beta);
+  }
+    void model_image_adaptive_splined_raster::generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<double>& I_flat, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta)
+  {
+    ScopedTimer T(TimerID::GenerateImage, timer_ns_, timer_calls_);
     // Allocate if necessary
    if (alpha.size()!=beta.size() || beta.size()!=I.size() || I.size()!=size_t(_Nx))
     {
       alpha.resize(_Nx);
       beta.resize(_Nx);
       I.resize(_Nx);
+      I_flat.resize(_Nx * _Ny);
+
       _defined_raster_grid=false;
       for (size_t j=0; j<alpha.size(); j++)
       {
@@ -116,7 +298,7 @@ namespace Themis {
       }
     }
       
-    if (_defined_raster_grid==false)
+   if (_defined_raster_grid==false)
     {
       double dx = (_xmax-_xmin)/(int(_Nx)-1);
       double dy = (_ymax-_ymin)/(int(_Ny)-1);
@@ -130,25 +312,69 @@ namespace Themis {
 	  beta[j][k] = double(k)*dy  + _ymin;
 	}
       }
-      //_defined_raster_grid=true;
-      _defined_raster_grid=false;
+      _defined_raster_grid=true;
     }
-
     
     // Fill array with new image
     size_t k=0;
-    for (size_t j=0; j<_Ny; j++)
-      for (size_t i=0; i<_Nx; i++)
-	I[i][j] = std::exp(parameters[k++]);
-
+    for (size_t i=0; i<_Nx; i++)
+      for (size_t j=0; j<_Ny; j++)
+	{
+	  I[i][j] = std::exp(parameters[k]);
+	  I_flat[k++] = I[i][j];
+	}
   }
 
+  void model_image_adaptive_splined_raster::update_phase_cache_all_data(const std::vector<datum_visibility>& data)
+  {
+    ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
+    auto t0 = std::chrono::high_resolution_clock::now();
+    const size_t Npix = _Nx * _Ny;
+    const size_t Nd   = data.size();
 
+    phase_cache_.resize(Npix * Nd);
+    spline_kernel_cache_.resize(Nd);
+
+    for (size_t d = 0; d < Nd; ++d) {
+	// Counter-rotate point
+	const double ur =  _cpa*data[d].u + _spa*data[d].v;
+	const double vr = -_spa*data[d].u + _cpa*data[d].v;
+	// caching splines
+	spline_kernel_cache_[d] = cubic_spline_kernel(ur, vr) * (_alpha[1][1] - _alpha[0][0]) * (_beta[1][1] - _beta[0][0]);
+	size_t k = 0;
+      for (size_t i = 0; i < _Nx; ++i)
+	for (size_t j = 0; j < _Ny; ++j, ++k) {
+	  const double phi = 2.0 * M_PI *
+	    (ur * _alpha[i][j] + vr * _beta[i][j]);	  
+	  // phase_cache_[d * Npix + k] =
+	  //   _use_fast_exp_approx
+          //   ? utils::fast_img_exp7(-phi)
+          //   : std::exp(std::complex<double>(0.0, -phi)); //phase_cache_[k * Nd + d] = // inefficient memory layout, likely breaks L2 caching and vectorization
+	  phase_cache_[d * Npix + k] =
+	    _use_fast_exp_approx
+            ? utils::fast_img_exp7(-phi)
+            : std::exp(-std::complex<double>(0.0, 1.0) * phi);
+	}
+    }    
+    cached_Nd_ = Nd;
+    phase_cache_valid_ = true;
+    auto t1 = std::chrono::high_resolution_clock::now();
+    //t_recompute_ += std::chrono::duration<double>(t1 - t0).count();
+    //n_recompute_++;
+    //cache_misses_++;
+  }
 
   std::complex<double> model_image_adaptive_splined_raster::visibility(datum_visibility& d, double acc)
   {
+    static bool once = false;
+    if (!once) {
+      std::cerr << "[CACHE DEBUG] ENTERED SINGLE visibility(datum, ...)\n";
+      once = true;
+    }
+    ScopedTimer T_total(TimerID::VisibilitySingle, timer_ns_, timer_calls_);
+    //++timing_.VisibilitySingle;
     if (_use_analytical_visibilities)
-    {
+    {      
       // Counter-rotate point
       double ur =  _cpa*d.u + _spa*d.v;
       double vr = -_spa*d.u + _cpa*d.v;
@@ -172,6 +398,90 @@ namespace Themis {
       return ( cubic_spline_kernel(d.u,d.v)*model_image::visibility(d, acc) );
   }
 
+  std::complex<double> model_image_adaptive_splined_raster::visibility(size_t d_idx, datum_visibility& d, double acc)
+  {
+    static bool once = false;
+    if (!once) {
+      std::cerr << "[CACHE DEBUG] ENTERED CACHED visibility(size_t, ...)\n";
+      once = true;
+    }
+    ScopedTimer T(
+    _use_cached_exp ? TimerID::VisibilityCached
+                    : TimerID::VisibilitySingle,
+    timer_ns_, timer_calls_);
+
+    //++timing_.VisibilityCached;
+    
+    if (_use_analytical_visibilities)
+    {
+      double ur,vr;
+      {
+      	ScopedTimer T_rot(TimerID::VisibilityCached_Rotation,
+      			  timer_ns_, timer_calls_);
+      	// Counter-rotate point
+      	ur =  _cpa*d.u + _spa*d.v;
+      	vr = -_spa*d.u + _cpa*d.v;
+      }
+      // double ur =  _cpa*d.u + _spa*d.v;
+      // double vr = -_spa*d.u + _cpa*d.v;
+
+      std::complex<double> V(0.0,0.0);
+      if (_use_fast_exp_approx)
+      {
+	for (size_t i=0; i<_Nx; ++i)
+	  for (size_t j=0; j<_Ny; ++j)
+	    V += _I[i][j] * utils::fast_img_exp7( -(ur*_alpha[i][j]+vr*_beta[i][j]) );
+      }
+      else if (_use_cached_exp) {
+
+	{
+	  ScopedTimer T_loop(TimerID::VisibilityCached_Loop,
+			     timer_ns_, timer_calls_);	// const size_t Npix = _Nx * _Ny;
+	  
+	size_t k=0;
+	const size_t Npix = _Nx * _Ny;
+	const size_t offset = d_idx * Npix; 
+
+	  // for (size_t i = 0; i < _Nx; ++i)
+	  //   for (size_t j = 0; j < _Ny; ++j, ++k)
+	//#pragma omp simd reduction(+:V)
+	for (size_t k = 0; k < Npix; ++k)
+	  // V += _I_flat[k] * std::complex<double>(phase_cache_[offset + k]);
+	  V += _I_flat[k] * phase_cache_[offset + k];
+	
+	  //V += _I[i][j] * phase_cache_[offset + k];
+
+	  // } Scoped Timer T_acc
+	    // for (size_t k = 0; k < Npix; ++k)
+	    // V += _I[i][j] * phase_cache_[k * cached_Nd_ + d_idx]; // slow memory layout
+	    //V += _I[i][j] * phase_cache_[offset + k];
+	}
+	//const double scale = (_alpha[1][1]-_alpha[0][0]) * (_beta[1][1]-_beta[0][0]);
+	//return V * scale;
+	return spline_kernel_cache_[d_idx] * V;
+      }
+      else
+      {
+	for (size_t i=0; i<_Nx; ++i)
+	  for (size_t j=0; j<_Ny; ++j)
+	    V += _I[i][j] * std::exp( - std::complex<double>(0.0,1.0) * 2.0*M_PI * (ur*_alpha[i][j]+vr*_beta[i][j]) );
+	return cubic_spline_kernel(ur, vr) * V * (_alpha[1][1]-_alpha[0][0]) * (_beta[1][1]-_beta[0][0]);
+      }
+      std::complex<double> result;
+      {
+      	ScopedTimer T_kernel(TimerID::VisibilityCached_Kernel,
+      			     timer_ns_, timer_calls_);
+      	result = cubic_spline_kernel(ur, vr) * V * (_alpha[1][1]-_alpha[0][0]) * (_beta[1][1]-_beta[0][0]);
+      }
+
+      return ( result );
+      // return (cubic_spline_kernel(ur,vr)*V * (_alpha[1][1]-_alpha[0][0]) * (_beta[1][1]-_beta[0][0]) );
+    }
+    else // NOT ROTATED
+      return ( cubic_spline_kernel(d.u,d.v)*model_image::visibility(d, acc) );
+  }
+
+  
   double model_image_adaptive_splined_raster::visibility_amplitude(datum_visibility_amplitude& d, double acc)
   {
     if (_use_analytical_visibilities)

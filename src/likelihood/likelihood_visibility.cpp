@@ -25,6 +25,13 @@ namespace Themis{
   {
   }
 
+  likelihood_visibility::likelihood_visibility(size_t d_idx,
+					       data_visibility& data,
+					       model_visibility& model)
+    : _data(data), _use_cached_exp(false), _model(model), _uncertainty(_local_uncertainty)
+  {
+  }
+
   likelihood_visibility::~likelihood_visibility()
   {
   }
@@ -49,17 +56,23 @@ namespace Themis{
     _uncertainty.generate_uncertainty(ux);
     
     double sum = 0.0;
+    //#pragma omp parallel for schedule(static) reduction(+:sum) // careful with race condition affecting sum!
     for(i = 0; i < _data.size(); ++i)
     {
-      std::complex<double> V = _data.datum(i).V;
-      std::complex<double> err = _uncertainty.error(_data.datum(i));
-      std::complex<double> Vm = _model.visibility(_data.datum(i),0.25*std::abs(err));
+      datum_visibility& d = _data.datum(i);
+      std::complex<double> V = d.V;
+      std::complex<double> err = _uncertainty.error(d); // RG: revisit race condition with noise modeling ... no mutable in uncertainty ...
+      double acc = 0.25 * std::abs(err);
+
+      std::complex<double> Vm = _model.visibility(i, d, acc);
+      
+      // std::complex<double> Vm = _model.visibility(_data.datum(i),0.25*std::abs(err));
 
       sum += - 0.5*( std::pow( (V.real()-Vm.real())/err.real(), 2)
 		     +
 		     std::pow( (V.imag()-Vm.imag())/err.imag(), 2) );
 
-      sum += _uncertainty.log_normalization(_data.datum(i));
+      sum += _uncertainty.log_normalization(_data.datum(i)); // RG: revisit race condition with noise modeling ... no mutable in uncertainty ...
     }
     // the factor 0.25 accounts for finite accuracy of the model prediction;
     // it currently gives an error of 3% in the reconstructed uncertainties
@@ -81,9 +94,17 @@ namespace Themis{
     double sum = 0.0;
     for(i = 0; i < _data.size(); ++i)
     {
-      std::complex<double> V = _data.datum(i).V;
-      std::complex<double> err = _uncertainty.error(_data.datum(i));
-      std::complex<double> Vm = _model.visibility(_data.datum(i),0.25*std::abs(err));
+      datum_visibility& d = _data.datum(i);
+      std::complex<double> V = d.V;
+      std::complex<double> err = _uncertainty.error(d);
+
+      std::complex<double> Vm;
+      if (_use_cached_exp) {
+	Vm = _model.visibility(i, d, 0.25*std::abs(err));
+      } else {
+	Vm = _model.visibility(d, 0.25*std::abs(err));
+      }
+      // std::complex<double> Vm = _model.visibility(_data.datum(i),0.25*std::abs(err));
 
       sum += 0.5*( std::pow( (V.real()-Vm.real())/err.real(), 2)
 		   +
@@ -118,7 +139,14 @@ namespace Themis{
       
     for (size_t i=0; i<_data.size(); ++i)
     {
-      std::complex<double> V = _model.visibility(_data.datum(i),0.25*std::abs(_data.datum(i).err));
+      datum_visibility& d = _data.datum(i);
+      std::complex<double> V;
+      if (_use_cached_exp) {
+	V = _model.visibility(i, d, 0.25*std::abs(_data.datum(i).err));
+      } else {
+	V = _model.visibility(d, 0.25*std::abs(_data.datum(i).err));
+      }
+      // std::complex<double> V = _model.visibility(_data.datum(i),0.25*std::abs(_data.datum(i).err));
       std::complex<double> err = _uncertainty.error(_data.datum(i));
       if (rank==0)
 	out << std::setw(15) << _data.datum(i).u/1e9
