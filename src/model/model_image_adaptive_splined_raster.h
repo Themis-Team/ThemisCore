@@ -1,7 +1,7 @@
 /*!
   \file model_image_adaptive_splined_raster.h
-  \author Avery Broderick, Roman Gold
-  \date February, 2020 and January, 2026
+  \author Avery Broderick
+  \date February, 2020
   \brief Header file for the model_image_adaptive_splined_raster image class.
   \details To be added
 */
@@ -14,13 +14,14 @@
 
 //RG: WIP DEVELOPING CACHING AND OTHER SPEEDUPS
 #include <chrono>
-#include <unordered_map>
-#include <tuple>
-#include <cstring>   // for std::memcpy
+#include <array>
+#include <cstdint>
+// #include <unordered_map>
+// #include <tuple>
+// #include <cstring>   // for std::memcpy
 #include <iostream>
 
 namespace Themis {
-  std::size_t hash_parameters(const std::vector<double>& p);
 
 /*!
   \brief Defines an adaptive splined raster image for image reconstruction.  The
@@ -61,14 +62,15 @@ class model_image_adaptive_splined_raster : public model_image
   // std::vector<datum_visibility> _data;   // NOT const
   const std::vector<datum_visibility>* _data = nullptr;
 
-  // Flattened spline kernel, same layout as I_flat
-  std::vector<double> kernel_flat_;
   bool kernel_valid_ = false;
   std::vector<double> spline_kernel_cache_;
   
 public:
   //! Constructs a model_image_splined_raster object.  Takes the extents and number of pixels in each directions (xmin and xmax are the locations of the minimum and maximum pixel centers, etc.).
   model_image_adaptive_splined_raster(size_t Nx, size_t Ny, double a=-0.5);
+  virtual ~model_image_adaptive_splined_raster();
+  // Call this at the end of each MCMC batch or when desired
+  virtual void print_timing_summary(int mpi_rank = -1) const;  
 
   void set_data(const std::vector<datum_visibility>& data) {
     _data = &data;              // COPY ONCE
@@ -91,37 +93,8 @@ public:
   void use_fast_exp_approx();
   void use_cached_exp();
 
-  static inline std::size_t hash_combine(std::size_t h, double v)
-  {
-    std::uint64_t x;
-    std::memcpy(&x, &v, sizeof(double));  // bitwise hash of double
-    std::size_t hv = std::hash<std::uint64_t>{}(x);
-    h ^= hv + 0x9e3779b97f4a7c15ULL + (h << 6) + (h >> 2);
-    return h;
-  }
-  
-  static inline std::size_t hash_geometry(
-				   double xmin, double xmax,
-				   double ymin, double ymax,
-				   double cpa, double spa)
-  {
-    std::size_t h = 0;
-    h = hash_combine(h, xmin);
-    h = hash_combine(h, xmax);
-    h = hash_combine(h, ymin);
-    h = hash_combine(h, ymax);
-    h = hash_combine(h, cpa);
-    h = hash_combine(h, spa);
-    return h;
-  }
-
-  uint64_t cache_queries_ = 0;      // every lookup attempt
-  uint64_t cache_hits_ = 0;         // key was already present
-  uint64_t cache_inserts_ = 0;      // new entry created
-
   std::chrono::duration<double> t_lookup_only_{0};
   std::chrono::duration<double> t_visibility_total_{0};
-
 
   std::vector<std::complex<double>> phase_cache_; // size = _Nx * _Ny * Nd
   // std::vector<std::complex<float>> phase_cache_; // size = _Nx * _Ny * Nd ; [potential speedup if we get away with float, but not for our problem size and cache layout ...]
@@ -174,16 +147,6 @@ public:
   bool _use_fast_exp_approx;
   bool _use_cached_exp;
 
-  // profiling
-  // instrumentation
-  mutable std::size_t eval_count_ = 0;
-  mutable std::unordered_map<std::size_t,std::size_t> param_hist_;
-  mutable std::unordered_map<std::size_t,std::size_t> geom_hist_;
-  // timing instrumentation
-  mutable std::chrono::steady_clock::time_point start_time_;
-  mutable bool timing_initialized_ = false;
-  // profiling end
-
   // ---------- PROFILING ----------
   enum class TimerID {
 		      GenerateModel,
@@ -202,10 +165,6 @@ public:
 		      ClosureAmplitude,
 		      COUNT
   };
-  // static_assert(
-  // 		static_cast<size_t>(TimerID::COUNT) == 12,
-  // 		"TimerID::COUNT changed — update profiling code accordingly"
-  // 		);
   
   mutable std::array<std::uint64_t,(size_t)TimerID::COUNT> timer_ns_{};
   mutable std::array<std::uint64_t,(size_t)TimerID::COUNT> timer_calls_{};
@@ -229,10 +188,7 @@ public:
       calls[(size_t)id]  += 1;
     }
   };
-  
-  // Call this at the end of each MCMC batch or when desired
-  void print_timing_summary(int mpi_rank = -1) const;
-  
+    
   // std::vector<datum_visibility> _data;  // holds the flattened dataset for caching
 };
 

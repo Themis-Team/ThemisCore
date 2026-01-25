@@ -1,7 +1,7 @@
 /*!
   \file model_image_adaptive_splined_raster.cpp
-  \author Avery Broderick, Roman Gold
-  \date  October, 2017 and January 2026
+  \author Avery Broderick
+  \date  October, 2017
   \brief Implements the model_image_splined_raster image class.
   \details To be added
 */
@@ -16,35 +16,6 @@
 namespace Themis {
 
   // Profiling
-  // --- Lightweight hash for doubles and vectors ---
-  // inline std::size_t hash_combine(std::size_t h, double v) {
-  //   // reinterpret bits to avoid FP -> int conversions
-  //   std::size_t x = std::hash<long long>{}(*reinterpret_cast<long long*>(&v));
-  //   h ^= x + 0x9e3779b97f4a7c15ULL + (h<<6) + (h>>2);
-  //   return h;
-  // }
-
-  std::size_t hash_parameters(const std::vector<double>& p) {
-    std::size_t h = 0;
-    for (double v : p) h = model_image_adaptive_splined_raster::hash_combine(h, v);
-    return h;
-  }
-
-  // --- Lightweight hash for doubles and vectors ---    
-  // inline std::size_t hash_combine(std::size_t h, double v) {
-  //   // reinterpret bits to avoid FP -> int conversions
-  //   std::size_t x = std::hash<long long>{}(*reinterpret_cast<long long*>(&v));
-  //   h ^= x + 0x9e3779b97f4a7c15ULL + (h<<6) + (h>>2);
-  //   return h;
-  // }
-  
-  // inline std::size_t hash_parameters(const std::vector<double>& p) {
-  //   std::size_t h = 0;
-  //   for (double v : p) h = hash_combine(h, v);
-  //   return h;
-  // }
-
-
   void model_image_adaptive_splined_raster::print_timing_summary(int mpi_rank) const
   {
     static const char* names[] = {
@@ -90,6 +61,15 @@ namespace Themis {
     : _Nx(Nx), _Ny(Ny), _size(_Nx*_Ny+3), _defined_raster_grid(false), _a(a), _use_analytical_visibilities(false), _use_fast_exp_approx(false), _use_cached_exp(false)
   {
   }
+  model_image_adaptive_splined_raster::~model_image_adaptive_splined_raster()
+  {
+    int world_rank=0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);    
+    if (world_rank == 0)
+      this->print_timing_summary();
+    std::cout << std::flush;  // ensure output appears
+  }
+
   
   void model_image_adaptive_splined_raster::use_numerical_visibilities()
   {
@@ -146,57 +126,9 @@ namespace Themis {
     // profiling
     ScopedTimer T(TimerID::GenerateModel, timer_ns_, timer_calls_);
 
-    // ---- Timing initialization ----
-    if (!timing_initialized_) {
-      start_time_ = std::chrono::steady_clock::now();
-      timing_initialized_ = true;
-    }
-    // ---- Instrumentation: count parameter & geometry reuse ----
-    eval_count_++;
-    
-    // hash full parameter vector
-    std::size_t hp = hash_parameters(parameters);
-    param_hist_[hp]++;
-    
-    // hash current geometry-defining values
-    std::size_t hg = hash_geometry(_xmin, _xmax, _ymin, _ymax, _cpa, _spa);
-    geom_hist_[hg]++;
-    // profiling end
-
     // if (_use_cached_exp && !phase_cache_valid_ && !_data->empty()) {
     if (_generated_model && parameters==_current_parameters)
       {
-	// ---- Periodic statistics output ----
-	// ---- Periodic statistics output ----
-	
-      if (eval_count_ % 5000 == 0) {
-	  
-	  const std::size_t unique_params = param_hist_.size();
-	  const std::size_t unique_geom   = geom_hist_.size();
-	  
-	  auto now = std::chrono::steady_clock::now();
-	  double elapsed_sec =
-	    std::chrono::duration_cast<std::chrono::duration<double>>(now - start_time_).count();
-	  
-	  double evals_per_sec = eval_count_ / elapsed_sec;
-	  
-	  int world_rank;
-	  MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-	  
-	  std::cout
-	    << "\n[MCMC instrumentation | rank " << world_rank << "]\n"
-	    << "  walltime elapsed (s)         = " << elapsed_sec << "\n"
-	    << "  total likelihood evaluations = " << eval_count_ << "\n"
-	    << "  evaluation rate (Hz)         = " << evals_per_sec << "\n"
-	    << "  unique parameter vectors     = " << unique_params << "\n"
-	    << "  unique geometry signatures   = " << unique_geom << "\n"
-	    << "  avg reuse per parameter vec  = "
-	    << static_cast<double>(eval_count_) / unique_params << "\n"
-	    << "  avg reuse per geometry set   = "
-	    << static_cast<double>(eval_count_) / unique_geom << "\n"
-	    << std::endl;
-	}
-
 	return;
       }
     else // parameters have changed
@@ -226,37 +158,6 @@ namespace Themis {
       if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_)
 	update_phase_cache_all_data(*_data);
     }
-    // profiling
-    // ---- Periodic statistics output ----
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-    if ((eval_count_ % 5000 == 0) && (world_rank==0)) {
-      
-      const std::size_t unique_params = param_hist_.size();
-      const std::size_t unique_geom   = geom_hist_.size();
-      
-      auto now = std::chrono::steady_clock::now();
-      double elapsed_sec =
-        std::chrono::duration_cast<std::chrono::duration<double>>(now - start_time_).count();
-      
-      double evals_per_sec = eval_count_ / elapsed_sec;
-            
-      std::cout
-	<< "\n[MCMC instrumentation | rank " << world_rank << "]\n"
-	<< "  walltime elapsed (s)         = " << elapsed_sec << "\n"
-	<< "  total likelihood evaluations = " << eval_count_ << "\n"
-	<< "  evaluation rate (Hz)         = " << evals_per_sec << "\n"
-	<< "  unique parameter vectors     = " << unique_params << "\n"
-	<< "  unique geometry signatures   = " << unique_geom << "\n"
-	<< "  avg reuse per parameter vec  = "
-	<< static_cast<double>(eval_count_) / unique_params << "\n"
-	<< "  avg reuse per geometry set   = "
-	<< static_cast<double>(eval_count_) / unique_geom << "\n"
-	<< std::endl;
-    
-    if (world_rank == 0) this->print_timing_summary(world_rank);
-    }
-    
   }
 
   std::string model_image_adaptive_splined_raster::model_tag() const
@@ -272,7 +173,7 @@ namespace Themis {
     // Ensure flat buffer exists
     _I_flat.resize(_Nx * _Ny);
 
-    generate_image(parameters, I, _I_flat, alpha, beta);
+    // generate_image(parameters, I, _I_flat, alpha, beta);
     model_image_adaptive_splined_raster::generate_image(parameters, I, _I_flat, alpha, beta);
   }
     void model_image_adaptive_splined_raster::generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<double>& I_flat, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta)
@@ -446,9 +347,7 @@ namespace Themis {
 	  //   for (size_t j = 0; j < _Ny; ++j, ++k)
 	//#pragma omp simd reduction(+:V)
 	for (size_t k = 0; k < Npix; ++k)
-	  // V += _I_flat[k] * std::complex<double>(phase_cache_[offset + k]);
 	  V += _I_flat[k] * phase_cache_[offset + k];
-	
 	  //V += _I[i][j] * phase_cache_[offset + k];
 
 	  // } Scoped Timer T_acc
