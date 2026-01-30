@@ -99,11 +99,14 @@ namespace Themis{
       std::complex<double> err = _uncertainty.error(d);
 
       std::complex<double> Vm;
+      /*
       if (_use_cached_exp) {
 	Vm = _model.visibility(i, d, 0.25*std::abs(err));
       } else {
-	Vm = _model.visibility(d, 0.25*std::abs(err));
-      }
+      */
+      Vm = _model.visibility(d, 0.25*std::abs(err));
+      // }
+      
       // std::complex<double> Vm = _model.visibility(_data.datum(i),0.25*std::abs(err));
 
       sum += 0.5*( std::pow( (V.real()-Vm.real())/err.real(), 2)

@@ -53,11 +53,6 @@ class model_image_vrt2_pmap : public model_image
   //! Return a string that contains a unique identifying tag for use with the ThemisPy plotting features.
   virtual std::string model_tag() const;
 
-  std::complex<double> visibility(datum_visibility& d, double accuracy) override
-  {
-    return std::complex<double>(0.0, 0.0);
-  }
-
  private:
   double _Mcm, _Dcm;
   std::string _pmap_file_name;

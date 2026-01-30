@@ -54,6 +54,7 @@ class model_image_adaptive_splined_raster : public model_image
   using model_visibility::visibility;
 
  private:
+  std::vector<double> _I_flat;
   //! Sets the image pixel values
   virtual void generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta);
   virtual void generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<double>& I_flat, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta);
