@@ -64,10 +64,8 @@ namespace Themis{
       std::complex<double> err = _uncertainty.error(d); // RG: revisit race condition with noise modeling ... no mutable in uncertainty ...
       double acc = 0.25 * std::abs(err);
 
-      std::complex<double> Vm = _model.visibility(i, d, acc);
+      std::complex<double> Vm = _model.visibility(i, d, acc);  // technically should guard that with _use_exp_cache ...
       
-      // std::complex<double> Vm = _model.visibility(_data.datum(i),0.25*std::abs(err));
-
       sum += - 0.5*( std::pow( (V.real()-Vm.real())/err.real(), 2)
 		     +
 		     std::pow( (V.imag()-Vm.imag())/err.imag(), 2) );
@@ -99,15 +97,12 @@ namespace Themis{
       std::complex<double> err = _uncertainty.error(d);
 
       std::complex<double> Vm;
-      /*
       if (_use_cached_exp) {
 	Vm = _model.visibility(i, d, 0.25*std::abs(err));
-      } else {
-      */
-      Vm = _model.visibility(d, 0.25*std::abs(err));
-      // }
-      
-      // std::complex<double> Vm = _model.visibility(_data.datum(i),0.25*std::abs(err));
+      }
+      else {
+	Vm = _model.visibility(d, 0.25*std::abs(err));
+      }
 
       sum += 0.5*( std::pow( (V.real()-Vm.real())/err.real(), 2)
 		   +

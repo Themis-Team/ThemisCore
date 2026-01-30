@@ -188,7 +188,7 @@ namespace Themis {
       I_flat.resize(_Nx * _Ny);
 
       _defined_raster_grid=false;
-      for (size_t j=0; j<alpha.size(); j++)
+      for (size_t j=0; j<alpha.size(); ++j)
       {
 	if (alpha[j].size()!=beta[j].size() || beta[j].size()!=I[j].size() || I[j].size()!=size_t(_Ny))
         {
@@ -205,24 +205,27 @@ namespace Themis {
       double dy = (_ymax-_ymin)/(int(_Ny)-1);
       
       // Fill array with new image
-      for (size_t j=0; j<alpha.size(); j++)
+      for (size_t j=0; j<alpha.size(); ++j)
       {
-	for (size_t k=0; k<alpha[j].size(); k++)
+	for (size_t k=0; k<alpha[j].size(); ++k)
         {
 	  alpha[j][k] = double(j)*dx + _xmin;
 	  beta[j][k] = double(k)*dy  + _ymin;
 	}
       }
-      _defined_raster_grid=true;
+      //_defined_raster_grid=true;
+      _defined_raster_grid=false;
     }
     
     // Fill array with new image
     size_t k=0;
-    for (size_t i=0; i<_Nx; i++)
-      for (size_t j=0; j<_Ny; j++)
+    for (size_t i=0; i<_Nx; ++i)
+      for (size_t j=0; j<_Ny; ++j)
 	{
 	  I[i][j] = std::exp(parameters[k]);
 	  I_flat[k++] = I[i][j];
+	  // I[i][j] = std::exp(parameters[k]);
+	  // I_flat[k] = std::exp(parameters[k++]);
 	}
   }
 
@@ -259,10 +262,8 @@ namespace Themis {
     }    
     cached_Nd_ = Nd;
     phase_cache_valid_ = true;
-    auto t1 = std::chrono::high_resolution_clock::now();
+    //auto t1 = std::chrono::high_resolution_clock::now();
     //t_recompute_ += std::chrono::duration<double>(t1 - t0).count();
-    //n_recompute_++;
-    //cache_misses_++;
   }
 
   std::complex<double> model_image_adaptive_splined_raster::visibility(datum_visibility& d, double acc)
@@ -273,7 +274,7 @@ namespace Themis {
       once = true;
     }
     ScopedTimer T_total(TimerID::VisibilitySingle, timer_ns_, timer_calls_);
-    //++timing_.VisibilitySingle;
+
     if (_use_analytical_visibilities)
     {      
       // Counter-rotate point
@@ -311,8 +312,6 @@ namespace Themis {
                     : TimerID::VisibilitySingle,
     timer_ns_, timer_calls_);
 
-    //++timing_.VisibilityCached;
-    
     if (_use_analytical_visibilities)
     {
       double ur,vr;
@@ -334,29 +333,20 @@ namespace Themis {
 	    V += _I[i][j] * utils::fast_img_exp7( -(ur*_alpha[i][j]+vr*_beta[i][j]) );
       }
       else if (_use_cached_exp) {
-
 	{
 	  ScopedTimer T_loop(TimerID::VisibilityCached_Loop,
-			     timer_ns_, timer_calls_);	// const size_t Npix = _Nx * _Ny;
+			     timer_ns_, timer_calls_);
 	  
 	size_t k=0;
 	const size_t Npix = _Nx * _Ny;
 	const size_t offset = d_idx * Npix; 
 
-	  // for (size_t i = 0; i < _Nx; ++i)
-	  //   for (size_t j = 0; j < _Ny; ++j, ++k)
 	//#pragma omp simd reduction(+:V)
 	for (size_t k = 0; k < Npix; ++k)
 	  V += _I_flat[k] * phase_cache_[offset + k];
 	  //V += _I[i][j] * phase_cache_[offset + k];
-
-	  // } Scoped Timer T_acc
-	    // for (size_t k = 0; k < Npix; ++k)
-	    // V += _I[i][j] * phase_cache_[k * cached_Nd_ + d_idx]; // slow memory layout
-	    //V += _I[i][j] * phase_cache_[offset + k];
+	// NOTE: phase_cache_[k * cached_Nd_ + d_idx]; // slow memory layout
 	}
-	//const double scale = (_alpha[1][1]-_alpha[0][0]) * (_beta[1][1]-_beta[0][0]);
-	//return V * scale;
 	return spline_kernel_cache_[d_idx] * V;
       }
       else

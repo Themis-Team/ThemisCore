@@ -54,15 +54,14 @@ class model_image_adaptive_splined_raster : public model_image
   using model_visibility::visibility;
 
  private:
-  std::vector<double> _I_flat;
+  std::vector<double> _I_flat; // turns the compiler really likes flattening _I into a 1d structure 
   //! Sets the image pixel values
   virtual void generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta);
   virtual void generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<double>& I_flat, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta);
 
   // for cached exponential phase
-  // std::vector<datum_visibility> _data;   // NOT const
   const std::vector<datum_visibility>* _data = nullptr;
-
+  // for precomputed spline kernel
   bool kernel_valid_ = false;
   std::vector<double> spline_kernel_cache_;
   
@@ -70,15 +69,13 @@ public:
   //! Constructs a model_image_splined_raster object.  Takes the extents and number of pixels in each directions (xmin and xmax are the locations of the minimum and maximum pixel centers, etc.).
   model_image_adaptive_splined_raster(size_t Nx, size_t Ny, double a=-0.5);
   virtual ~model_image_adaptive_splined_raster();
-  // Call this at the end of each MCMC batch or when desired
+
   virtual void print_timing_summary(int mpi_rank = -1) const;  
 
   void set_data(const std::vector<datum_visibility>& data) {
     _data = &data;              // COPY ONCE
     phase_cache_valid_ = false;
-
-    std::cerr << "[CACHE DEBUG] set_data() called on model @" << this
-          << " Nd=" << data.size() << "\n";
+    // std::cerr << "[CACHE DEBUG] set_data() called on model @" << this << " Nd=" << data.size() << "\n";
   }
 
   //! State switch to select numerically computed visibilities using the machinery in model_image.  Once called, all future visibilities will be computed numerically until use_analytical_visibilities() is called.
@@ -190,7 +187,6 @@ public:
     }
   };
     
-  // std::vector<datum_visibility> _data;  // holds the flattened dataset for caching
 };
 
 };

@@ -1045,7 +1045,6 @@ int main(int argc, char* argv[])
 	maximum_time = V_data[j]->datum(k).tJ2000;
 
     if (use_cached_exp)
-      // image_pulse.set_data(V_data[j]->datum(k)); // make whole dataset available to model for caching the exponential phase ...
       vis_datum_cache.push_back(V_data[j]->datum(k));
     }
 
@@ -1089,9 +1088,9 @@ int main(int argc, char* argv[])
       L.push_back( lv[j] );
     }
   }
-  // exp phase caching: One single call — after the loop
-  if (use_cached_exp) {
-    image_pulse.set_data(vis_datum_cache);
+
+  if (use_cached_exp) { // if we cache/precompute the exp(phi) term in visibility()
+    image_pulse.set_data(vis_datum_cache); // store data in flat 1d array for fast access
   }
   // Finish variance weighted time average and set the reference time for the rover
   variance_weighted_time_average /= vwta_var_norm;
