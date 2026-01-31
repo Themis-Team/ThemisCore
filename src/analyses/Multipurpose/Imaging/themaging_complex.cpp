@@ -1027,7 +1027,10 @@ int main(int argc, char* argv[])
 
     //std::cerr << "Rank " << world_rank << " has " << V_data[j]->size() << " data\n";
 
+
+    Themis::model_visibility& model = image_pulse; // attempt to strip model_image_sum modifications for exp cache
     
+
     // Get time particulars for roving Gaussian
     for (size_t k=0; k<V_data[j]->size(); ++k)
     {
@@ -1083,7 +1086,7 @@ int main(int argc, char* argv[])
 	lv.push_back( new Themis::likelihood_visibility(*V_data[j],image,uncertainty) );
       }
       else {
-	lv.push_back( new Themis::likelihood_visibility(*V_data[j],image) );
+	lv.push_back( new Themis::likelihood_visibility(*V_data[j],model) );
       }
       L.push_back( lv[j] );
     }

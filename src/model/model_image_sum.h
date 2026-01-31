@@ -10,7 +10,6 @@
 #define Themis_MODEL_IMAGE_SUM_H_
 
 #include "model_image.h"
-#include "model_image_adaptive_splined_raster.h" // cache stuff
 #include <vector>
 #include <string>
 
@@ -44,9 +43,6 @@ class model_image_sum : public model_image
   //! Note that this is not defined because there is no uniform image size/resolution specification.
   virtual void generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta);
 
-  std::vector<model_image_adaptive_splined_raster*> _cached_images;
-
-  
  public:
 
   //! Constructor.  Takes a vector of pointers to model_image objects.
@@ -72,21 +68,6 @@ class model_image_sum : public model_image
   
   //! Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this is redefined to accomodate the possibility of using the analytical computation.
   virtual std::complex<double> visibility(datum_visibility& d, double acc);
-  std::complex<double> visibility(size_t d_idx, datum_visibility& d, double acc)
-  {
-    std::complex<double> V(0.0, 0.0);
-    for (auto& m : _images) {
-      if (m) {
-	auto* cached = dynamic_cast<model_image_adaptive_splined_raster*>(m);
-	if (cached) {
-	  V += cached->visibility(d_idx, d, acc);  // calls 3-arg version
-	} else {
-	  V += m->visibility(d, acc);  // fallback for non-cached
-	}
-      }
-    }
-    return V;
-  }
   
   //! Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this is redefined to accomodate the possibility of using the analytical computation.
   virtual double visibility_amplitude(datum_visibility_amplitude& d, double acc);
