@@ -1054,7 +1054,7 @@ int main(int argc, char* argv[])
     
     if (Reconstruct_gains && (!model_noise) )
     {
-      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],image,station_codes,station_gain_priors) );
+      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],model,station_codes,station_gain_priors) );
       L.push_back( lvg[j] );
 
       // Set gains if gain files are provided
@@ -1069,7 +1069,7 @@ int main(int argc, char* argv[])
       if (world_rank==0) 
 	  std::cout<<"Including uncertainty model in likelihood_optimal_complex_gain_visibility object"<<std::endl;
       //std::cerr << "Rank " << world_rank << " pushed back " << V_data[j]->size() << " data\n";
-      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],image,uncertainty,station_codes,station_gain_priors) );
+      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],model,uncertainty,station_codes,station_gain_priors) );
       L.push_back( lvg[j] );
 
       // Set gains if gain files are provided
@@ -1083,7 +1083,7 @@ int main(int argc, char* argv[])
     {
       if (model_noise) {
 	std::cout<<"Including uncertainty model in likelihood_visibility object"<<std::endl;
-	lv.push_back( new Themis::likelihood_visibility(*V_data[j],image,uncertainty) );
+	lv.push_back( new Themis::likelihood_visibility(*V_data[j],model,uncertainty) );
       }
       else {
 	lv.push_back( new Themis::likelihood_visibility(*V_data[j],model) );
