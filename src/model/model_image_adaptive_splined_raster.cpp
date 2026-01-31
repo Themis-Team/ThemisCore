@@ -127,9 +127,9 @@ namespace Themis {
     ScopedTimer T(TimerID::GenerateModel, timer_ns_, timer_calls_);
 
     // Parameters changed → cached phases invalid
-    if (!_current_parameters.empty() && parameters != _current_parameters) { // guard against stale cache
-      phase_cache_valid_ = false;
-    }
+    // if (!_current_parameters.empty() && parameters != _current_parameters) { // guard against stale cache
+    //   phase_cache_valid_ = false;
+    // }
 
     // if (_use_cached_exp && !phase_cache_valid_ && !_data->empty()) {
     if (_generated_model && parameters==_current_parameters)
@@ -328,15 +328,13 @@ namespace Themis {
 				"visibility(d_idx): index exceeds cached data size");
       }
       // ensure "index == datum identity"
-      if (&d != &(*_data)[d_idx]) {
-	throw std::logic_error(
-			       "visibility(d_idx): datum does not match cached data index");
+      const auto& d0 = (*_data)[d_idx];
+      if (d.u != d0.u || d.v != d0.v) {
+	throw std::logic_error("visibility(d_idx): (u,v) mismatch with cached data");
       }
-#endif
     }
 
     if (_use_cached_exp && !phase_cache_valid_) {
-#ifndef NDEBUG
       throw std::logic_error(
 			     "Cached visibility requested but phase cache is invalid");
 #endif
