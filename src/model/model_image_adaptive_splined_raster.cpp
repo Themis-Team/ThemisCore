@@ -160,8 +160,11 @@ namespace Themis {
       _generated_visibilities = false;
 
       // rebuild cache, some catch statements to guard memory errors
-      if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_)
-	update_phase_cache_all_data(*_data);
+      if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_) {
+	if (cache_mode_ == VisibilityCacheMode::Global) {
+	  update_phase_cache_all_data(*_data);
+	}
+      }
     }
   }
 
@@ -234,10 +237,78 @@ namespace Themis {
 	}
   }
 
+  enum class CacheMode {Global, EpochLocal};
+  CacheMode cache_mode_;
+  // Then use as
+  // if (cache_mode_ == CacheMode::EpochLocal)
+  //   update_phase_cache_for_data(epoch_data);
+  // else
+  //   update_phase_cache_all_data(all_data);
+  // Same for visibility
+
+  // void model_image_adaptive_splined_raster::prepare_visibility_cache(const std::vector<datum_visibility>& data) {
+  //   if (_use_cached_exp)
+  //     update_phase_cache_for_data(data);
+  // }
+  
+
+  void model_image_adaptive_splined_raster::prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& ids)
+{
+  if (!_use_cached_exp) return;
+
+  cache_mode_ = VisibilityCacheMode::EpochLocal;
+  cached_Nd_  = ids.size();
+  cached_ids_ = ids;
+  
+  const size_t Nd   = ids.size();
+  const size_t Npix = _Nx * _Ny;
+
+  phase_cache_.resize(Npix * Nd);
+  spline_kernel_cache_.resize(Nd);
+
+#ifndef NDEBUG
+  cached_ids_ = ids;   // exact mapping epoch-local → global
+#endif
+  
+  for (size_t i = 0; i < Nd; ++i)
+  {
+    const auto& d = data.datum(ids[i]);
+
+    const double ur =  _cpa*d.u + _spa*d.v;
+    const double vr = -_spa*d.u + _cpa*d.v;
+
+    spline_kernel_cache_[i] =
+      cubic_spline_kernel(ur, vr)
+      * (_alpha[1][1] - _alpha[0][0])
+      * (_beta [1][1] - _beta [0][0]);
+
+    size_t k = 0;
+    for (size_t ix = 0; ix < _Nx; ++ix)
+      for (size_t iy = 0; iy < _Ny; ++iy, ++k)
+      {
+        const double phi =
+          2.0 * M_PI * (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+
+        phase_cache_[i * Npix + k] =
+          _use_fast_exp_approx
+          ? utils::fast_img_exp7(-phi)
+          : std::exp(-std::complex<double>(0.0, 1.0) * phi);
+      }
+  }
+
+  cached_Nd_ = Nd;
+  phase_cache_valid_ = true;
+}
+
+  
   void model_image_adaptive_splined_raster::update_phase_cache_all_data(const std::vector<datum_visibility>& data)
   {
     ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
-    auto t0 = std::chrono::high_resolution_clock::now();
+    // auto t0 = std::chrono::high_resolution_clock::now();
+
+    cache_mode_ = VisibilityCacheMode::Global;
+    cached_Nd_  = data.size();
+    
     const size_t Npix = _Nx * _Ny;
     const size_t Nd   = data.size();
 
@@ -271,6 +342,48 @@ namespace Themis {
     //t_recompute_ += std::chrono::duration<double>(t1 - t0).count();
   }
 
+  void model_image_adaptive_splined_raster::update_phase_cache_for_data(const std::vector<datum_visibility>& data)
+  {
+    ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
+    
+    const size_t Npix = _Nx * _Ny;
+    const size_t Nd   = data.size();
+    
+    // Resize cache to EXACTLY the provided data span
+    phase_cache_.resize(Npix * Nd);
+    spline_kernel_cache_.resize(Nd);
+    
+    for (size_t d = 0; d < Nd; ++d)
+      {
+	// Counter-rotate point
+	const double ur =  _cpa*data[d].u + _spa*data[d].v;
+	const double vr = -_spa*data[d].u + _cpa*data[d].v;
+	
+	// Cache spline kernel for THIS datum index
+	spline_kernel_cache_[d] =
+	  cubic_spline_kernel(ur, vr)
+	  * (_alpha[1][1] - _alpha[0][0])
+	  * (_beta [1][1] - _beta [0][0]);
+	
+	size_t k = 0;
+	for (size_t i = 0; i < _Nx; ++i)
+	  for (size_t j = 0; j < _Ny; ++j, ++k)
+	    {
+	      const double phi = 2.0 * M_PI *
+		(ur * _alpha[i][j] + vr * _beta[i][j]);
+	      
+	      phase_cache_[d * Npix + k] =
+		_use_fast_exp_approx
+		? utils::fast_img_exp7(-phi)
+		: std::exp(-std::complex<double>(0.0, 1.0) * phi);
+	    }
+      }
+    
+    cached_Nd_ = Nd;
+    phase_cache_valid_ = true;
+  }
+
+  
   std::complex<double> model_image_adaptive_splined_raster::visibility(datum_visibility& d, double acc)
   {
     static bool once = false;
@@ -305,38 +418,56 @@ namespace Themis {
       return ( cubic_spline_kernel(d.u,d.v)*model_image::visibility(d, acc) );
   }
 
-  std::complex<double> model_image_adaptive_splined_raster::visibility(size_t d_idx, datum_visibility& d, double acc)
+  // std::complex<double> model_image_adaptive_splined_raster::visibility(size_t d_idx, datum_visibility& d, double acc)
+  std::complex<double> model_image_adaptive_splined_raster::visibility_epoch_local(size_t d_idx, datum_visibility& d, double acc)
   {
+    if (!_use_cached_exp) {
+      // Explicitly fall back to the polymorphic non-cached path
+      return visibility(d, acc);
+    }
     static bool once = false;
     if (!once) {
       std::cerr << "[CACHE DEBUG] ENTERED CACHED visibility(size_t, ...)\n";
       once = true;
     }
+
+    if (_use_cached_exp) {
+      if (cache_mode_ != VisibilityCacheMode::EpochLocal)
+	throw std::logic_error("Epoch-local visibility with non-epoch cache");
+    }
+    
     ScopedTimer T(
     _use_cached_exp ? TimerID::VisibilityCached
                     : TimerID::VisibilitySingle,
     timer_ns_, timer_calls_);
 
-    if (_use_cached_exp) {
-#ifndef NDEBUG
-      if (!_data) {
-	throw std::logic_error(
-			       "Cached visibility requested but no data set via set_data()");
-      }
-      if (d_idx >= _data->size()) {
-	throw std::out_of_range(
-				"visibility(d_idx): index exceeds cached data size");
-      }
-      // ensure "index == datum identity"
-      const auto& d0 = (*_data)[d_idx];
-      if (d.u != d0.u || d.v != d0.v) {
-	throw std::logic_error("visibility(d_idx): (u,v) mismatch with cached data");
-      }
+    if (_use_cached_exp && !phase_cache_valid_) {
+      std::cerr << "[CACHE ERROR] visibility called without cache. " << "d_idx=" << d_idx << std::endl;
+      throw std::logic_error("Cached visibility called without a valid epoch cache");
     }
 
-    if (_use_cached_exp && !phase_cache_valid_) {
-      throw std::logic_error(
-			     "Cached visibility requested but phase cache is invalid");
+
+    if (_use_cached_exp) {
+#ifndef NDEBUG
+      if (!phase_cache_valid_) {
+	throw std::logic_error(
+			       "Cached visibility requested but phase cache is invalid");
+      }
+      
+      // d_idx is epoch-local, must be within cached epoch size
+      if (d_idx >= cached_Nd_) {
+	throw std::out_of_range(
+				"visibility(d_idx): index exceeds cached epoch size");
+      }
+      
+      // Debug-only identity check: does this datum match the cached one?
+      //const auto& d0 = _data->datum(cached_ids_[d_idx]);
+      const auto& d0 = (*_data)[cached_ids_[d_idx]];
+      if (d.u != d0.u || d.v != d0.v) {
+	throw std::logic_error(
+			       "Cached visibility: (u,v) mismatch with cached datum");
+      }
+
 #endif
     }
     
@@ -365,7 +496,6 @@ namespace Themis {
 	  ScopedTimer T_loop(TimerID::VisibilityCached_Loop,
 			     timer_ns_, timer_calls_);
 	  
-	size_t k=0;
 	const size_t Npix = _Nx * _Ny;
 	const size_t offset = d_idx * Npix; 
 

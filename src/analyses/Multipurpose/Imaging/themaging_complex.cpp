@@ -1811,6 +1811,9 @@ int main(int argc, char* argv[])
     std::ofstream sumout;
     if (world_rank==0)
     {
+
+      std::cerr << "DEBUG: image_pulse.size() = " << image_pulse.size() << std::endl;
+      
       sumout.open(sumoutname.str().c_str());
       sumout << std::setw(10) << "# Index";
       for (size_t k=0; k<image_pulse.size(); ++k)
@@ -1818,6 +1821,7 @@ int main(int argc, char* argv[])
 	std::stringstream var;
 	var << "p" << k;
 	sumout << std::setw(15) << var.str();
+	//if (k<1000) throw("k>1000!!!\n");
       }
       sumout << std::setw(15) << "img-x"
 	     << std::setw(15) << "img-y";

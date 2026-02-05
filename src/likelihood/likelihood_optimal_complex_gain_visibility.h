@@ -43,6 +43,8 @@ namespace Themis
 
     //! Construct to do scan-by-scan correction by default
     likelihood_optimal_complex_gain_visibility(data_visibility& data, model_visibility& model, std::vector<std::string> station_codes, std::vector<double> sigma_g);
+    //! Construct to do scan-by-scan correction by default (cached visibility)
+    // likelihood_optimal_complex_gain_visibility(size_t d_idx, data_visibility& data, model_visibility& model, std::vector<std::string> station_codes, std::vector<double> sigma_g);
 
     //! Specify the times of the gain-correction epochs by hand
     likelihood_optimal_complex_gain_visibility(data_visibility& data, model_visibility& model, std::vector<std::string> station_codes, std::vector<double> sigma_g, std::vector<double> t_ge);
@@ -134,7 +136,9 @@ namespace Themis
      model_visibility& _model;  
      uncertainty_visibility _local_uncertainty; // Default if none is passed
      uncertainty_visibility& _uncertainty;
-     
+     bool _use_cached_exp = true; // force cached path unconditionally
+    //bool _use_cached_exp = false;
+    
      std::vector<std::string> _station_codes;
      std::vector<double> _sigma_g, _max_g;
 

@@ -52,9 +52,17 @@ class model_image_adaptive_splined_raster : public model_image
 {
  public:
   using model_visibility::visibility;
+  void update_phase_cache_for_data(const std::vector<datum_visibility>& data);
+  void invalidate_phase_cache() {
+    phase_cache_valid_ = false;
+    cached_Nd_ = 0;
+  }
+  enum class VisibilityCacheMode {None, Global, EpochLocal};
+  VisibilityCacheMode cache_mode_ = VisibilityCacheMode::EpochLocal;
 
+  
  private:
-  std::vector<double> _I_flat; // turns the compiler really likes flattening _I into a 1d structure 
+  std::vector<double> _I_flat; // turns out the compiler really likes flattening _I into a 1d structure 
   //! Sets the image pixel values
   virtual void generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta);
   virtual void generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<double>& I_flat, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta);
@@ -91,12 +99,20 @@ public:
   void use_fast_exp_approx();
   void use_cached_exp();
 
+  // void prepare_visibility_cache(const std::vector<datum_visibility>& data) override;
+  void prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& datum_indices) override;
+
+  
   std::chrono::duration<double> t_lookup_only_{0};
   std::chrono::duration<double> t_visibility_total_{0};
 
   std::vector<std::complex<double>> phase_cache_; // size = _Nx * _Ny * Nd
   // std::vector<std::complex<float>> phase_cache_; // size = _Nx * _Ny * Nd ; [potential speedup if we get away with float, but not for our problem size and cache layout ...]
   bool phase_cache_valid_ = false;
+
+#ifndef NDEBUG
+    std::vector<size_t> cached_ids_;   // global datum indices for debug validation
+#endif
 
   // Metadata
   size_t cached_Nd_; // Indexing convention: phase_cache_[k * Nd + d]
@@ -115,7 +131,8 @@ public:
 
   //! Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   std::complex<double> visibility(datum_visibility& d, double accuracy);
-  std::complex<double> visibility(size_t d, datum_visibility& dv, double acc) override; // overloaded version for phase caching across full data set and pixels
+  // std::complex<double> visibility(size_t d, datum_visibility& dv, double acc) override; // overloaded version for phase caching across full data set and pixels
+  std::complex<double> visibility_epoch_local(size_t d, datum_visibility& dv, double acc); // version for gain epoch local phase caching across epochs of full data set and pixels
 
   //! Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   virtual double visibility_amplitude(datum_visibility_amplitude& d, double accuracy);

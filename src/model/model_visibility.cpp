@@ -15,8 +15,8 @@ model_visibility::model_visibility()
 {
 }
 
-model_visibility::~model_visibility()
-{
-}
+// model_visibility::~model_visibility()
+// {
+// }
 
 };
