@@ -63,11 +63,6 @@ namespace Themis {
   }
   model_image_adaptive_splined_raster::~model_image_adaptive_splined_raster()
   {
-    int world_rank=0;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);    
-    if (world_rank == 0)
-      this->print_timing_summary();
-    std::cout << std::flush;  // ensure output appears
   }
 
   

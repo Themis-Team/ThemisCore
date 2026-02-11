@@ -1962,8 +1962,13 @@ int main(int argc, char* argv[])
     pbest = DEO.get_sampler()->find_best_fit();
   }
   
+  if (world_rank == 0) {
+    image_pulse.print_timing_summary(world_rank);
+  }
+
   //Finalize MPI
   MPI_Finalize();
+  
   return 0;
 }
 
