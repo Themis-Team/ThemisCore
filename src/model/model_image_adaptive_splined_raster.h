@@ -12,13 +12,9 @@
 #include "model_image.h"
 #include <vector>
 
-//RG: WIP DEVELOPING CACHING AND OTHER SPEEDUPS
 #include <chrono>
 #include <array>
 #include <cstdint>
-// #include <unordered_map>
-// #include <tuple>
-// #include <cstring>   // for std::memcpy
 #include <iostream>
 
 namespace Themis {
@@ -57,8 +53,10 @@ class model_image_adaptive_splined_raster : public model_image
     phase_cache_valid_ = false;
     cached_Nd_ = 0;
   }
+  bool use_cached_exp() const override { return _use_cached_exp; }
+
   enum class VisibilityCacheMode {None, Global, EpochLocal};
-  VisibilityCacheMode cache_mode_ = VisibilityCacheMode::EpochLocal;
+  VisibilityCacheMode cache_mode_ = VisibilityCacheMode::Global;
 
   
  private:
@@ -83,7 +81,6 @@ public:
   void set_data(const std::vector<datum_visibility>& data) {
     _data = &data;              // COPY ONCE
     phase_cache_valid_ = false;
-    // std::cerr << "[CACHE DEBUG] set_data() called on model @" << this << " Nd=" << data.size() << "\n";
   }
 
   //! State switch to select numerically computed visibilities using the machinery in model_image.  Once called, all future visibilities will be computed numerically until use_analytical_visibilities() is called.
@@ -131,8 +128,8 @@ public:
 
   //! Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   std::complex<double> visibility(datum_visibility& d, double accuracy);
-  // std::complex<double> visibility(size_t d, datum_visibility& dv, double acc) override; // overloaded version for phase caching across full data set and pixels
-  std::complex<double> visibility_epoch_local(size_t d, datum_visibility& dv, double acc); // version for gain epoch local phase caching across epochs of full data set and pixels
+  std::complex<double> visibility(size_t d, datum_visibility& dv, double acc) override; // overloaded version for phase caching across full data set and pixels
+  //std::complex<double> visibility_epoch_local(size_t d, datum_visibility& dv, double acc); // version for gain epoch local phase caching across epochs of full data set and pixels
 
   //! Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   virtual double visibility_amplitude(datum_visibility_amplitude& d, double accuracy);
@@ -160,7 +157,7 @@ public:
 
   bool _use_analytical_visibilities;
   bool _use_fast_exp_approx;
-  bool _use_cached_exp;
+  bool _use_cached_exp=false;
 
   // ---------- PROFILING ----------
   enum class TimerID {

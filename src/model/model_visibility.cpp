@@ -10,13 +10,11 @@
 
 namespace Themis {
 
-model_visibility::model_visibility()
-  : _comm(MPI_COMM_WORLD)
-{
-}
+  model_visibility::model_visibility()
+    : _comm(MPI_COMM_WORLD)
+  {
+  }
 
-// model_visibility::~model_visibility()
-// {
-// }
-
+  model_visibility::~model_visibility() = default;
+  
 };

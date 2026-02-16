@@ -27,13 +27,13 @@ class model_visibility
 {
  public:
   model_visibility();
-  virtual ~model_visibility() = default;
+  virtual ~model_visibility();
 
   // Cache lifecycle control
   virtual void invalidate_phase_cache() {}
-  virtual bool uses_phase_cache() const { return false; }
-  // virtual void prepare_visibility_cache(const std::vector<datum_visibility>& data) {} // needed for caching visibilities in the gain parallel case
-  virtual void prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& datum_indices) {}
+  virtual bool uses_phase_cache() const { return false; } // delete later
+  virtual bool use_cached_exp() const { return false; }
+  virtual void prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& datum_indices) {} // per epoch cache (not used at the moment)
   
   //! A user-supplied one-time generate function that permits model construction prior to calling the visibility for each datum.  Takes a vector of parameters.
   virtual void generate_model(std::vector<double> parameters) = 0;
@@ -43,11 +43,11 @@ class model_visibility
 
 
   //! Returns complex visibility in Jy computed from the image given a datum_visibility object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
-  virtual std::complex<double> visibility_epoch_local(size_t d_idx, datum_visibility& d, double accuracy)
-  {
-    // default: ignore index
-    return visibility(d, accuracy);
-  }
+  // virtual std::complex<double> visibility_epoch_local(size_t d_idx, datum_visibility& d, double accuracy)
+  // {
+  //   // default: ignore index
+  //   return visibility(d, accuracy);
+  // }
   virtual std::complex<double> visibility(size_t d_idx, datum_visibility& d, double accuracy)
   {
     // default: ignore index

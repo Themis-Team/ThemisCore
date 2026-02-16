@@ -354,22 +354,15 @@ namespace Themis
 	  << std::setw(15) << "residual.i (Jy)"
 	  << '\n';
 
-    // _model.invalidate_phase_cache(); // excessive // enforce cache build within likelihood to ensure consistent logical traversal 
-    // _model.update_phase_cache_for_data(epoch_data_vector);
-    
     // For each gain correction epoch
     for (size_t epoch=0; epoch<_tge.size()-1; ++epoch)
     {
-      if (_use_cached_exp) {
-	_model.prepare_visibility_cache(_data, _datum_index_list[epoch]);
-      }
       for (size_t i=0; i<_datum_index_list[epoch].size(); ++i)
       {
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> V;
-	if (_use_cached_exp) {
-	  V = _model.visibility_epoch_local(i,_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	  // Vm = _model.visibility(i_local, epoch_data_vector[i_local], acc);
+	if (_model.use_cached_exp()) {
+	  V = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
 	}
 	else
 	  {
@@ -394,7 +387,6 @@ namespace Themis
 	      << '\n';
       }
     }
-    // _model.invalidate_phase_cache();  // excessive
   }
 
   
@@ -582,9 +574,6 @@ namespace Themis
     _model.generate_model(mx);
     _uncertainty.generate_uncertainty(ux);
 
-    // _model.invalidate_phase_cache();  // excessive // enforce cache build within likelihood to ensure consistent logical traversal 
-    // _model.update_phase_cache_for_data(epoch_data_vector);
-
     // Log-likelihood accumulator
     double L = 0;
 
@@ -593,11 +582,6 @@ namespace Themis
     {
       if (epoch%_L_size==size_t(_L_rank))
       {
-
-	if (_use_cached_exp) {
-	  _model.prepare_visibility_cache(_data, _datum_index_list[epoch]);
-	}
-	
 	// Get vector of error-normed model and data visibilities once
 	std::vector< std::complex<double> > yb, y;
 	std::vector<size_t> is1, is2;
@@ -609,9 +593,9 @@ namespace Themis
 	  std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	  std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
 	  std::complex<double> Vm;
-	  if (_use_cached_exp)
+	  if (_model.use_cached_exp())
 	    {
-	      Vm = _model.visibility_epoch_local(i,_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	      Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
 	    }
 	  else
 	    {
@@ -683,7 +667,6 @@ namespace Themis
 	L += dL;
       }
     }
-    // _model.invalidate_phase_cache();  // excessive
 
     double Ltot=0.0;
     MPI_Allreduce(&L,&Ltot,1,MPI_DOUBLE,MPI_SUM,_Lcomm);
@@ -712,20 +695,12 @@ namespace Themis
     _model.generate_model(mx);
     _uncertainty.generate_uncertainty(ux);
 
-    _model.invalidate_phase_cache(); // keep // enforce cache build within likelihood to ensure consistent logical traversal 
-    //_model.update_phase_cache_for_data(epoch_data_vector);
-
     // Log-likelihood accumulator
     double L = 0;
 
     // For each gain correction epoch
     for (size_t epoch=0; epoch<_tge.size()-1; ++epoch)
     {
-
-      if (_use_cached_exp) {
-	_model.prepare_visibility_cache(_data,_datum_index_list[epoch]);
-      }
-
       // Get vector of error-normed model and data visibilities once
       std::vector< std::complex<double> > yb, y;
       std::vector<size_t> is1, is2;
@@ -737,8 +712,8 @@ namespace Themis
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
 	std::complex<double> Vm;
-	if (_use_cached_exp) {
-	  Vm = _model.visibility_epoch_local(i,_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	if (_model.use_cached_exp()) {
+	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
 	}
 	else {
 	  Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
@@ -807,8 +782,6 @@ namespace Themis
       L += dL;
     }
     _L_last = L;
-
-    // _model.invalidate_phase_cache();  // excessive
 
     return L;
   }
@@ -949,9 +922,6 @@ namespace Themis
     _model.generate_model(mx);
     _uncertainty.generate_uncertainty(ux);
 
-    _model.invalidate_phase_cache(); // keep // enforce cache build within likelihood to ensure consistent logical traversal 
-    //_model.update_phase_cache_for_data(epoch_data_vector);
-
     // Log-likelihood accumulator
     double L = 0;
 
@@ -963,11 +933,6 @@ namespace Themis
     // For each gain correction epoch
     for (size_t epoch=0; epoch<_tge.size()-1; ++epoch)
     {
-
-      if (_use_cached_exp) {
-	_model.prepare_visibility_cache(_data, _datum_index_list[epoch]);
-      }
-      
       // Get vector of error-normed model and data visibilities once
       std::vector< std::complex<double> > yb, y;
       std::vector<size_t> is1, is2;
@@ -978,8 +943,8 @@ namespace Themis
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
 	std::complex<double> Vm;
-	if (_use_cached_exp) {
-	  Vm = _model.visibility_epoch_local(i,_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	if (_model.use_cached_exp()) {
+	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
 	}
 	else {
 	  Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
@@ -1044,8 +1009,6 @@ namespace Themis
     // Reset the prior
     _sigma_g = true_sigma_g;
 
-    // _model.invalidate_phase_cache();  // excessive
-
     return (-2.0*L);
   }
 
@@ -1062,17 +1025,9 @@ namespace Themis
     std::vector<double> true_sigma_g = _sigma_g;
     //_sigma_g.assign(_sigma_g.size(),2.0);
 
-    _model.invalidate_phase_cache(); // keep // enforce cache build within likelihood to ensure consistent logical traversal 
-    // _model.update_phase_cache_for_data(epoch_data_vector); 
-
     // For each gain correction epoch
     for (size_t epoch=0; epoch<_tge.size()-1; ++epoch)
     {
-
-      if (_use_cached_exp) {
-	_model.prepare_visibility_cache(_data, _datum_index_list[epoch]);
-      }
-      
       // Get vector of error-normed model and data visibilities once
       std::vector< std::complex<double> > yb, y;
       std::vector<size_t> is1, is2;
@@ -1081,15 +1036,13 @@ namespace Themis
       {
 	std::complex<double> err = _data.datum(_datum_index_list[epoch][i]).err;
 	std::complex<double> Vm;
-	if (_use_cached_exp) {
-	  Vm = _model.visibility_epoch_local(i,_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	if (_model.use_cached_exp()) {
+	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
 	}
 	else {
 	  Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
 	}
-
 	yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
-
       }
 
       y = _y_list[epoch];
@@ -1131,8 +1084,6 @@ namespace Themis
 
     // Reset the prior
     _sigma_g = true_sigma_g;
-
-    // _model.invalidate_phase_cache();  // excessive
 
     return (-2.0*L);
   }

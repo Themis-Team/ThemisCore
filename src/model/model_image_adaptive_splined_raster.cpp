@@ -121,11 +121,28 @@ namespace Themis {
     // profiling
     ScopedTimer T(TimerID::GenerateModel, timer_ns_, timer_calls_);
 
-    // Parameters changed → cached phases invalid
-    // if (!_current_parameters.empty() && parameters != _current_parameters) { // guard against stale cache
+    // // Parameters changed → cached phases invalid
+    // if (!_current_parameters.empty() && parameters != _current_parameters) {
     //   phase_cache_valid_ = false;
     // }
 
+    // Invalidate phase cache ONLY when geometry changes (FOVx, FOVy, PA).
+    // Intensity parameter changes do NOT invalidate cached phases.
+    if (!_current_parameters.empty())
+      {
+        const double old_fovx = _current_parameters[_size-3];
+        const double old_fovy = _current_parameters[_size-2];
+        const double old_pa   = _current_parameters[_size-1];
+	
+        const double new_fovx = parameters[_size-3];
+        const double new_fovy = parameters[_size-2];
+        const double new_pa   = parameters[_size-1];
+	
+        if (new_fovx != old_fovx || new_fovy != old_fovy || new_pa != old_pa)
+          phase_cache_valid_ = false;
+      }
+
+    
     // if (_use_cached_exp && !phase_cache_valid_ && !_data->empty()) {
     if (_generated_model && parameters==_current_parameters)
       {
@@ -147,19 +164,17 @@ namespace Themis {
 
       
       // Generate the image using the user-supplied routine
-      // generate_image(parameters,_I,_alpha,_beta);
-      generate_image(parameters,_I,_I_flat,_alpha,_beta);
+      // generate_image(parameters,_I,_alpha,_beta); // 2d version
+      generate_image(parameters,_I,_I_flat,_alpha,_beta); // 1d version (faster)
       
       // Set some boolean flags for what is and is not defined
       _generated_model = true;
       _generated_visibilities = false;
 
       // rebuild cache, some catch statements to guard memory errors
-      if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_) {
-	if (cache_mode_ == VisibilityCacheMode::Global) {
+      if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_)
+	if (cache_mode_ == VisibilityCacheMode::Global) 
 	  update_phase_cache_all_data(*_data);
-	}
-      }
     }
   }
 
@@ -174,7 +189,7 @@ namespace Themis {
   void model_image_adaptive_splined_raster::generate_image(std::vector<double> parameters, std::vector<std::vector<double> >& I, std::vector<std::vector<double> >& alpha, std::vector<std::vector<double> >& beta)
   {
     // Ensure flat buffer exists
-    _I_flat.resize(_Nx * _Ny);
+    _I_flat.resize(_Nx * _Ny); // faster than 2d I[][]
 
     // generate_image(parameters, I, _I_flat, alpha, beta);
     model_image_adaptive_splined_raster::generate_image(parameters, I, _I_flat, alpha, beta);
@@ -225,13 +240,14 @@ namespace Themis {
     for (size_t i=0; i<_Nx; ++i)
       for (size_t j=0; j<_Ny; ++j)
 	{
-	  I[i][j] = std::exp(parameters[k]);
+	  I[i][j] = std::exp(parameters[k]); // RG: can we remove this now that I_flat is there?
 	  I_flat[k++] = I[i][j];
 	  // I[i][j] = std::exp(parameters[k]);
 	  // I_flat[k] = std::exp(parameters[k++]);
 	}
   }
 
+  // Currently there is only no cache or global, but who knows mybe in the future epochlocal gets interesting too?!
   enum class CacheMode {Global, EpochLocal};
   CacheMode cache_mode_;
   // Then use as
@@ -241,65 +257,54 @@ namespace Themis {
   //   update_phase_cache_all_data(all_data);
   // Same for visibility
 
-  // void model_image_adaptive_splined_raster::prepare_visibility_cache(const std::vector<datum_visibility>& data) {
-  //   if (_use_cached_exp)
-  //     update_phase_cache_for_data(data);
-  // }
-  
-
   void model_image_adaptive_splined_raster::prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& ids)
-{
-  if (!_use_cached_exp) return;
-
-  cache_mode_ = VisibilityCacheMode::EpochLocal;
-  cached_Nd_  = ids.size();
-  cached_ids_ = ids;
-  
-  const size_t Nd   = ids.size();
-  const size_t Npix = _Nx * _Ny;
-
-  phase_cache_.resize(Npix * Nd);
-  spline_kernel_cache_.resize(Nd);
-
-#ifndef NDEBUG
-  cached_ids_ = ids;   // exact mapping epoch-local → global
-#endif
-  
-  for (size_t i = 0; i < Nd; ++i)
   {
-    const auto& d = data.datum(ids[i]);
-
-    const double ur =  _cpa*d.u + _spa*d.v;
-    const double vr = -_spa*d.u + _cpa*d.v;
-
-    spline_kernel_cache_[i] =
-      cubic_spline_kernel(ur, vr)
-      * (_alpha[1][1] - _alpha[0][0])
-      * (_beta [1][1] - _beta [0][0]);
-
-    size_t k = 0;
-    for (size_t ix = 0; ix < _Nx; ++ix)
-      for (size_t iy = 0; iy < _Ny; ++iy, ++k)
+    if (!_use_cached_exp) return;
+    
+    cache_mode_ = VisibilityCacheMode::EpochLocal;
+    cached_Nd_  = ids.size();
+    cached_ids_ = ids;
+    
+    const size_t Nd   = ids.size();
+    const size_t Npix = _Nx * _Ny;
+    
+    phase_cache_.resize(Npix * Nd);
+    spline_kernel_cache_.resize(Nd);
+    
+#ifndef NDEBUG
+    cached_ids_ = ids;   // exact mapping epoch-local → global
+#endif
+    
+    for (size_t i = 0; i < Nd; ++i)
       {
-        const double phi =
-          2.0 * M_PI * (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
-
-        phase_cache_[i * Npix + k] =
-          _use_fast_exp_approx
-          ? utils::fast_img_exp7(-phi)
-          : std::exp(-std::complex<double>(0.0, 1.0) * phi);
+	const auto& d = data.datum(ids[i]);
+	
+	const double ur =  _cpa*d.u + _spa*d.v;
+	const double vr = -_spa*d.u + _cpa*d.v;
+	
+	spline_kernel_cache_[i] = cubic_spline_kernel(ur, vr) * (_alpha[1][1] - _alpha[0][0]) * (_beta [1][1] - _beta [0][0]);
+	
+	size_t k = 0;
+	for (size_t ix = 0; ix < _Nx; ++ix)
+	  for (size_t iy = 0; iy < _Ny; ++iy, ++k)
+	    {
+	      const double phi = 2.0 * M_PI * (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+	      
+	      phase_cache_[i * Npix + k] =
+		_use_fast_exp_approx
+		? utils::fast_img_exp7(-phi)
+		: std::exp(-std::complex<double>(0.0, 1.0) * phi);
+	    }
       }
+    
+    cached_Nd_ = Nd;
+    phase_cache_valid_ = true;
   }
-
-  cached_Nd_ = Nd;
-  phase_cache_valid_ = true;
-}
 
   
   void model_image_adaptive_splined_raster::update_phase_cache_all_data(const std::vector<datum_visibility>& data)
   {
     ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
-    // auto t0 = std::chrono::high_resolution_clock::now();
 
     cache_mode_ = VisibilityCacheMode::Global;
     cached_Nd_  = data.size();
@@ -328,13 +333,11 @@ namespace Themis {
 	  phase_cache_[d * Npix + k] =
 	    _use_fast_exp_approx
             ? utils::fast_img_exp7(-phi)
-            : std::exp(-std::complex<double>(0.0, 1.0) * phi);
+            : std::exp(-std::complex<double>(0.0, 1.0) * phi); // RG:FIXME I think there is a missing 2PI in teh -fea path ,but have to check
 	}
     }    
     cached_Nd_ = Nd;
     phase_cache_valid_ = true;
-    //auto t1 = std::chrono::high_resolution_clock::now();
-    //t_recompute_ += std::chrono::duration<double>(t1 - t0).count();
   }
 
   void model_image_adaptive_splined_raster::update_phase_cache_for_data(const std::vector<datum_visibility>& data)
@@ -399,7 +402,7 @@ namespace Themis {
       {
 	for (size_t i=0; i<_Nx; ++i)
 	  for (size_t j=0; j<_Ny; ++j)
-	    V += _I[i][j] * utils::fast_img_exp7( -(ur*_alpha[i][j]+vr*_beta[i][j]) );
+	    V += _I[i][j] * utils::fast_img_exp7( -(ur*_alpha[i][j]+vr*_beta[i][j]) ); // RG:CHECK 2PI
       }
       else
       {
@@ -413,8 +416,8 @@ namespace Themis {
       return ( cubic_spline_kernel(d.u,d.v)*model_image::visibility(d, acc) );
   }
 
-  // std::complex<double> model_image_adaptive_splined_raster::visibility(size_t d_idx, datum_visibility& d, double acc)
-  std::complex<double> model_image_adaptive_splined_raster::visibility_epoch_local(size_t d_idx, datum_visibility& d, double acc)
+  std::complex<double> model_image_adaptive_splined_raster::visibility(size_t d_idx, datum_visibility& d, double acc)
+  // std::complex<double> model_image_adaptive_splined_raster::visibility_epoch_local(size_t d_idx, datum_visibility& d, double acc)
   {
     if (!_use_cached_exp) {
       // Explicitly fall back to the polymorphic non-cached path
@@ -426,11 +429,6 @@ namespace Themis {
       once = true;
     }
 
-    if (_use_cached_exp) {
-      if (cache_mode_ != VisibilityCacheMode::EpochLocal)
-	throw std::logic_error("Epoch-local visibility with non-epoch cache");
-    }
-    
     ScopedTimer T(
     _use_cached_exp ? TimerID::VisibilityCached
                     : TimerID::VisibilitySingle,
@@ -441,30 +439,9 @@ namespace Themis {
       throw std::logic_error("Cached visibility called without a valid epoch cache");
     }
 
-
-    if (_use_cached_exp) {
-#ifndef NDEBUG
-      if (!phase_cache_valid_) {
-	throw std::logic_error(
-			       "Cached visibility requested but phase cache is invalid");
-      }
-      
-      // d_idx is epoch-local, must be within cached epoch size
-      if (d_idx >= cached_Nd_) {
-	throw std::out_of_range(
-				"visibility(d_idx): index exceeds cached epoch size");
-      }
-      
-      // Debug-only identity check: does this datum match the cached one?
-      //const auto& d0 = _data->datum(cached_ids_[d_idx]);
-      const auto& d0 = (*_data)[cached_ids_[d_idx]];
-      if (d.u != d0.u || d.v != d0.v) {
-	throw std::logic_error(
-			       "Cached visibility: (u,v) mismatch with cached datum");
-      }
-
-#endif
-    }
+    if (_use_cached_exp)
+      if (!phase_cache_valid_) 
+	throw std::logic_error("Cached visibility requested but phase cache is invalid");
     
     if (_use_analytical_visibilities)
     {
@@ -506,7 +483,8 @@ namespace Themis {
       {
 	for (size_t i=0; i<_Nx; ++i)
 	  for (size_t j=0; j<_Ny; ++j)
-	    V += _I[i][j] * std::exp( - std::complex<double>(0.0,1.0) * 2.0*M_PI * (ur*_alpha[i][j]+vr*_beta[i][j]) );
+	      V += _I[i][j] * std::exp( - std::complex<double>(0.0,1.0) * 2.0*M_PI * (ur*_alpha[i][j]+vr*_beta[i][j]) );
+
 	return cubic_spline_kernel(ur, vr) * V * (_alpha[1][1]-_alpha[0][0]) * (_beta[1][1]-_beta[0][0]);
       }
       std::complex<double> result;
