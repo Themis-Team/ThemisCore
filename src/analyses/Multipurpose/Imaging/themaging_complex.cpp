@@ -1949,19 +1949,17 @@ int main(int argc, char* argv[])
 	std::cerr << "Starting MCMC on round " << rep << std::endl;
       DEO.run_sampler( 1, thin_factor, refresh_rate, verbosity);
       clock_t end = clock();
-      if (world_rank == 0)
+      if (world_rank == 0) {
 	std::cerr << "Done MCMC on round " << rep << std::endl
 		  << "it took " << (end-start)/CLOCKS_PER_SEC/3600.0 << " hours" << std::endl;
+	image_pulse.print_timing_summary(world_rank);
+      }
     }
     
     // Reset pbest
     pbest = DEO.get_sampler()->find_best_fit();
   }
   
-  if (world_rank == 0) {
-    image_pulse.print_timing_summary(world_rank);
-  }
-
   //Finalize MPI
   MPI_Finalize();
   
