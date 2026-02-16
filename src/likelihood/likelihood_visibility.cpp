@@ -28,7 +28,7 @@ namespace Themis{
   likelihood_visibility::likelihood_visibility(size_t d_idx,
 					       data_visibility& data,
 					       model_visibility& model)
-    : _data(data), _model(model), _uncertainty(_local_uncertainty, _use_cached_exp(false))
+    : _data(data), _model(model), _uncertainty(_local_uncertainty), _use_cached_exp(false)
   {
   }
 
