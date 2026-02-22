@@ -9,6 +9,7 @@
 #include "random_number_generator.h"
 
 #include "likelihood_optimal_complex_gain_visibility.h"
+#include "model_image_adaptive_splined_raster.h"
 #include <cmath>
 
 #include <iostream>
@@ -361,13 +362,13 @@ namespace Themis
       {
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> V;
-	if (_model.use_cached_exp()) {
+	// if (_model.use_cached_exp()) {
 	  V = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	}
-	else
-	  {
-	    V = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	  }
+	// }
+	// else
+	//   {
+	//     V = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	//   }
 	
 	V = _G[epoch][_is1_list[epoch][i]]*std::conj(_G[epoch][_is2_list[epoch][i]])*V;
 	
@@ -593,14 +594,14 @@ namespace Themis
 	  std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	  std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
 	  std::complex<double> Vm;
-	  if (_model.use_cached_exp())
-	    {
+	  // if (_model.use_cached_exp())
+	  //   {
 	      Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	    }
-	  else
-	    {
-	      Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	    }
+	  //   }
+	  // else
+	  //   {
+	  //     Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	  //   }
 	  yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
 	  y.push_back( std::complex<double>(Vd.real()/err.real(), Vd.imag()/err.imag()) );
 	  
@@ -712,12 +713,12 @@ namespace Themis
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
 	std::complex<double> Vm;
-	if (_model.use_cached_exp()) {
+	// if (_model.use_cached_exp()) {
 	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	}
-	else {
-	  Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	}	  
+	// }
+	// else {
+	//   Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	// }	  
 	yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
 	y.push_back( std::complex<double>(Vd.real()/err.real(), Vd.imag()/err.imag()) );
 
@@ -880,8 +881,8 @@ namespace Themis
   }
 
   
-
-  std::vector<double> likelihood_optimal_complex_gain_visibility::gradient(std::vector<double>& x, prior& Pr)
+  /*
+  std::vector<double> likelihood_optimal_complex_gain_visibility::gradient_fd_all(std::vector<double>& x, prior& Pr)
   {
     // Make sure that gains are computed
     this->operator()(x);
@@ -907,6 +908,199 @@ namespace Themis
     // Return gradients
     return grad;
   }
+  */
+ 
+  std::vector<double> likelihood_optimal_complex_gain_visibility::gradient(std::vector<double>& x, prior& Pr)
+  {
+      static bool once=false;
+      if(!once){ std::cerr << "[GRAD] lvg::gradient entered\n"; once=true; }
+      
+      // Ensure any call path uses the same logic
+      return gradient_hybrid(x, Pr);
+  }
+
+  std::vector<double> likelihood_optimal_complex_gain_visibility::gradient_uniproc(std::vector<double>& x, prior& Pr)
+  {
+    return gradient_hybrid(x, Pr);
+  }
+
+  
+  std::vector<double>
+  likelihood_optimal_complex_gain_visibility::gradient_hybrid(std::vector<double>& x, prior& Pr)
+  {
+    // MOVE your current hybrid implementation here (the analytic pixel gradient + FD raster params)
+//   ...
+// }
+
+  
+//   std::vector<double> likelihood_optimal_complex_gain_visibility::gradient(std::vector<double>& x, prior& Pr)
+//   {
+
+    static bool onetime=false;
+    if (!onetime) { std::cerr << "[GRAD] gradient_hybrid() entered\n"; onetime=true; }
+
+    // Save current cache state
+    const std::vector<double> x_saved = _x_last;
+    const double L_saved = _L_last;
+    
+    // Ensure L(x) is cached (so we can restore it)
+    double Lx = 0.0;
+    if (_x_last.empty() || x != _x_last) {
+      Lx = this->operator()(x);
+    } else {
+      Lx = _L_last;
+    }
+
+    int local_ok = 1;
+    auto* Mr = dynamic_cast<Themis::model_image_adaptive_splined_raster*>(&_model);
+
+    // whatever you currently test:
+    if (!Mr) local_ok = 0;
+    if (Mr && !Mr->use_cached_exp_getter()) local_ok = 0;
+    if (Mr && !Mr->phase_cache_valid()) local_ok = 0;
+    
+    // global consensus: if ANY rank can't, nobody does analytic
+    int global_ok = 0;
+    MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
+    
+    if (!global_ok) {
+      const bool solving_for_gains_prev = _solve_for_gains;
+      if (!_solve_for_gains_during_gradient) fix_gains();
+      
+      std::vector<double> grad = likelihood_base::gradient_uniproc(x, Pr);
+      
+      if (!_solve_for_gains_during_gradient && solving_for_gains_prev) solve_for_gains();
+      return grad;
+
+      // EVERY rank executes the fallback path
+      // return likelihood_base::gradient_uniproc(x, Pr);
+    }
+    
+    // EVERY rank executes analytic path from here on
+
+    // Now done above ...
+    // 1) Ensure gains computed at basepoint x
+    // if (_x_last.empty() || x != _x_last) {
+    //   this->operator()(x);
+    // }
+
+    // 2) Freeze gains if we don't solve gains during gradient
+    const bool solving_for_gains_prev = _solve_for_gains;
+    if (_solve_for_gains_during_gradient == false)
+      fix_gains(); // sets _solve_for_gains=false
+    
+    // 3) Try analytic pixel gradient (Option B) only if model is the raster type + cache is valid
+    // auto* Mr = dynamic_cast<Themis::model_image_adaptive_splined_raster*>(&_model);
+    static bool once=false;
+
+    { // goal: did we take analytic or FD? if analytic: how much time in pixel-analytic accumulation vs FD raster params vs MPI?
+      static uint64_t n=0, n_ana=0, n_fd=0;
+      ++n;
+      bool use_ana = (Mr && Mr->use_cached_exp_getter() && Mr->phase_cache_valid());
+      use_ana ? ++n_ana : ++n_fd;
+      if ((n % 100)==0)
+	std::cerr << "[GRAD] total="<<n<<" ana="<<n_ana<<" fd="<<n_fd<<"\n";
+    }
+    
+    if(!once){
+      std::cerr << "[GRAD] Mr="<<(Mr!=nullptr)
+		<< " cached="<<(Mr && Mr->use_cached_exp_getter())
+		<< " valid="<<(Mr && Mr->phase_cache_valid())
+		<< "\n";
+      once=true;
+    }
+
+    if (!Mr || !Mr->use_cached_exp_getter() || !Mr->phase_cache_valid())
+      {
+	// Fallback to old FD gradient if we can't do analytic safely
+	std::vector<double> grad = likelihood_base::gradient_uniproc(x, Pr);
+	
+	if (_solve_for_gains_during_gradient == false && solving_for_gains_prev)
+	  solve_for_gains();
+	return grad;
+      }
+    
+    const size_t Npix = Mr->Nx() * Mr->Ny();
+    const size_t Npar = x.size();
+    
+    std::vector<double> grad(Npar, 0.0);
+    
+    // 4) Analytic gradient for pixel parameters: indices [0..Npix-1]
+    std::vector<double> grad_I_local(Npix, 0.0);
+    
+    // We assume your parameter layout is:
+    // [ Npix pixel log-intensities, then 5 raster params, then maybe uncertainty params ... ]
+    // If that differs, adjust Npix and the FD ranges accordingly.
+    const size_t Nep = _tge.size() - 1;
+    for (size_t epoch = 0; epoch < Nep; ++epoch)
+      {
+	// Keep your current ownership rule (reverted version: epoch%_L_size==_L_rank)
+	if (epoch % _L_size == size_t(_L_rank))
+	  accumulate_pixel_grad_epoch(*Mr, epoch, grad_I_local);
+      }
+    
+    // Allreduce the pixel gradient across the likelihood communicator
+    MPI_Allreduce(MPI_IN_PLACE, grad_I_local.data(), (int)Npix, MPI_DOUBLE, MPI_SUM, _Lcomm);
+    
+    // Convert dL/dI_k to dL/d(log I_k): multiply by I_k
+    const auto& Iflat = Mr->I_flat();
+    for (size_t k = 0; k < Npix && k < Npar; ++k)
+      grad[k] = Iflat[k] * grad_I_local[k];
+    
+    // 5) Finite-difference ONLY the raster parameters (typically 5 after pixels)
+    // Choose the range you actually want:
+    const size_t fd_begin = Npix;
+    const size_t fd_end   = std::min(Npix + size_t(5), Npar);
+    
+    std::vector<double> y = x;
+    for (size_t i = fd_begin; i < fd_end; ++i)
+      {
+	const double h = step_size(std::fabs(Pr.upper_bound(i) - Pr.lower_bound(i)));
+	
+	// +h
+	y[i] = x[i] + h;
+	const double Lp = std::isfinite(Pr(y)) ? this->operator()(y)
+	  : -std::numeric_limits<double>::infinity();
+	
+	// -h
+	y[i] = x[i] - h;
+	const double Lm = std::isfinite(Pr(y)) ? this->operator()(y)
+	  :  std::numeric_limits<double>::infinity();
+	
+	y[i] = x[i];
+	grad[i] = (Lp - Lm) / (2.0 * h);
+      }
+    
+    // 6) If you have uncertainty parameters after raster params, either FD them too (optional):
+    // for (size_t i = fd_end; i < Npar; ++i) { ... same FD ... }
+    
+    // 7) Restore gain solving state
+    if (_solve_for_gains_during_gradient == false && solving_for_gains_prev)
+      solve_for_gains();
+
+    // BEFORE returning: restore basepoint cache
+    // _x_last = x;
+    // _L_last = Lx;
+
+    // --- Restore basepoint state so subsequent calls see consistent caches ---
+    // if (_x_last.empty() || x != _x_last) {
+      // We want model/gains consistent with x, but we already know Lx.
+      // Ensure model is at x (this is the important part for cache correctness).
+      _model.generate_model(x);
+      
+      // If you rely on the visibility phase cache later, ensure it's valid.
+      // (If your generate_model triggers cache rebuild when invalid, this is enough.)
+      //}
+
+    // Now restore the likelihood cache bookkeeping to the true basepoint:
+    _x_last = x;
+    _L_last = Lx;
+    
+    return grad;
+  }
+
+
+
   
   double likelihood_optimal_complex_gain_visibility::chi_squared(std::vector<double>& x)
   {
@@ -943,12 +1137,12 @@ namespace Themis
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
 	std::complex<double> Vm;
-	if (_model.use_cached_exp()) {
+	// if (_model.use_cached_exp()) {
 	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	}
-	else {
-	  Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	}
+	// }
+	// else {
+	//   Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	// }
 	yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
 	y.push_back( std::complex<double>(Vd.real()/err.real(), Vd.imag()/err.imag()) );
       }
@@ -1036,12 +1230,12 @@ namespace Themis
       {
 	std::complex<double> err = _data.datum(_datum_index_list[epoch][i]).err;
 	std::complex<double> Vm;
-	if (_model.use_cached_exp()) {
+	// if (_model.use_cached_exp()) {
 	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	}
-	else {
-	  Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	}
+	// }
+	// else {
+	//   Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+	// }
 	yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
       }
 
@@ -2233,6 +2427,66 @@ namespace Themis
     return 0;
   }
 
+
+  void likelihood_optimal_complex_gain_visibility::accumulate_pixel_grad_epoch(const model_image_adaptive_splined_raster& M,
+									       size_t epoch,
+									       std::vector<double>& grad_I) const
+  {
+    const auto& phase = M.phase_cache();
+    const auto& sk    = M.spline_kernel_cache();
+    const auto& Iflat = M.I_flat();
+    
+    const size_t Npix = M.Nx() * M.Ny();
+    
+    const auto& idx_list = _datum_index_list[epoch];
+    const auto& is1 = _is1_list[epoch];
+    const auto& is2 = _is2_list[epoch];
+    
+    for (size_t ii = 0; ii < idx_list.size(); ++ii)
+      {
+	const size_t d_idx = idx_list[ii];
+	datum_visibility& d = _data.datum(d_idx);
+	
+	const std::complex<double> err = _uncertainty.error(d);
+	const double inv_er = 1.0 / err.real();
+	const double inv_ei = 1.0 / err.imag();
+	
+	const std::complex<double> y(d.V.real() * inv_er, d.V.imag() * inv_ei);
+	
+	const size_t off = d_idx * Npix;
+	const double skd = sk[d_idx];
+	
+	std::complex<double> Vm(0.0, 0.0);
+	for (size_t k = 0; k < Npix; ++k)
+	  Vm += Iflat[k] * (skd * phase[off + k]);
+	
+	const std::complex<double> yb(Vm.real() * inv_er, Vm.imag() * inv_ei);
+	
+	const std::complex<double> g =
+	  _G[epoch][is1[ii]] * std::conj(_G[epoch][is2[ii]]);
+	
+	const std::complex<double> pred(
+					g.real() * yb.real() - g.imag() * yb.imag(),
+					g.real() * yb.imag() + g.imag() * yb.real()
+					);
+	
+	const double rr = y.real() - pred.real();
+	const double ri = y.imag() - pred.imag();
+	
+	for (size_t k = 0; k < Npix; ++k)
+	  {
+	    const std::complex<double> z = skd * phase[off + k];
+	    const std::complex<double> dzb(z.real() * inv_er, z.imag() * inv_ei);
+	    
+	    const double dp_r = g.real() * dzb.real() - g.imag() * dzb.imag();
+	    const double dp_i = g.real() * dzb.imag() + g.imag() * dzb.real();
+	    
+	    grad_I[k] += rr * dp_r + ri * dp_i;
+	  }
+      }
+  }
+  
+  
   
 };
 

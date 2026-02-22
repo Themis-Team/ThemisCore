@@ -1056,7 +1056,7 @@ int main(int argc, char* argv[])
     {
       lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],model,station_codes,station_gain_priors) );
       L.push_back( lvg[j] );
-
+      
       // Set gains if gain files are provided
       if (j<gain_file_list.size() && gain_file_list[j]!="")
       {
@@ -1608,6 +1608,7 @@ int main(int argc, char* argv[])
 
   // Make a likelihood object
   Themis::likelihood L_obj(P, L, W);
+  L_obj.use_intrinsic_likelihood_gradients();
   Themis::likelihood_power_tempered L_temp(L_obj);
   
   // double Lstart = L_obj(means);

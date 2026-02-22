@@ -23,6 +23,7 @@
 
 namespace Themis
 {
+  class model_image_adaptive_splined_raster;
 
   /*! 
     \brief Defines a likelihood that non-linearly optimizes over gain corrections with a Gaussian prior.
@@ -67,8 +68,12 @@ namespace Themis
 
     //! Returns the gradient of the log-likelihood of a vector of parameters \f$ \mathbf{x} \f$
     //! The prior permits parameter checking if required during likelihood gradient evaluation, through the gradients of the prior is applied elsewhere.
-    virtual std::vector<double> gradient(std::vector<double>& x, prior& Pr);
-     
+    // virtual std::vector<double> gradient(std::vector<double>& x, prior& Pr) override;
+    std::vector<double> gradient(std::vector<double>& x, prior& Pr) override;
+    std::vector<double> gradient_uniproc(std::vector<double>& x, prior& Pr) override;
+  private:
+    std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr);
+  public:
     //! Returns the \f$ \chi^2 \f$ of a vector of parameters \f$ \mathbf{x} \f$
     virtual double chi_squared(std::vector<double>& x);
 
@@ -134,6 +139,8 @@ namespace Themis
      model_visibility& _model;  
      uncertainty_visibility _local_uncertainty; // Default if none is passed
      uncertainty_visibility& _uncertainty;
+
+     void accumulate_pixel_grad_epoch(const model_image_adaptive_splined_raster& M, size_t epoch, std::vector<double>& grad_pix) const;
     
      std::vector<std::string> _station_codes;
      std::vector<double> _sigma_g, _max_g;

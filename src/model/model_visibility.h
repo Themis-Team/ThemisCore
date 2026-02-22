@@ -31,9 +31,28 @@ class model_visibility
 
   // Cache lifecycle control
   virtual void invalidate_phase_cache() {}
-  virtual bool uses_phase_cache() const { return false; } // delete later
   virtual bool use_cached_exp() const { return false; }
   virtual void prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& datum_indices) {} // per epoch cache (not used at the moment)
+
+    virtual bool uses_phase_cache() const { return false; }
+  virtual bool phase_cache_valid() const { return false; }
+
+  virtual size_t Nx() const { return 0; }
+  virtual size_t Ny() const { return 0; }
+
+  virtual const std::vector<std::complex<double>>& phase_cache() const {
+    static const std::vector<std::complex<double>> empty;
+    return empty;
+  }
+  virtual const std::vector<double>& spline_kernel_cache() const {
+    static const std::vector<double> empty;
+    return empty;
+  }
+  virtual const std::vector<double>& I_flat() const {
+    static const std::vector<double> empty;
+    return empty;
+  }
+
   
   //! A user-supplied one-time generate function that permits model construction prior to calling the visibility for each datum.  Takes a vector of parameters.
   virtual void generate_model(std::vector<double> parameters) = 0;

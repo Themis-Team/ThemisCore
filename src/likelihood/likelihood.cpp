@@ -88,6 +88,14 @@ namespace Themis
   
   std::vector<double> likelihood::gradient(std::vector<double>& x)
   {
+    static bool once=false;
+    if (!once) {
+      std::cerr << "[LIKELIHOOD] ENTER likelihood::gradient(vec) @" << __FILE__ << ":" << __LINE__ << "\n" << std::flush;
+      std::cerr << "[LIKELIHOOD] gradient() entered. FD=" << _use_finite_difference_gradients << "\n";
+      once=true;
+    }
+
+    
     _X.resize(x.size());
 
     // Transforms are all 1D, so the Jacobian is necessarily diagonal
@@ -114,12 +122,25 @@ namespace Themis
 
     if (_use_finite_difference_gradients)
     {
+      static bool onlyonce=false; if(!onlyonce){ std::cerr << "[LIKELIHOOD] wrapper uses FD gradients\n"; onlyonce=true; }
+      
       // Use finite differences across likelihods
       std::vector<double> grad_sub(x.size(),0.0);
       std::vector<double> y=x;
       double h;
       for (size_t i=0; i<x.size(); ++i)
       {
+
+	static bool once=false;
+	if (!once) {
+	  int wrank=-1; MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
+	  if (wrank==0) {
+	    std::cerr << "[LIKELIHOOD] calling sublikelihood i="<<i
+		      << " type="<< typeid(*_L[i]).name() << "\n";
+	  }
+	  once=true;
+	}
+
 	// Obtain adaptive stepsize
 	h = step_size(std::fabs(Pr.upper_bound(i)-Pr.lower_bound(i)));
 	
@@ -148,7 +169,29 @@ namespace Themis
       }
     }
     else
-    {
+      {
+	static bool once=false; if(!once){ std::cerr << "[LIKELIHOOD] wrapper uses intrinsic gradients\n"; once=true; }
+
+	// Likelihood contributions: loop over likelihoods and sum the gradients
+	std::vector<double> grad_sub;
+	for(size_t i=0 ; i<_W.size(); ++i)
+	  {
+	    if (i == 0) { // only once to avoid spam
+	      std::cerr << "[LIKELIHOOD] intrinsic: _L.size()=" << _L.size()
+			<< " _W.size()=" << _W.size() << "\n" << std::flush;
+	    }
+	    std::cerr << "[LIKELIHOOD] calling sublikelihood i=" << i
+		      << " type=" << typeid(*_L[i]).name()
+		      << "\n" << std::flush;
+	    
+	    grad_sub = _L[i]->gradient(_X,Pr);
+	    
+	    for (size_t j=0; j<x.size(); ++j)
+	      grad[j] += _W[i] * grad_sub[j];
+	  }
+      }
+
+      /*
       // Likelihood contributions: loop over likelihoods and sum the gradients
       std::vector<double> grad_sub;
       for(size_t i=0 ; i<_W.size(); ++i)
@@ -162,7 +205,7 @@ namespace Themis
     // Multiply by the transform Jacobian
     for (size_t j=0; j<x.size(); ++j)
       grad[j] *= jacobian[j];
-    
+      */
 
     // Return
     return grad;

@@ -71,6 +71,12 @@ namespace Themis
     private:
       double _logLikelihood;
       std::vector<double> _xlast;
+                  
+    protected:
+      MPI_Comm _comm;
+      MPI_Comm _Mcomm, _Lcomm;
+      int _L_rank, _L_size;
+      int _N_model;
 
       inline double step_size(double u)
       {
@@ -78,13 +84,7 @@ namespace Themis
 	return cbrt_epsilon * std::fabs(u); // Now u must be a non-zero scale!
 	//return cbrt_epsilon * std::fmax(1.0, std::fabs(u));
       }
-                  
-    protected:
-      MPI_Comm _comm;
-      MPI_Comm _Mcomm, _Lcomm;
-      int _L_rank, _L_size;
-      int _N_model;
-      
+
       //! Outputs the data and model, as modified by the likelihood appropriately,
       //! to the specified output stream.  Useful for comparison later.  ASSUMES that
       //! only process 0 on _comm is outputting.
@@ -98,7 +98,7 @@ namespace Themis
       int _local_size, _global_size;
       double *_grad_local_buff, *_grad_global_buff;
       size_t _size;
-      
+
   };
 
 };

@@ -138,8 +138,15 @@ namespace Themis {
         const double new_fovy = parameters[_size-2];
         const double new_pa   = parameters[_size-1];
 	
-        if (new_fovx != old_fovx || new_fovy != old_fovy || new_pa != old_pa)
+        if (new_fovx != old_fovx || new_fovy != old_fovy || new_pa != old_pa) 
           phase_cache_valid_ = false;
+	// phase_cache_valid_ = true;
+	
+	//   static bool onlyonce=true;
+	//   if (onlyonce) {
+	//     std::cerr<<"WOEWOEWOE...! phase_cache_valid_ = true;"<<std::endl;
+	//     onlyonce=false;
+	//   }
       }
 
     

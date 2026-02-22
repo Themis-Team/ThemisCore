@@ -58,6 +58,18 @@ class model_image_adaptive_splined_raster : public model_image
   enum class VisibilityCacheMode {None, Global, EpochLocal};
   VisibilityCacheMode cache_mode_ = VisibilityCacheMode::Global;
 
+  size_t Nx() const { return _Nx; }
+  size_t Ny() const { return _Ny; }
+
+  // Cache / raster accessors for analytic pixel gradients (read-only).
+  // Valid only when _use_cached_exp && phase_cache_valid_ and cache_mode_ == Global.
+  const std::vector<std::complex<double>>& phase_cache() const { return phase_cache_; }
+  const std::vector<double>& spline_kernel_cache() const { return spline_kernel_cache_; }
+  const std::vector<double>& I_flat() const { return _I_flat; }
+
+  size_t cached_Nd() const { return cached_Nd_; }
+  bool phase_cache_valid() const { return phase_cache_valid_; }
+  bool use_cached_exp_getter() const { return _use_cached_exp; }
   
  private:
   std::vector<double> _I_flat; // turns out the compiler really likes flattening _I into a 1d structure 
