@@ -1513,6 +1513,8 @@ namespace Themis
   
   double likelihood_optimal_complex_gain_visibility::optimal_complex_gains(std::vector< std::complex<double> >& y, std::vector< std::complex<double> >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector< std::complex<double> >& gest)
   {
+    utils::ScopedTimer T(utils::TimerID::GainsSolveTotal, timer_ns_, timer_calls_);
+    
     std::vector<std::complex<double> > gest_best = gest;
     double marg_best = -1;
     double chisq_best = std::numeric_limits<double>::infinity();
@@ -2486,6 +2488,64 @@ namespace Themis
       }
   }
   
+
+     // Profiling                                                                                                  
+  void likelihood_optimal_complex_gain_visibility::print_timing_summary(int mpi_rank) const
+  {
+    // static const char* names[] = {
+    static constexpr std::array<const char*, (size_t)Themis::utils::TimerID::COUNT> names = {{
+      "GenerateModel",
+      "GenerateImage",
+      "UpdatePhaseCache",
+      "VisibilitySingle",
+      "VisibilityCached",
+      "VisibilityCached_Rotation",
+      "VisibilityCached_Loop",
+      "VisibilityCached_Kernel",
+      "VisibilityCached_Scale",
+      "VisibilityNumerical",
+      "ClosurePhase",
+      "ClosureAmplitude",
+      "GradientTotal",
+      "GradientEnsureGains",
+      "GradientFiniteDiff",
+      "GainsDistributeTotal",
+      "GainsMPIAllreduce",
+      "GainsSolveTotal",
+      "GainsSolveTrial",
+      "GainsSolveLogTrial",
+      "LikelihoodEpochTotal",
+      "LikelihoodMultiprocTotal",
+      "LikelihoodModelVisBuild",
+      "LikelihoodVectorPack",
+      "LikelihoodDirectTerm",
+      "LikelihoodScalarAllreduce",
+      "GradientBatchedBarrier",
+      "GradientBatchedAllreduce"
+      }};
+    static_assert(names.size() == (size_t)Themis::utils::TimerID::COUNT);
+
+    if (mpi_rank < 0) {
+      MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    }
+
+    std::cout << "\n===== Profiling summary (rank "
+              << mpi_rank << ") =====\n";
+
+    for (size_t i = 0; i < (size_t)utils::TimerID::COUNT; ++i) {
+      double ms = timer_ns_[i] / 1.0e6;
+      std::uint64_t n = timer_calls_[i];
+      double avg = (n > 0) ? ms / n : 0.0;
+
+      std::cout << std::setw(24) << names[i]
+                << " : total = " << ms << " ms"
+                << ", calls = " << n
+                << ", avg = " << avg << " ms/call\n";
+    }
+    std::cout << "=================================\n\n";
+  }
+
+
   
   
 };

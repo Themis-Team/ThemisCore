@@ -97,7 +97,7 @@ endif
 export IFLAGS=-I$(THEMISDIR)/data -I$(THEMISDIR)/likelihood -I$(THEMISDIR)/model -I$(THEMISDIR)/sampling -I$(THEMISDIR)/util -I$(THEMISDIR)/optimizing -I$(THEMISDIR)/VRT2/include -I$(FFTW_INCLUDE_DIR) -isystem$(THEMISDIR)/themistan/stan/src -I$(THEMISDIR)/themistan/stan/./src/ -I$(THEMISDIR)/themistan/stan/lib/stan_math -I$(THEMISDIR)/LBFGSpp/include -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/eigen_3.3.3 -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/boost_1.72.0 -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/sundials_4.1.0/include/ -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb_2019_U8/include/ -isystem$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb -I$(THEMISDIR)/themistan $(TORCH_IFLAGS)
 
 ## Linker flags
-LFLAGS=-L$(FFTW_LIB_DIR) -L$(THEMISDIR)/VRT2/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/boost_1.72.0/stage/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb_2019_U8/include -Wl,-L,"$(TBB_BIN_ABSOLUTE_PATH)" -Wl,-rpath,"$(TBB_BIN_ABSOLUTE_PATH)" $(HDF5_LAGS)
+LFLAGS=-L$(FFTW_LIB_DIR) -L$(THEMISDIR)/VRT2/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/boost_1.72.0/stage/lib -L$(THEMISDIR)/themistan/stan/lib/stan_math/lib/tbb_2019_U8/include -Wl,-L,"$(TBB_BIN_ABSOLUTE_PATH)" -Wl,-rpath,"$(TBB_BIN_ABSOLUTE_PATH)" $(HDF5_LFLAGS)
 LIBS=$(TORCH_LFLAGS) -lm -lfftw3 -lvrt2 -ltbb $(HDF5_LIBS)
 
 #export HDF5_MPI="ON"

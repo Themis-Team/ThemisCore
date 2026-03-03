@@ -58,6 +58,8 @@ class model_image_adaptive_splined_raster : public model_image
   enum class VisibilityCacheMode {None, Global, EpochLocal};
   VisibilityCacheMode cache_mode_ = VisibilityCacheMode::Global;
 
+  void set_debug_context(int c) { debug_context_ = c; } // 0=normal, 1=FD_probe, 2=restore
+  
   size_t Nx() const { return _Nx; }
   size_t Ny() const { return _Ny; }
 
@@ -65,6 +67,17 @@ class model_image_adaptive_splined_raster : public model_image
   // Valid only when _use_cached_exp && phase_cache_valid_ and cache_mode_ == Global.
   const std::vector<std::complex<double>>& phase_cache() const { return phase_cache_; }
   const std::vector<double>& spline_kernel_cache() const { return spline_kernel_cache_; }
+  const std::vector<double>& spline_kernel_dfovx_cache() const override { return spline_kernel_dfovx_cache_; }
+  const std::vector<double>& spline_kernel_dfovy_cache() const override { return spline_kernel_dfovy_cache_; }
+  const std::vector<double>& spline_kernel_dpa_cache()   const override { return spline_kernel_dpa_cache_; }
+  /*
+  std::vector<double> dK_fovx_cache_;
+  std::vector<double> dK_fovy_cache_;
+  std::vector<double> dK_pa_cache_;
+  const std::vector<double>& dK_fovx_cache() const override { return dK_fovx_cache_; }
+  const std::vector<double>& dK_fovy_cache() const override { return dK_fovy_cache_; }
+  const std::vector<double>& dK_pa_cache()   const override { return dK_pa_cache_; }
+  */
   const std::vector<double>& I_flat() const { return _I_flat; }
 
   size_t cached_Nd() const { return cached_Nd_; }
@@ -82,6 +95,13 @@ class model_image_adaptive_splined_raster : public model_image
   // for precomputed spline kernel
   bool kernel_valid_ = false;
   std::vector<double> spline_kernel_cache_;
+  std::vector<double> spline_kernel_dfovx_cache_;
+  std::vector<double> spline_kernel_dfovy_cache_;
+  std::vector<double> spline_kernel_dpa_cache_;
+
+  double cubic_spline_kernel_1d_prime(double k) const;
+  
+  int debug_context_ = 0;
   
 public:
   //! Constructs a model_image_splined_raster object.  Takes the extents and number of pixels in each directions (xmin and xmax are the locations of the minimum and maximum pixel centers, etc.).

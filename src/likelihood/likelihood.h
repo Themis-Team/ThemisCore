@@ -68,6 +68,10 @@ namespace Themis
           return Pr.lognorm();
       }
 
+
+      void set_sublikelihood_gradient_mode(likelihood_base::GradientMode m);
+
+    
       //! Gradient operator
       virtual std::vector<double> gradient(std::vector<double>&);
 

@@ -46,7 +46,22 @@ namespace Themis
       virtual std::vector<double> gradient(std::vector<double>& x, prior& Pr);
 
       virtual std::vector<double> gradient_uniproc(std::vector<double>& x, prior& Pr);      
-      
+
+
+    enum class GradientMode : int {
+      FD_ALL = 0,              // force FD in sub-likelihood (calls gradient_uniproc)
+      HYBRID_INTENSITY = 1,    // analytic pixels only
+      HYBRID_INTENSITY_GEOM = 2// analytic pixels + fovx/fovy/pa (and later shifts)
+    };
+    
+    virtual void set_gradient_mode(GradientMode m) { _grad_mode = m; }
+    GradientMode gradient_mode() const { return _grad_mode; }
+    
+  protected:
+    GradientMode _grad_mode = GradientMode::HYBRID_INTENSITY_GEOM; // pick a sane default for your current work
+
+    
+  public:
       //! Returns the \f$ \chi^2 \f$ of a vector of parameters \f$ \mathbf{x} \f$
       virtual double chi_squared(std::vector<double>& x);
 

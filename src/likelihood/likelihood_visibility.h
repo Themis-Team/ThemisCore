@@ -13,6 +13,7 @@
 #include "data_visibility.h"
 #include "model_visibility.h"
 #include "uncertainty_visibility.h"
+#include "model_image_adaptive_splined_raster.h"
 
 #include <mpi.h>
 
@@ -41,6 +42,10 @@ namespace Themis{
       
       virtual double operator()(std::vector<double>& x);
       virtual double chi_squared(std::vector<double>& x);
+
+      // Likelihood-only gradient (prior is handled in likelihood::gradient wrapper)
+      std::vector<double> gradient(std::vector<double>& x, prior& Pr) override;  // for analytic diff
+      std::vector<double> gradient_uniproc(std::vector<double>& x, prior& Pr) override;  // for analytic diff
     
       //! Defines a set of processors provided to the model for parallel computation via an MPI communicator.  Only facilates code parallelization if the model computation is parallelized via MPI.
       virtual void set_mpi_communicator(MPI_Comm comm);
@@ -57,6 +62,8 @@ namespace Themis{
       uncertainty_visibility _local_uncertainty; // Default if none is passed
       uncertainty_visibility& _uncertainty;
       bool _use_cached_exp = false;
+      std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr); // for analytic diff
+      std::vector<double> gradient_dispatch_(std::vector<double>& x, prior& Pr);
   };
 };
 

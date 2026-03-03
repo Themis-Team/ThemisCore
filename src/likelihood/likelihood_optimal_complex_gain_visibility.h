@@ -18,7 +18,7 @@
 #include "data_visibility.h"
 #include "model_visibility.h"
 #include "uncertainty_visibility.h"
-
+#include "utils.h"
 #include <mpi.h>
 
 namespace Themis
@@ -126,7 +126,9 @@ namespace Themis
 
     //! Assume that the gain corrections are not correlated
     void assume_independently_varying_gains();
-    
+
+    void print_timing_summary(int) const;
+
   protected:
 
     //! Outputs the data and model, as modified by the likelihood appropriately,
@@ -220,6 +222,12 @@ namespace Themis
 
      std::vector<double> _x_last;
      double _L_last;
+
+    // Profiling                                                                           
+    mutable std::array<std::uint64_t,(size_t)utils::TimerID::COUNT> timer_ns_{};
+    mutable std::array<std::uint64_t,(size_t)utils::TimerID::COUNT> timer_calls_{};
+
+
   };
   
 };

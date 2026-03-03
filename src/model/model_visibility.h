@@ -37,6 +37,22 @@ class model_visibility
     virtual bool uses_phase_cache() const { return false; }
   virtual bool phase_cache_valid() const { return false; }
 
+
+  // Optional cache derivatives for analytic geometry gradients (default empty).
+virtual const std::vector<double>& dK_fovx_cache() const {
+  static const std::vector<double> empty;
+  return empty;
+}
+virtual const std::vector<double>& dK_fovy_cache() const {
+  static const std::vector<double> empty;
+  return empty;
+}
+virtual const std::vector<double>& dK_pa_cache() const {
+  static const std::vector<double> empty;
+  return empty;
+}
+  
+  
   virtual size_t Nx() const { return 0; }
   virtual size_t Ny() const { return 0; }
 
@@ -48,6 +64,20 @@ class model_visibility
     static const std::vector<double> empty;
     return empty;
   }
+  
+  virtual const std::vector<double>& spline_kernel_dfovx_cache() const {
+    static const std::vector<double> empty;
+    return empty;
+  }
+  virtual const std::vector<double>& spline_kernel_dfovy_cache() const {
+    static const std::vector<double> empty;
+    return empty;
+  }
+  virtual const std::vector<double>& spline_kernel_dpa_cache() const {
+    static const std::vector<double> empty;
+    return empty;
+  }
+  
   virtual const std::vector<double>& I_flat() const {
     static const std::vector<double> empty;
     return empty;

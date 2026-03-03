@@ -121,68 +121,126 @@ namespace Themis {
     // profiling
     ScopedTimer T(TimerID::GenerateModel, timer_ns_, timer_calls_);
 
-    // // Parameters changed → cached phases invalid
-    // if (!_current_parameters.empty() && parameters != _current_parameters) {
-    //   phase_cache_valid_ = false;
-    // }
-
-    // Invalidate phase cache ONLY when geometry changes (FOVx, FOVy, PA).
-    // Intensity parameter changes do NOT invalidate cached phases.
-    if (!_current_parameters.empty())
-      {
-        const double old_fovx = _current_parameters[_size-3];
-        const double old_fovy = _current_parameters[_size-2];
-        const double old_pa   = _current_parameters[_size-1];
-	
-        const double new_fovx = parameters[_size-3];
-        const double new_fovy = parameters[_size-2];
-        const double new_pa   = parameters[_size-1];
-	
-        if (new_fovx != old_fovx || new_fovy != old_fovy || new_pa != old_pa) 
-          phase_cache_valid_ = false;
-	// phase_cache_valid_ = true;
-	
-	//   static bool onlyonce=true;
-	//   if (onlyonce) {
-	//     std::cerr<<"WOEWOEWOE...! phase_cache_valid_ = true;"<<std::endl;
-	//     onlyonce=false;
-	//   }
-      }
-
+    static bool once=false;
+    if (!once) {
+      std::cerr << std::setprecision(17)
+		<< "PARAMS tail5: "
+		<< parameters[_size-5] << " "
+		<< parameters[_size-4] << " "
+		<< parameters[_size-3] << " "
+		<< parameters[_size-2] << " "
+		<< parameters[_size-1] << "\n";
+      once=true;
+    }
     
+    if (_generated_model && parameters==_current_parameters)
+      {
+	return;
+      }
+    else // parameters have changed
+      {
+	static uint64_t inv_fovx=0, inv_fovy=0, inv_pa=0, inv_shiftx=0, inv_shifty=0, inv_other=0, calls=0; ++calls;
+	
+	// Invalidate phase cache ONLY when geometry changes (FOVx, FOVy, PA).
+	// Intensity parameter changes do NOT invalidate cached phases.
+	if (!_current_parameters.empty())
+	  {
+	    int world_rank;
+	    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+
+	    auto changed = [&](double a, double b) { return a != b; /* temporarily */ };
+	    
+	    const double old_fovx = _current_parameters[_size-3];
+	    const double old_fovy = _current_parameters[_size-2];
+	    const double old_pa   = _current_parameters[_size-1];
+	    
+	    const double new_fovx = parameters[_size-3];
+	    const double new_fovy = parameters[_size-2];
+	    const double new_pa   = parameters[_size-1];
+	    
+	    auto dump_change = [&](const char* name, double newv, double oldv)
+	    {
+	      if (world_rank==0) 
+	      std::cerr << std::setprecision(17)
+			<< name << " old=" << oldv
+			<< " new=" << newv
+			<< " diff=" << (newv - oldv)
+			<< std::endl;
+	    };
+
+	    static int idx_fovx = _size-3;
+	    static int idx_fovy = _size-2;
+	    static int idx_pa = _size-1;
+	    static int idx_shiftx = _size-5;
+	    static int idx_shifty = _size-4;
+	    if (changed(parameters[idx_fovx], _current_parameters[idx_fovx])) {
+	      ++inv_fovx;
+	      dump_change("fovx", parameters[idx_fovx], _current_parameters[idx_fovx]);
+	    }
+	    if (changed(parameters[idx_fovy], _current_parameters[idx_fovy])) {
+	      ++inv_fovy;
+	      dump_change("fovy", parameters[idx_fovy], _current_parameters[idx_fovy]);
+	    }
+	    if (changed(parameters[idx_pa], _current_parameters[idx_pa])) {
+	      ++inv_pa;
+	      dump_change("pa", parameters[idx_pa], _current_parameters[idx_pa]);
+	    }  
+
+	    if (debug_context_ == 2) std::cerr << "[RESTORE] ...";
+	    if (debug_context_ == 1) std::cerr << "[FD] ...";
+
+	    if (new_fovx != old_fovx || new_fovy != old_fovy || new_pa != old_pa) 
+	      phase_cache_valid_ = false;
+	    // phase_cache_valid_ = true;
+	    
+	    //   static bool onlyonce=true;
+	    //   if (onlyonce) {
+	    //     std::cerr<<"WOEWOEWOE...! phase_cache_valid_ = true;"<<std::endl;
+	    //     onlyonce=false;
+	    //   }
+	  }
+	int world_rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+	
+	if ((calls % 1000)==0 && world_rank==0) std::cerr<<"counters: "<< inv_fovx<<","<<inv_fovy<<","<<inv_pa<<","<<inv_shiftx<<","<<inv_shifty<<","<<inv_other<<","<<calls<<std::endl;
+	
     // if (_use_cached_exp && !phase_cache_valid_ && !_data->empty()) {
+/*
     if (_generated_model && parameters==_current_parameters)
       {
 	return;
       }
     else // parameters have changed
     {
-      _current_parameters = parameters;
-
-      // Set the fov
-      _xmin = -0.5*parameters[_size-3];
-      _xmax =  0.5*parameters[_size-3];
-      _ymin = -0.5*parameters[_size-2];
-      _ymax =  0.5*parameters[_size-2];
-      _tpdx = 2.*M_PI*(_xmax-_xmin)/(_Nx-1);
-      _tpdy = 2.*M_PI*(_ymax-_ymin)/(_Ny-1); 
-      _cpa = std::cos(parameters[_size-1]);
-      _spa = std::sin(parameters[_size-1]);
-
-      
-      // Generate the image using the user-supplied routine
-      // generate_image(parameters,_I,_alpha,_beta); // 2d version
-      generate_image(parameters,_I,_I_flat,_alpha,_beta); // 1d version (faster)
-      
-      // Set some boolean flags for what is and is not defined
-      _generated_model = true;
-      _generated_visibilities = false;
-
-      // rebuild cache, some catch statements to guard memory errors
-      if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_)
-	if (cache_mode_ == VisibilityCacheMode::Global) 
-	  update_phase_cache_all_data(*_data);
-    }
+*/
+	_current_parameters = parameters;
+	
+	// Set the fov
+	_xmin = -0.5*parameters[_size-3];
+	_xmax =  0.5*parameters[_size-3];
+	_ymin = -0.5*parameters[_size-2];
+	_ymax =  0.5*parameters[_size-2];
+	_tpdx = 2.*M_PI*(_xmax-_xmin)/(_Nx-1);
+	_tpdy = 2.*M_PI*(_ymax-_ymin)/(_Ny-1); 
+	_cpa = std::cos(parameters[_size-1]);
+	_spa = std::sin(parameters[_size-1]);
+	
+	
+	// Generate the image using the user-supplied routine
+	// generate_image(parameters,_I,_alpha,_beta); // 2d version
+	generate_image(parameters,_I,_I_flat,_alpha,_beta); // 1d version (faster)
+	
+	// Set some boolean flags for what is and is not defined
+	_generated_model = true;
+	_generated_visibilities = false;
+	
+	// rebuild cache, some catch statements to guard memory errors
+	if (_use_cached_exp && _data && !_data->empty() && !phase_cache_valid_)
+	  if (cache_mode_ == VisibilityCacheMode::Global) {
+	    update_phase_cache_all_data(*_data);
+	    phase_cache_valid_ = true;
+	  }
+      }
   }
 
   std::string model_image_adaptive_splined_raster::model_tag() const
@@ -321,13 +379,131 @@ namespace Themis {
 
     phase_cache_.resize(Npix * Nd);
     spline_kernel_cache_.resize(Nd);
+    // never used in here ...
+    spline_kernel_dfovx_cache_.resize(Nd);
+    spline_kernel_dfovy_cache_.resize(Nd);
+    spline_kernel_dpa_cache_.resize(Nd);
+
+
+
+    const double fovx = (_xmax - _xmin);
+const double fovy = (_ymax - _ymin);
+
+const double inv_nx1 = 1.0 / double(_Nx - 1);
+const double inv_ny1 = 1.0 / double(_Ny - 1);
+
+const double dxdy = fovx * fovy * inv_nx1 * inv_ny1;
+
+// derivatives of dxdy wrt fovx/fovy (avoid dividing by tiny fov values)
+const double d_dxdy_dfovx = fovy * inv_nx1 * inv_ny1;
+const double d_dxdy_dfovy = fovx * inv_nx1 * inv_ny1;
+
+// derivatives of tpdx/tpdy wrt fovx/fovy (tpdx = 2π fovx/(Nx-1), etc.)
+const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
+const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
+
+
+    
 
     for (size_t d = 0; d < Nd; ++d) {
 	// Counter-rotate point
 	const double ur =  _cpa*data[d].u + _spa*data[d].v;
 	const double vr = -_spa*data[d].u + _cpa*data[d].v;
+
 	// caching splines
 	spline_kernel_cache_[d] = cubic_spline_kernel(ur, vr) * (_alpha[1][1] - _alpha[0][0]) * (_beta[1][1] - _beta[0][0]);
+
+
+
+
+// Precompute once outside the d-loop:
+const double fovx = (_xmax - _xmin);
+const double fovy = (_ymax - _ymin);
+const double inv_nx1 = 1.0 / double(_Nx - 1);
+const double inv_ny1 = 1.0 / double(_Ny - 1);
+
+// dxdy = fovx/(Nx-1) * fovy/(Ny-1)
+const double dxdy = fovx * fovy * inv_nx1 * inv_ny1;
+const double d_dxdy_dfovx = fovy * inv_nx1 * inv_ny1;
+const double d_dxdy_dfovy = fovx * inv_nx1 * inv_ny1;
+
+// tpdx = 2π fovx/(Nx-1), tpdy = 2π fovy/(Ny-1)
+const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
+const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
+
+// Inside the datum loop (for each d):
+const double ku  = ur * _tpdx;     // MUST match cubic_spline_kernel()
+const double kv  = vr * _tpdy;
+
+const double Ku  = cubic_spline_kernel_1d(ku);
+const double Kv  = cubic_spline_kernel_1d(kv);
+const double Kup = cubic_spline_kernel_1d_prime(ku); // d/d(ku)
+const double Kvp = cubic_spline_kernel_1d_prime(kv); // d/d(kv)
+
+const double kernel = Ku * Kv;
+
+// Keep the *exact* K used by cached visibility:
+spline_kernel_cache_[d] = dxdy * kernel;
+
+// dK/dfovx = d(dxdy)/dfovx * kernel + dxdy * dKu/dfovx * Kv
+// dKu/dfovx = Kup * d(ku)/dfovx,  ku = ur * tpdx
+// d(ku)/dfovx = ur * d(tpdx)/dfovx
+spline_kernel_dfovx_cache_[d] =
+  d_dxdy_dfovx * kernel
+  + dxdy * (Kup * (ur * dtpdx_dfovx)) * Kv;
+
+// dK/dfovy similarly (kv = vr * tpdy)
+spline_kernel_dfovy_cache_[d] =
+  d_dxdy_dfovy * kernel
+  + dxdy * Ku * (Kvp * (vr * dtpdy_dfovy));
+
+// dK/dpa: dxdy,tpdx,tpdy independent of pa; only ur,vr depend on pa
+// dur/dpa = vr ; dvr/dpa = -ur
+// d(ku)/dpa = tpdx * dur/dpa = _tpdx * vr
+// d(kv)/dpa = tpdy * dvr/dpa = _tpdy * (-ur)
+spline_kernel_dpa_cache_[d] =
+  dxdy * ( (Kup * (_tpdx * vr)) * Kv
+           + Ku * (Kvp * (_tpdy * (-ur))) );
+
+
+
+
+	
+	/*
+	const double ku = ur * _tpdx;
+const double kv = vr * _tpdy;
+
+const double Ku  = cubic_spline_kernel_1d(ku);
+const double Kv  = cubic_spline_kernel_1d(kv);
+const double Kup = cubic_spline_kernel_1d_prime(ku);
+const double Kvp = cubic_spline_kernel_1d_prime(kv);
+
+const double kernel = Ku * Kv;
+
+// store the same prefactor you already use in cached visibility:
+spline_kernel_cache_[d] = dxdy * kernel;
+	
+// partials of kernel wrt u,v and tpdx,tpdy
+const double dk_du    = (Kup / _tpdx) * Kv;
+const double dk_dv    = Ku * (Kvp / _tpdy);
+
+const double dk_dtpdx = Kup * (-ur / (_tpdx * _tpdx)) * Kv;
+const double dk_dtpdy = Ku * (Kvp * (-vr / (_tpdy * _tpdy)));
+
+// K = dxdy * kernel
+// dK/dfovx = d(dxdy)/dfovx * kernel + dxdy * (dk/dtpdx) * d(tpdx)/dfovx
+spline_kernel_dfovx_cache_[d] = d_dxdy_dfovx * kernel + dxdy * (dk_dtpdx * dtpdx_dfovx);
+
+// dK/dfovy similarly
+spline_kernel_dfovy_cache_[d] = d_dxdy_dfovy * kernel + dxdy * (dk_dtpdy * dtpdy_dfovy);
+
+// dK/dpa: dxdy * (dk/du * du/dpa + dk/dv * dv/dpa)
+// with du/dpa = vr and dv/dpa = -ur in your rotation convention:
+spline_kernel_dpa_cache_[d] = dxdy * (dk_du * vr - dk_dv * ur);
+	*/
+
+
+
 	size_t k = 0;
       for (size_t i = 0; i < _Nx; ++i)
 	for (size_t j = 0; j < _Ny; ++j, ++k) {
@@ -357,6 +533,25 @@ namespace Themis {
     // Resize cache to EXACTLY the provided data span
     phase_cache_.resize(Npix * Nd);
     spline_kernel_cache_.resize(Nd);
+    spline_kernel_dfovx_cache_.resize(Nd);
+    spline_kernel_dfovy_cache_.resize(Nd);
+    spline_kernel_dpa_cache_.resize(Nd);
+
+    const double fovx = (_xmax - _xmin);
+    const double fovy = (_ymax - _ymin);
+    
+    const double inv_nx1 = 1.0 / double(_Nx - 1);
+    const double inv_ny1 = 1.0 / double(_Ny - 1);
+    
+    const double dxdy = fovx * fovy * inv_nx1 * inv_ny1;
+    
+    // derivatives of dxdy wrt fovx/fovy (avoid dividing by tiny fov values)
+    const double d_dxdy_dfovx = fovy * inv_nx1 * inv_ny1;
+    const double d_dxdy_dfovy = fovx * inv_nx1 * inv_ny1;
+    
+    // derivatives of tpdx/tpdy wrt fovx/fovy (tpdx = 2π fovx/(Nx-1), etc.)
+    const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
+    const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
     
     for (size_t d = 0; d < Nd; ++d)
       {
@@ -365,10 +560,74 @@ namespace Themis {
 	const double vr = -_spa*data[d].u + _cpa*data[d].v;
 	
 	// Cache spline kernel for THIS datum index
+
+	/*
 	spline_kernel_cache_[d] =
 	  cubic_spline_kernel(ur, vr)
 	  * (_alpha[1][1] - _alpha[0][0])
 	  * (_beta [1][1] - _beta [0][0]);
+	  */
+
+
+	const double ku = ur * _tpdx;
+	const double kv = vr * _tpdy;
+	
+	const double Ku  = cubic_spline_kernel_1d(ku);
+	const double Kv  = cubic_spline_kernel_1d(kv);
+	const double Kup = cubic_spline_kernel_1d_prime(ku);
+	const double Kvp = cubic_spline_kernel_1d_prime(kv);
+	
+	const double kernel = Ku * Kv;
+	
+	// store the same prefactor you already use in cached visibility:
+	// spline_kernel_cache_[d] = dxdy * kernel;
+	// MUST match cached visibility path:
+	// return spline_kernel_cache_[d_idx] * V;
+	const double dx = (_alpha[1][1] - _alpha[0][0]);
+	const double dy = (_beta [1][1] - _beta [0][0]);
+	spline_kernel_cache_[d] = cubic_spline_kernel(ur, vr) * dx * dy;
+
+
+	// dK/dfovx = d(dxdy)/dfovx * kernel + dxdy * dKu/dfovx * Kv
+	// ku = ur * tpdx, tpdx = 2π fovx/(Nx-1)  => dku/dfovx = ur * dtpdx/dfovx
+	spline_kernel_dfovx_cache_[d] =
+	  d_dxdy_dfovx * kernel
+	  + dxdy * (Kup * (ur * dtpdx_dfovx)) * Kv;
+	
+	// dK/dfovy similarly
+	spline_kernel_dfovy_cache_[d] =
+	  d_dxdy_dfovy * kernel
+	  + dxdy * Ku * (Kvp * (vr * dtpdy_dfovy));
+	
+	// dK/dpa: tpdx,t pdy,dxdy independent of pa; only ur,vr depend on pa.
+	// dur/dpa = vr ; dvr/dpa = -ur
+	// dKu/dpa = Kup * dku/dpa = Kup * (tpdx * dur/dpa) = Kup * (tpdx * vr)
+	// dKv/dpa = Kvp * dkv/dpa = Kvp * (tpdy * dvr/dpa) = Kvp * (tpdy * (-ur))
+	spline_kernel_dpa_cache_[d] =
+	  dxdy * ( (Kup * (_tpdx * vr)) * Kv
+		   + Ku * (Kvp * (_tpdy * (-ur))) );
+	
+	/*
+	
+	// partials of kernel wrt u,v and tpdx,tpdy
+	const double dk_du    = (Kup / _tpdx) * Kv;
+	const double dk_dv    = Ku * (Kvp / _tpdy);
+	
+	const double dk_dtpdx = Kup * (-ur / (_tpdx * _tpdx)) * Kv;
+	const double dk_dtpdy = Ku * (Kvp * (-vr / (_tpdy * _tpdy)));
+	
+	// K = dxdy * kernel
+	// dK/dfovx = d(dxdy)/dfovx * kernel + dxdy * (dk/dtpdx) * d(tpdx)/dfovx
+	spline_kernel_dfovx_cache_[d] = d_dxdy_dfovx * kernel + dxdy * (dk_dtpdx * dtpdx_dfovx);
+	
+	// dK/dfovy similarly
+	spline_kernel_dfovy_cache_[d] = d_dxdy_dfovy * kernel + dxdy * (dk_dtpdy * dtpdy_dfovy);
+	
+	// dK/dpa: dxdy * (dk/du * du/dpa + dk/dv * dv/dpa)
+	// with du/dpa = vr and dv/dpa = -ur in your rotation convention:
+	spline_kernel_dpa_cache_[d] = dxdy * (dk_du * vr - dk_dv * ur);
+
+	*/
 	
 	size_t k = 0;
 	for (size_t i = 0; i < _Nx; ++i)
@@ -574,5 +833,78 @@ namespace Themis {
   {
     return cubic_spline_kernel_1d(u0*_tpdx)*cubic_spline_kernel_1d(v0*_tpdy);
   }
+  /*
+double model_image_adaptive_splined_raster::cubic_spline_kernel_1d_prime(double k) const
+{
+  if (std::fabs(k) < 1e-2) {
+    // G(k) = 1 - (2a-1)k^2/15 + (16a+1)k^4/560 + ...
+    // G'(k)= -2(2a-1)k/15 + 4(16a+1)k^3/560
+    const double a = _a;
+    return -(2.0*(2.0*a - 1.0)/15.0)*k + ((16.0*a + 1.0)/140.0)*k*k*k;
+  } else {
+    const double a  = _a;
+    const double sk = std::sin(k);
+    const double ck = std::cos(k);
+    const double s2 = 2.0*sk*ck;                 // sin(2k)
+    const double c2 = ck*ck - sk*sk;             // cos(2k)
 
+    const double A  = 2.0*a*ck + (4.0*a + 3.0);  // 2a cos k + (4a+3)
+    const double B  = a*(1.0 - c2) + 2.0*(1.0 - ck);
+
+    // term1 = -4 sin(k) A / k^3
+    // term2 =  12 B / k^4
+    // term1' = -4[ (cos k A - 2a sin^2 k)/k^3 - 3 sin k A / k^4 ]
+    // term2' = 12[ B'/k^4 - 4B/k^5 ],  B' = 2 sin k (2a cos k + 1)
+    const double k2 = k*k;
+    const double k3 = k2*k;
+    const double k4 = k2*k2;
+    const double k5 = k4*k;
+
+    const double d_sinA = ck*A - 2.0*a*sk*sk;            // d/dk[ sin(k)*A ]
+    const double sinA   = sk*A;
+
+    const double term1p = -4.0*( d_sinA / k3 - 3.0*sinA / k4 );
+
+    const double Bp     = 2.0*sk*(2.0*a*ck + 1.0);
+    const double term2p = 12.0*( Bp / k4 - 4.0*B / k5 );
+
+    return term1p + term2p;
+  }
+}
+*/   
+  double model_image_adaptive_splined_raster::cubic_spline_kernel_1d_prime(double k) const
+  {
+    const double a = _a;
+    const double absk = std::fabs(k);
+    
+    if (absk < 1e-2) {
+      const double A = (2.0*a - 1.0)/15.0;
+      const double B = (16.0*a + 1.0)/560.0;
+      return (-2.0*A)*k + (4.0*B)*k*k*k;
+    }
+    
+    const double sk = std::sin(k);
+    const double ck = std::cos(k);
+    const double c2k = std::cos(2.0*k);
+    const double b = 4.0*a + 3.0;
+    
+    const double k2 = k*k;
+    const double k4 = k2*k2;
+    const double k5 = k4*k;
+    
+    // N1 = -4 sin(k) (2a cos(k) + b)
+    const double N1  = -4.0 * sk * (2.0*a*ck + b);
+    // N1' = d/dk N1 = -8a cos(2k) - 4b cos(k)
+    const double N1p = -8.0*a*c2k - 4.0*b*ck;
+    
+    // N2 = 12 ( a(1-cos(2k)) + 2(1-cos(k)) )
+    const double N2  = 12.0 * ( a*(1.0 - c2k) + 2.0*(1.0 - ck) );
+    // N2' = 24 sin(k) (1 + 2a cos(k))
+    const double N2p = 24.0 * sk * (1.0 + 2.0*a*ck);
+    
+    const double dterm1 = (N1p * k - 3.0*N1) / k4;
+    const double dterm2 = (N2p * k - 4.0*N2) / k5;
+    return dterm1 + dterm2;
+  }
+  
 };

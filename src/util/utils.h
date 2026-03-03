@@ -12,7 +12,8 @@
 #include <vector>
 #include <complex>
 #include <sys/stat.h>
-
+#include <chrono>
+#include <array>
 
 #ifndef THEMISPATH
 #define THEMISPATH ("./")
@@ -124,10 +125,74 @@ namespace Themis {
 
       // Create and return complex number.
       return std::complex<double>( c*norm, s*norm );
+    }
+
+    // ---------- PROFILING ----------                                                                                            
+    void print_timing_summary(int mpi_rank = -1);
+    extern std::chrono::duration<double> t_lookup_only_;
+    extern std::chrono::duration<double> t_visibility_total_;
+    
+    enum class TimerID {
+      GenerateModel,
+      GenerateImage,
+      UpdatePhaseCache,
+      VisibilitySingle,
+      VisibilityCached,
+      
+      VisibilityCached_Rotation,
+      VisibilityCached_Loop,
+      VisibilityCached_Kernel,
+      VisibilityCached_Scale,
+      
+      VisibilityNumerical,
+      ClosurePhase,
+      ClosureAmplitude,
+      GradientTotal,
+      GradientEnsureGains,
+      GradientFiniteDiff,
+      GainsDistributeTotal,
+      GainsMPIAllreduce,
+      GainsSolveTotal,
+      GainsSolveTrial,
+      GainsSolveLogTrial,
+      LikelihoodEpochTotal,
+      LikelihoodMultiprocTotal,
+      LikelihoodModelVisBuild,
+      LikelihoodVectorPack,
+      LikelihoodDirectTerm,
+      LikelihoodScalarAllreduce,
+      GradientBatchedBarrier,
+      GradientBatchedAllreduce,
+      COUNT
+    };
+    
+    // use as inside classes:                                                                                                     
+    // mutable std::array<std::uint64_t,(size_t)TimerID::COUNT> timer_ns_{};                                                        
+    // mutable std::array<std::uint64_t,(size_t)TimerID::COUNT> timer_calls_{};                                                     
+    
+    struct ScopedTimer {
+      TimerID id;
+      std::chrono::steady_clock::time_point t0;
+      std::array<std::uint64_t,(size_t)TimerID::COUNT>& totals;
+      std::array<std::uint64_t,(size_t)TimerID::COUNT>& calls;
+      
+      ScopedTimer(TimerID i,
+		  std::array<std::uint64_t,(size_t)TimerID::COUNT>& t,
+		  std::array<std::uint64_t,(size_t)TimerID::COUNT>& c)
+	: id(i), t0(std::chrono::steady_clock::now()), totals(t), calls(c) {}
+      
+      ~ScopedTimer() {
+	auto t1 = std::chrono::steady_clock::now();
+	std::uint64_t ns =
+	  std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
+	totals[(size_t)id] += ns;
+	calls[(size_t)id]  += 1;
+      }
     };
       
+      
   };
-  
+      
 };
 
 #endif

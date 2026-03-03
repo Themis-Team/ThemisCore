@@ -138,6 +138,7 @@ int main(int argc, char* argv[])
 
   bool use_fast_exp_approx = false;
   bool use_cached_exp = false;
+  int gradient_mode = 0; // FD per default
   
   bool preoptimize_flag = false;
   //bool postoptimize_flag = false;
@@ -435,6 +436,17 @@ int main(int argc, char* argv[])
     else if (opt=="-c" || opt=="--cached-exp")
     {
       use_cached_exp=true;
+    }
+    else if (opt=="--gradient-mode" || opt=="--warp")
+    {
+      if (k<argc)
+	gradient_mode=atoi(argv[k++]);
+      else
+      {
+	if (world_rank==0)
+	  std::cerr << "ERROR: An int argument must be provided after --gradient-mode, --warp\n";
+	std::exit(1);
+      }	
     }
     else if (opt=="-lc" || opt=="--light-curve")
     {
@@ -1609,6 +1621,12 @@ int main(int argc, char* argv[])
   // Make a likelihood object
   Themis::likelihood L_obj(P, L, W);
   L_obj.use_intrinsic_likelihood_gradients();
+
+  if (gradient_mode==0) { L_obj.set_sublikelihood_gradient_mode(Themis::likelihood_base::GradientMode::FD_ALL);}
+  else if (gradient_mode==1) { L_obj.set_sublikelihood_gradient_mode(Themis::likelihood_base::GradientMode::HYBRID_INTENSITY);}
+  else if (gradient_mode==2) { L_obj.set_sublikelihood_gradient_mode(Themis::likelihood_base::GradientMode::HYBRID_INTENSITY_GEOM);}
+  else {throw std::logic_error("Invalid gradient_mode must be within 0-2");}
+  
   Themis::likelihood_power_tempered L_temp(L_obj);
   
   // double Lstart = L_obj(means);
@@ -1954,6 +1972,7 @@ int main(int argc, char* argv[])
 	std::cerr << "Done MCMC on round " << rep << std::endl
 		  << "it took " << (end-start)/CLOCKS_PER_SEC/3600.0 << " hours" << std::endl;
 	image_pulse.print_timing_summary(world_rank);
+	if (Reconstruct_gains) lvg[0]->print_timing_summary(world_rank);
       }
     }
     

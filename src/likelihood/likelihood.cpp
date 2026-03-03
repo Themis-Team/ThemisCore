@@ -85,6 +85,13 @@ namespace Themis
     else
       return logL;
   }
+
+
+  void likelihood::set_sublikelihood_gradient_mode(likelihood_base::GradientMode m) {
+    for (size_t i = 0; i < _L.size(); ++i)
+      _L[i]->set_gradient_mode(m);
+  }
+
   
   std::vector<double> likelihood::gradient(std::vector<double>& x)
   {
@@ -131,16 +138,6 @@ namespace Themis
       for (size_t i=0; i<x.size(); ++i)
       {
 
-	static bool once=false;
-	if (!once) {
-	  int wrank=-1; MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
-	  if (wrank==0) {
-	    std::cerr << "[LIKELIHOOD] calling sublikelihood i="<<i
-		      << " type="<< typeid(*_L[i]).name() << "\n";
-	  }
-	  once=true;
-	}
-
 	// Obtain adaptive stepsize
 	h = step_size(std::fabs(Pr.upper_bound(i)-Pr.lower_bound(i)));
 	
@@ -176,14 +173,6 @@ namespace Themis
 	std::vector<double> grad_sub;
 	for(size_t i=0 ; i<_W.size(); ++i)
 	  {
-	    if (i == 0) { // only once to avoid spam
-	      std::cerr << "[LIKELIHOOD] intrinsic: _L.size()=" << _L.size()
-			<< " _W.size()=" << _W.size() << "\n" << std::flush;
-	    }
-	    std::cerr << "[LIKELIHOOD] calling sublikelihood i=" << i
-		      << " type=" << typeid(*_L[i]).name()
-		      << "\n" << std::flush;
-	    
 	    grad_sub = _L[i]->gradient(_X,Pr);
 	    
 	    for (size_t j=0; j<x.size(); ++j)
