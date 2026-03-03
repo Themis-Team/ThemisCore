@@ -166,236 +166,229 @@ namespace Themis{
       }
   }
   
-  
-
-
-std::vector<double> likelihood_visibility::gradient_hybrid(std::vector<double>& x, prior& Pr)
-{
-  static bool once=false;
-  if(!once){
-    std::cerr << "[GRAD] likelihood_visibility::gradient_hybrid entered\n";
-    once=true;
-  }
-
-  const bool do_geom = (gradient_mode() == GradientMode::HYBRID_INTENSITY_GEOM);
-
-  // Evaluate basepoint once so model + uncertainty are at x
-  const double Lx = this->operator()(x);
-  (void)Lx;
-
-  const size_t Npar = x.size();
-  std::vector<double> grad(Npar, 0.0);
-
-  // --- Active parameter span for THIS likelihood ---
-  const size_t Nm = _model.size();
-  const size_t Nu = _uncertainty.size();
-  const size_t Nactive = std::min(Nm + Nu, Npar);
-
-  // --- Cache availability checks (keep them cheap and decisive) ---
-  const size_t Nx = _model.Nx();
-  const size_t Ny = _model.Ny();
-  const size_t Npix = Nx * Ny;
-
-  int local_ok = 1;
-  if (!_model.use_cached_exp())    local_ok = 0;
-  if (!_model.phase_cache_valid()) local_ok = 0;
-  if (Npix == 0)                   local_ok = 0;
-
-  const auto& phase = _model.phase_cache();
-  const auto& sk    = _model.spline_kernel_cache();
-  const auto& Iflat = _model.I_flat();
-
-  if (phase.size() < _data.size() * Npix) local_ok = 0;
-  if (sk.size()    < _data.size())        local_ok = 0;
-  if (Iflat.size() < Npix)                local_ok = 0;
-
-  int global_ok = 0;
-  MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
-
-  if (!global_ok) {
-    // Fallback: FD gradient (expensive but correct)
-    std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
-
-    // restore basepoint model/uncertainty
-    std::vector<double> mx(Nm), ux(Nu);
-    size_t ii = 0;
-    for (size_t j=0; j<Nm && ii<x.size(); ++j) mx[j] = x[ii++];
-    for (size_t j=0; j<Nu && ii<x.size(); ++j) ux[j] = x[ii++];
-    _model.generate_model(mx);
-    _uncertainty.generate_uncertainty(ux);
-    return g;
-  }
-
-  // --- Determine geom indices from the ACTUAL model layout ---
-  size_t idx_fovx = size_t(-1), idx_fovy = size_t(-1), idx_pa = size_t(-1);
-
-  if (Nm == Npix + 3) {
-    // model_image_adaptive_splined_raster: pixels + (fovx,fovy,pa)
-    idx_fovx = Npix + 0;
-    idx_fovy = Npix + 1;
-    idx_pa   = Npix + 2;
-  }
-  else if (Nm == Npix + 5) { // I don't think this is ever our situation, but just to be on the safe side
-    // pixels + (shiftx,shifty,fovx,fovy,pa)
-    idx_fovx = Npix + 2;
-    idx_fovy = Npix + 3;
-    idx_pa   = Npix + 4;
-  }
-  else {
-    // Unknown layout: do NOT attempt analytic geom.
-    // may still do HYBRID_INTENSITY by setting do_geom=false at dispatch-level.
-    std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
-
-    std::vector<double> mx(Nm), ux(Nu);
-    size_t ii = 0;
-    for (size_t j=0; j<Nm && ii<x.size(); ++j) mx[j] = x[ii++];
-    for (size_t j=0; j<Nu && ii<x.size(); ++j) ux[j] = x[ii++];
-    _model.generate_model(mx);
-    _uncertainty.generate_uncertainty(ux);
-    return g;
-  }
-
-  // Pull geom params from x (model portion)
-  const double fovx = x[idx_fovx];
-  const double fovy = x[idx_fovy];
-  const double pa   = x[idx_pa];
-  const double cpa  = std::cos(pa);
-  const double spa  = std::sin(pa);
-
-  // --- Analytic pixel grads + (optional) analytic geom grads ---
-  std::vector<double> grad_I_local(Npix, 0.0);
-  double grad_fovx_local = 0.0;
-  double grad_fovy_local = 0.0;
-  double grad_pa_local   = 0.0;
-
-  const std::complex<double> minus_i(0.0, -1.0);
-  const double two_pi = 2.0 * M_PI;
-
-  for (size_t i = 0; i < _data.size(); ++i) {
-    if ((i % size_t(_L_size)) != size_t(_L_rank))
-      continue;
-
-    datum_visibility& d = _data.datum(i);
-
-    const double u  = d.u;
-    const double v  = d.v;
-
-    // MUST match cache builder rotation
-    const double ur =  cpa * u + spa * v;
-    const double vr = -spa * u + cpa * v;
-
-    const std::complex<double> err = _uncertainty.error(d);
-    const double er = err.real();
-    const double ei = err.imag();
-    if (er == 0.0 || ei == 0.0)
-      continue;
-
-    const size_t off = i * Npix;
-    const double K   = sk[i];
-
-    std::complex<double> S0(0.0, 0.0);
-    std::complex<double> Sgx(0.0, 0.0);
-    std::complex<double> Sgy(0.0, 0.0);
-
-    for (size_t k = 0; k < Npix; ++k) {
-      const size_t ix = k / Ny;       // flatten must match cache layout: k = ix*Ny + iy
-      const size_t iy = k - ix * Ny;
-
-      const double xfrac = (Nx > 1) ? (double(ix) / double(Nx - 1) - 0.5) : 0.0;
-      const double yfrac = (Ny > 1) ? (double(iy) / double(Ny - 1) - 0.5) : 0.0;
-
-      const std::complex<double> ph = phase[off + k];
-      const double Ik = Iflat[k];
-
-      S0  += Ik * ph;
-      Sgx += Ik * ph * xfrac;
-      Sgy += Ik * ph * yfrac;
-    }
-
-    const std::complex<double> Vm = K * S0;
-
-    const double dr = d.V.real() - Vm.real();
-    const double di = d.V.imag() - Vm.imag();
-
-    const double coeff_r = dr / (er * er);
-    const double coeff_i = di / (ei * ei);
-
+  std::vector<double> likelihood_visibility::gradient_hybrid(std::vector<double>& x, prior& Pr)
+  {
+    const GradientMode mode = gradient_mode();
+    const bool do_geom = (mode == GradientMode::HYBRID_INTENSITY_GEOM);
+    
+    // Basepoint once (puts model+uncertainty at x)
+    const double Lx = this->operator()(x);
+    (void)Lx;
+    
+    // ---- cache availability checks ----
+    int local_ok = 1;
+    
+    const size_t Nx   = _model.Nx();
+    const size_t Ny   = _model.Ny();
+    const size_t Npix = Nx * Ny;
+    
+    if (!_model.use_cached_exp())    local_ok = 0;
+    if (!_model.phase_cache_valid()) local_ok = 0;
+    if (Npix == 0)                   local_ok = 0;
+    
+    const auto& phase = _model.phase_cache();
+    const auto& K     = _model.spline_kernel_cache();
+    const auto& Iflat = _model.I_flat();
+    
+    if (phase.size() < _data.size() * Npix) local_ok = 0;
+    if (K.size()     < _data.size())        local_ok = 0;
+    if (Iflat.size() < Npix)                local_ok = 0;
+    
+    // If mode2: require dK caches
+    const auto& dK_fovx = _model.spline_kernel_dfovx_cache();
+    const auto& dK_fovy = _model.spline_kernel_dfovy_cache();
+    const auto& dK_pa   = _model.spline_kernel_dpa_cache();
+    
     if (do_geom) {
-      const std::complex<double> dS0_dfovx = (minus_i * (two_pi * ur)) * Sgx;
-      const std::complex<double> dS0_dfovy = (minus_i * (two_pi * vr)) * Sgy;
-      const std::complex<double> dS0_dpa   = (minus_i * two_pi) * ((vr * fovx) * Sgx - (ur * fovy) * Sgy);
-
-      std::complex<double> dVm_dfovx = K * dS0_dfovx;
-      std::complex<double> dVm_dfovy = K * dS0_dfovy;
-      std::complex<double> dVm_dpa   = K * dS0_dpa;
-
-      // area scaling term from dxdy ~ fovx*fovy/(Nx-1)/(Ny-1)
-      if (fovx != 0.0) dVm_dfovx += Vm / fovx;
-      if (fovy != 0.0) dVm_dfovy += Vm / fovy;
-
-      grad_fovx_local += coeff_r * dVm_dfovx.real() + coeff_i * dVm_dfovx.imag();
-      grad_fovy_local += coeff_r * dVm_dfovy.real() + coeff_i * dVm_dfovy.imag();
-      grad_pa_local   += coeff_r * dVm_dpa.real()   + coeff_i * dVm_dpa.imag();
+      if (dK_fovx.size() < _data.size()) local_ok = 0;
+      if (dK_fovy.size() < _data.size()) local_ok = 0;
+      if (dK_pa.size()   < _data.size()) local_ok = 0;
     }
-
-    // pixel grads
-    for (size_t k = 0; k < Npix; ++k) {
-      const std::complex<double> z = K * phase[off + k];
-      grad_I_local[k] += coeff_r * z.real() + coeff_i * z.imag();
+    
+    int global_ok = 0;
+    MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
+    
+    if (!global_ok) {
+      // FD fallback (and restore basepoint)
+      std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+      
+      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
+      size_t ii = 0;
+      for (size_t j=0; j<_model.size(); ++j) mx[j] = x[ii++];
+      for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
+      _model.generate_model(mx);
+      _uncertainty.generate_uncertainty(ux);
+      
+      return g;
     }
-  }
-
-  // Reduce pixel gradients
-  MPI_Allreduce(MPI_IN_PLACE, grad_I_local.data(), (int)Npix, MPI_DOUBLE, MPI_SUM, _Lcomm);
-
-  // Reduce geom grads
-  if (do_geom) {
+    
+    // ---- index layout ----
+    // safest: fov/pa are the last 3 model params (matches generate_model usage)
+    const size_t Nm = _model.size();
+    const size_t idx_fovx = Nm - 3;
+    const size_t idx_fovy = Nm - 2;
+    const size_t idx_pa   = Nm - 1;
+    
+    const double fovx = x[idx_fovx];
+    const double fovy = x[idx_fovy];
+    const double pa   = x[idx_pa];
+    
+    const double cpa = std::cos(pa);
+    const double spa = std::sin(pa);
+    
+    // ---- analytic accumulators ----
+    std::vector<double> grad_I_local(Npix, 0.0);
+    double grad_fovx_local = 0.0;
+    double grad_fovy_local = 0.0;
+    double grad_pa_local   = 0.0;
+    
+    // Precompute xfrac/yfrac per pixel index (cheap and avoids divs in inner loop)
+    static std::vector<double> xfrac, yfrac;
+    static size_t lastNx = 0, lastNy = 0;
+    if (lastNx != Nx || lastNy != Ny || xfrac.size() != Npix) {
+      lastNx = Nx; lastNy = Ny;
+      xfrac.resize(Npix);
+      yfrac.resize(Npix);
+      for (size_t ix = 0; ix < Nx; ++ix) {
+	const double xf = (Nx > 1) ? (double(ix)/double(Nx-1) - 0.5) : 0.0;
+	for (size_t iy = 0; iy < Ny; ++iy) {
+	  const double yf = (Ny > 1) ? (double(iy)/double(Ny-1) - 0.5) : 0.0;
+	  const size_t k = ix*Ny + iy; // MUST match your flattening convention
+	  xfrac[k] = xf;
+	  yfrac[k] = yf;
+	}
+      }
+    }
+    
+    const std::complex<double> minus_i(0.0, -1.0);
+    const double two_pi = 2.0 * M_PI;
+    
+    for (size_t i = 0; i < _data.size(); ++i)
+      {
+	if ((i % size_t(_L_size)) != size_t(_L_rank))
+	  continue;
+	
+	datum_visibility& d = _data.datum(i);
+	
+	const double u = d.u;
+	const double v = d.v;
+	
+	const double ur =  cpa*u + spa*v;
+	const double vr = -spa*u + cpa*v;
+	
+	const std::complex<double> err = _uncertainty.error(d);
+	const double er = err.real();
+	const double ei = err.imag();
+	if (er == 0.0 || ei == 0.0)
+	  continue;
+	
+	const size_t off = i * Npix;
+	const double Ki  = K[i];
+	
+	// S0  = Σ Ik * phase
+	// Sx  = Σ Ik * phase * xfrac
+	// Sy  = Σ Ik * phase * yfrac
+	std::complex<double> S0(0.0, 0.0);
+	std::complex<double> Sx(0.0, 0.0);
+	std::complex<double> Sy(0.0, 0.0);
+	
+	for (size_t k = 0; k < Npix; ++k) {
+	  const std::complex<double> ph = phase[off + k];
+	  const double Ik = Iflat[k];
+	  const double xf = xfrac[k];
+	  const double yf = yfrac[k];
+	  const std::complex<double> Ikph = Ik * ph;
+	  S0 += Ikph;
+	  Sx += Ikph * xf;
+	  Sy += Ikph * yf;
+	}
+	
+	const std::complex<double> Vm = Ki * S0;
+	
+	const double dr = d.V.real() - Vm.real();
+	const double di = d.V.imag() - Vm.imag();
+	
+	const double coeff_r = dr / (er * er);
+	const double coeff_i = di / (ei * ei);
+	
+	// Pixel grads: dVm/dIk = Ki * phase
+	for (size_t k = 0; k < Npix; ++k) {
+	  const std::complex<double> z = Ki * phase[off + k];
+	  grad_I_local[k] += coeff_r * z.real() + coeff_i * z.imag();
+	}
+	
+	if (do_geom) {
+	  // dS0 parts (phase derivative)
+	  const std::complex<double> dS0_dfovx = (minus_i * (two_pi * ur)) * Sx;
+	  const std::complex<double> dS0_dfovy = (minus_i * (two_pi * vr)) * Sy;
+	  const std::complex<double> dS0_dpa   =
+	    (minus_i * two_pi) * ( (vr * fovx) * Sx - (ur * fovy) * Sy );
+	  
+	  // Product rule with dK caches
+	  const std::complex<double> dVm_dfovx = dK_fovx[i] * S0 + Ki * dS0_dfovx;
+	  const std::complex<double> dVm_dfovy = dK_fovy[i] * S0 + Ki * dS0_dfovy;
+	  const std::complex<double> dVm_dpa   = dK_pa[i]   * S0 + Ki * dS0_dpa;
+	  
+	  grad_fovx_local += coeff_r * dVm_dfovx.real() + coeff_i * dVm_dfovx.imag();
+	  grad_fovy_local += coeff_r * dVm_dfovy.real() + coeff_i * dVm_dfovy.imag();
+	  grad_pa_local   += coeff_r * dVm_dpa.real()   + coeff_i * dVm_dpa.imag();
+	}
+      }
+    
+    // Reduce across ranks
+    MPI_Allreduce(MPI_IN_PLACE, grad_I_local.data(), (int)Npix, MPI_DOUBLE, MPI_SUM, _Lcomm);
+    
     double geom_local[3]  = {grad_fovx_local, grad_fovy_local, grad_pa_local};
     double geom_global[3] = {0.0, 0.0, 0.0};
     MPI_Allreduce(geom_local, geom_global, 3, MPI_DOUBLE, MPI_SUM, _Lcomm);
-
-    grad[idx_fovx] = geom_global[0];
-    grad[idx_fovy] = geom_global[1];
-    grad[idx_pa]   = geom_global[2];
+    
+    // Assemble full gradient
+    const size_t Npar = x.size();
+    std::vector<double> grad(Npar, 0.0);
+    
+    // dL/d(log I) = I * dL/dI
+    for (size_t k = 0; k < Npix && k < Npar; ++k)
+      grad[k] = Iflat[k] * grad_I_local[k];
+    
+    if (do_geom) {
+      grad[idx_fovx] = geom_global[0];
+      grad[idx_fovy] = geom_global[1];
+      grad[idx_pa]   = geom_global[2];
+    }
+    
+    // FD everything else
+    std::vector<double> y = x;
+    for (size_t p = Npix; p < Npar; ++p)
+      {
+	if (do_geom && (p == idx_fovx || p == idx_fovy || p == idx_pa))
+	  continue;
+	
+	const double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
+	
+	y[p] = x[p] + h;
+	const double Lp = std::isfinite(Pr(y)) ? this->operator()(y)
+	  : -std::numeric_limits<double>::infinity();
+	
+	y[p] = x[p] - h;
+	const double Lm = std::isfinite(Pr(y)) ? this->operator()(y)
+	  :  std::numeric_limits<double>::infinity();
+	
+	y[p] = x[p];
+	grad[p] = (Lp - Lm) / (2.0 * h);
+      }
+    
+    // Restore basepoint model/uncertainty (important after FD loop)
+    {
+      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
+      size_t ii = 0;
+      for (size_t j=0; j<_model.size(); ++j) mx[j] = x[ii++];
+      for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
+      _model.generate_model(mx);
+      _uncertainty.generate_uncertainty(ux);
+    }
+    
+    return grad;
   }
-
-  // Convert dL/dI -> dL/d(log I)
-  for (size_t k = 0; k < Npix && k < Npar; ++k)
-    grad[k] = Iflat[k] * grad_I_local[k];
-
-  // --- FD ONLY for remaining ACTIVE parameters this likelihood uses ---
-  std::vector<double> y = x;
-  for (size_t p = Npix; p < Nactive; ++p) {
-    if (do_geom && (p == idx_fovx || p == idx_fovy || p == idx_pa))
-      continue;
-
-    const double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
-
-    y[p] = x[p] + h;
-    const double Lp = std::isfinite(Pr(y)) ? this->operator()(y) : -std::numeric_limits<double>::infinity();
-
-    y[p] = x[p] - h;
-    const double Lm = std::isfinite(Pr(y)) ? this->operator()(y) :  std::numeric_limits<double>::infinity();
-
-    y[p] = x[p];
-    grad[p] = (Lp - Lm) / (2.0 * h);
-  }
-
-  // --- Restore basepoint model/uncertainty (important for cache correctness) ---
-  {
-    std::vector<double> mx(Nm), ux(Nu);
-    size_t ii = 0;
-    for (size_t j=0; j<Nm && ii<x.size(); ++j) mx[j] = x[ii++];
-    for (size_t j=0; j<Nu && ii<x.size(); ++j) ux[j] = x[ii++];
-    _model.generate_model(mx);
-    _uncertainty.generate_uncertainty(ux);
-  }
-
-  return grad;
-}
-  
-
-  
 
   void likelihood_visibility::output(std::ostream& out)
   {
