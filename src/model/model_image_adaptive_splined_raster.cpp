@@ -322,15 +322,16 @@ namespace Themis {
 	spline_kernel_cache_[i] = cubic_spline_kernel(ur, vr) * (_alpha[1][1] - _alpha[0][0]) * (_beta [1][1] - _beta [0][0]);
 	
 	size_t k = 0;
+	const double twopi=2.0*M_PI;
 	for (size_t ix = 0; ix < _Nx; ++ix)
 	  for (size_t iy = 0; iy < _Ny; ++iy, ++k)
 	    {
-	      const double phi = 2.0 * M_PI * (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+	      const double phi = /*2.0 * M_PI **/ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
 	      
 	      phase_cache_[i * Npix + k] =
 		_use_fast_exp_approx
 		? utils::fast_img_exp7(-phi)
-		: std::exp(-std::complex<double>(0.0, 1.0) * phi);
+		: std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
 	    }
       }
     
@@ -420,13 +421,14 @@ namespace Themis {
 
     // Phase cache: exp(-i phi), phi = 2π(ur*alpha + vr*beta)
     size_t k = 0;
+    const double twopi=2.*M_PI;
     for (size_t ix = 0; ix < _Nx; ++ix)
       for (size_t iy = 0; iy < _Ny; ++iy, ++k)
       {
-        const double phi = 2.0*M_PI * (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+        const double phi = /*2.0*M_PI **/ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
         phase_cache_[d * Npix + k] =
           _use_fast_exp_approx ? utils::fast_img_exp7(-phi)
-                               : std::exp(-std::complex<double>(0.0, 1.0) * phi);
+                               : std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
       }
   }
 
@@ -435,132 +437,6 @@ namespace Themis {
 }
 
 
-
-
-  
-  /* 
-  void model_image_adaptive_splined_raster::update_phase_cache_all_data(const std::vector<datum_visibility>& data)
-  {
-    ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
-
-    cache_mode_ = VisibilityCacheMode::Global;
-    cached_Nd_  = data.size();
-    
-    const size_t Npix = _Nx * _Ny;
-    const size_t Nd   = data.size();
-
-    phase_cache_.resize(Npix * Nd);
-    spline_kernel_cache_.resize(Nd);
-    // never used in here ...
-    spline_kernel_dfovx_cache_.resize(Nd);
-    spline_kernel_dfovy_cache_.resize(Nd);
-    spline_kernel_dpa_cache_.resize(Nd);
-
-
-
-    const double fovx = (_xmax - _xmin);
-const double fovy = (_ymax - _ymin);
-
-const double inv_nx1 = 1.0 / double(_Nx - 1);
-const double inv_ny1 = 1.0 / double(_Ny - 1);
-
-const double dxdy = fovx * fovy * inv_nx1 * inv_ny1;
-
-// derivatives of dxdy wrt fovx/fovy (avoid dividing by tiny fov values)
-const double d_dxdy_dfovx = fovy * inv_nx1 * inv_ny1;
-const double d_dxdy_dfovy = fovx * inv_nx1 * inv_ny1;
-
-// derivatives of tpdx/tpdy wrt fovx/fovy (tpdx = 2π fovx/(Nx-1), etc.)
-const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
-const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
-
-
-    
-
-    for (size_t d = 0; d < Nd; ++d) {
-	// Counter-rotate point
-	const double ur =  _cpa*data[d].u + _spa*data[d].v;
-	const double vr = -_spa*data[d].u + _cpa*data[d].v;
-
-	// caching splines
-	spline_kernel_cache_[d] = cubic_spline_kernel(ur, vr) * (_alpha[1][1] - _alpha[0][0]) * (_beta[1][1] - _beta[0][0]);
-
-
-
-
-// Precompute once outside the d-loop:
-const double fovx = (_xmax - _xmin);
-const double fovy = (_ymax - _ymin);
-const double inv_nx1 = 1.0 / double(_Nx - 1);
-const double inv_ny1 = 1.0 / double(_Ny - 1);
-
-// dxdy = fovx/(Nx-1) * fovy/(Ny-1)
-const double dxdy = fovx * fovy * inv_nx1 * inv_ny1;
-const double d_dxdy_dfovx = fovy * inv_nx1 * inv_ny1;
-const double d_dxdy_dfovy = fovx * inv_nx1 * inv_ny1;
-
-// tpdx = 2π fovx/(Nx-1), tpdy = 2π fovy/(Ny-1)
-const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
-const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
-
-// Inside the datum loop (for each d):
-const double ku  = ur * _tpdx;     // MUST match cubic_spline_kernel()
-const double kv  = vr * _tpdy;
-
-const double Ku  = cubic_spline_kernel_1d(ku);
-const double Kv  = cubic_spline_kernel_1d(kv);
-const double Kup = cubic_spline_kernel_1d_prime(ku); // d/d(ku)
-const double Kvp = cubic_spline_kernel_1d_prime(kv); // d/d(kv)
-
-const double kernel = Ku * Kv;
-
-// Keep the *exact* K used by cached visibility:
-spline_kernel_cache_[d] = dxdy * kernel;
-
-// dK/dfovx = d(dxdy)/dfovx * kernel + dxdy * dKu/dfovx * Kv
-// dKu/dfovx = Kup * d(ku)/dfovx,  ku = ur * tpdx
-// d(ku)/dfovx = ur * d(tpdx)/dfovx
-spline_kernel_dfovx_cache_[d] =
-  d_dxdy_dfovx * kernel
-  + dxdy * (Kup * (ur * dtpdx_dfovx)) * Kv;
-
-// dK/dfovy similarly (kv = vr * tpdy)
-spline_kernel_dfovy_cache_[d] =
-  d_dxdy_dfovy * kernel
-  + dxdy * Ku * (Kvp * (vr * dtpdy_dfovy));
-
-// dK/dpa: dxdy,tpdx,tpdy independent of pa; only ur,vr depend on pa
-// dur/dpa = vr ; dvr/dpa = -ur
-// d(ku)/dpa = tpdx * dur/dpa = _tpdx * vr
-// d(kv)/dpa = tpdy * dvr/dpa = _tpdy * (-ur)
-spline_kernel_dpa_cache_[d] =
-  dxdy * ( (Kup * (_tpdx * vr)) * Kv
-           + Ku * (Kvp * (_tpdy * (-ur))) );
-
-
-
-	
-	size_t k = 0;
-      for (size_t i = 0; i < _Nx; ++i)
-	for (size_t j = 0; j < _Ny; ++j, ++k) {
-	  const double phi = 2.0 * M_PI *
-	    (ur * _alpha[i][j] + vr * _beta[i][j]);	  
-	  // phase_cache_[d * Npix + k] =
-	  //   _use_fast_exp_approx
-          //   ? utils::fast_img_exp7(-phi)
-          //   : std::exp(std::complex<double>(0.0, -phi)); //phase_cache_[k * Nd + d] = // inefficient memory layout, likely breaks L2 caching and vectorization
-	  phase_cache_[d * Npix + k] =
-	    _use_fast_exp_approx
-            ? utils::fast_img_exp7(-phi)
-            : std::exp(-std::complex<double>(0.0, 1.0) * phi); // RG:FIXME I think there is a missing 2PI in teh -fea path ,but have to check
-	}
-    }    
-    cached_Nd_ = Nd;
-    phase_cache_valid_ = true;
-  }
-  */
-
-  
   void model_image_adaptive_splined_raster::update_phase_cache_for_data(const std::vector<datum_visibility>& data)
   {
     ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
@@ -761,7 +637,7 @@ spline_kernel_dpa_cache_[d] =
       // double vr = -_spa*d.u + _cpa*d.v;
 
       std::complex<double> V(0.0,0.0);
-      if (_use_fast_exp_approx)
+      if (_use_fast_exp_approx && !_use_cached_exp)
       {
 	for (size_t i=0; i<_Nx; ++i)
 	  for (size_t j=0; j<_Ny; ++j)

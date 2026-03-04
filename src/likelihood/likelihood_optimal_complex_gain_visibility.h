@@ -66,13 +66,31 @@ namespace Themis
     //! Returns the log-likelihood of a vector of parameters \f$ \mathbf{x} \f$
     virtual double operator()(std::vector<double>& x);
 
+    // see likelihood_base.h instead
+  //   enum class GradientMode : int {
+  //     FD_ALL = 0,
+  //     HYBRID_INTENSITY = 1,
+  //     HYBRID_INTENSITY_GEOM = 2
+  //   };
+    
+  //   void set_gradient_mode(GradientMode m) { _grad_mode = m; }
+  //   GradientMode gradient_mode() const { return _grad_mode; }
+    
+  // private:
+  //   GradientMode _grad_mode = GradientMode::HYBRID_INTENSITY;
+
+  public:
+    std::vector<double> gradient_dispatch_(std::vector<double>& x, prior& Pr);
+    std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr, bool do_geom);
+    std::vector<double> gradient_fd_all(std::vector<double>& x, prior& Pr);
+    
     //! Returns the gradient of the log-likelihood of a vector of parameters \f$ \mathbf{x} \f$
     //! The prior permits parameter checking if required during likelihood gradient evaluation, through the gradients of the prior is applied elsewhere.
     // virtual std::vector<double> gradient(std::vector<double>& x, prior& Pr) override;
     std::vector<double> gradient(std::vector<double>& x, prior& Pr) override;
     std::vector<double> gradient_uniproc(std::vector<double>& x, prior& Pr) override;
   private:
-    std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr);
+    // std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr); // see above with do_geom
   public:
     //! Returns the \f$ \chi^2 \f$ of a vector of parameters \f$ \mathbf{x} \f$
     virtual double chi_squared(std::vector<double>& x);
