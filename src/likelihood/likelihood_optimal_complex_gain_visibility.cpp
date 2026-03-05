@@ -361,14 +361,7 @@ namespace Themis
       for (size_t i=0; i<_datum_index_list[epoch].size(); ++i)
       {
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
-	std::complex<double> V;
-	// if (_model.use_cached_exp()) {
-	  V = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	// }
-	// else
-	//   {
-	//     V = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	//   }
+	std::complex<double> V = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
 	
 	V = _G[epoch][_is1_list[epoch][i]]*std::conj(_G[epoch][_is2_list[epoch][i]])*V;
 	
@@ -593,15 +586,8 @@ namespace Themis
 	  //std::complex<double> err_orig = _data.datum(_datum_index_list[epoch][i]).err; // Data error
 	  std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	  std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
-	  std::complex<double> Vm;
-	  // if (_model.use_cached_exp())
-	  //   {
-	      Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	  //   }
-	  // else
-	  //   {
-	  //     Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	  //   }
+	  std::complex<double> Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+
 	  yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
 	  y.push_back( std::complex<double>(Vd.real()/err.real(), Vd.imag()/err.imag()) );
 	  
@@ -712,13 +698,8 @@ namespace Themis
 	//std::complex<double> err_orig = _data.datum(_datum_index_list[epoch][i]).err; // Data error
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
-	std::complex<double> Vm;
-	// if (_model.use_cached_exp()) {
-	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	// }
-	// else {
-	//   Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	// }	  
+	std::complex<double> Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+
 	yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
 	y.push_back( std::complex<double>(Vd.real()/err.real(), Vd.imag()/err.imag()) );
 
@@ -1272,13 +1253,8 @@ namespace Themis
 	//std::complex<double> err_orig = _data.datum(_datum_index_list[epoch][i]).err; // Data error
 	std::complex<double> err = _uncertainty.error(_data.datum(_datum_index_list[epoch][i]));
 	std::complex<double> Vd = _data.datum(_datum_index_list[epoch][i]).V;
-	std::complex<double> Vm;
-	// if (_model.use_cached_exp()) {
-	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	// }
-	// else {
-	//   Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	// }
+	std::complex<double> Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+
 	yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
 	y.push_back( std::complex<double>(Vd.real()/err.real(), Vd.imag()/err.imag()) );
       }
@@ -1365,13 +1341,8 @@ namespace Themis
       for (size_t i=0; i<_datum_index_list[epoch].size(); ++i)
       {
 	std::complex<double> err = _data.datum(_datum_index_list[epoch][i]).err;
-	std::complex<double> Vm;
-	// if (_model.use_cached_exp()) {
-	  Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	// }
-	// else {
-	//   Vm = _model.visibility(_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
-	// }
+	std::complex<double> Vm = _model.visibility(_datum_index_list[epoch][i],_data.datum(_datum_index_list[epoch][i]),0.25*std::abs(err));
+
 	yb.push_back( std::complex<double>(Vm.real()/err.real(), Vm.imag()/err.imag()) );
       }
 

@@ -1,7 +1,7 @@
 /*!
   \file model_image_adaptive_splined_raster.cpp
-  \author Avery Broderick
-  \date  October, 2017
+  \author Avery Broderick, Roman Gold
+  \date  October, 2017, February 2026
   \brief Implements the model_image_splined_raster image class.
   \details To be added
 */
@@ -128,7 +128,13 @@ namespace Themis {
     else // parameters have changed
       {
 	static uint64_t inv_fovx=0, inv_fovy=0, inv_pa=0, inv_shiftx=0, inv_shifty=0, inv_other=0, calls=0; ++calls;
-	
+
+	static int idx_fovx = _size-3;
+	static int idx_fovy = _size-2;
+	static int idx_pa = idx_pa;
+	static int idx_shiftx = _size-5;
+	static int idx_shifty = _size-4;
+
 	// Invalidate phase cache ONLY when geometry changes (FOVx, FOVy, PA).
 	// Intensity parameter changes do NOT invalidate cached phases.
 	if (!_current_parameters.empty())
@@ -136,66 +142,29 @@ namespace Themis {
 	    int world_rank;
 	    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-	    auto changed = [&](double a, double b) { return a != b; /* temporarily */ };
+	    const double old_fovx = _current_parameters[idx_fovx];
+	    const double old_fovy = _current_parameters[idx_fovy];
+	    const double old_pa   = _current_parameters[idx_pa];
 	    
-	    const double old_fovx = _current_parameters[_size-3];
-	    const double old_fovy = _current_parameters[_size-2];
-	    const double old_pa   = _current_parameters[_size-1];
+	    const double new_fovx = parameters[idx_fovx];
+	    const double new_fovy = parameters[idx_fovy];
+	    const double new_pa   = parameters[idx_pa];
 	    
-	    const double new_fovx = parameters[_size-3];
-	    const double new_fovy = parameters[_size-2];
-	    const double new_pa   = parameters[_size-1];
-	    
-	    auto dump_change = [&](const char* name, double newv, double oldv)
-	    {
-	      if (world_rank==0) 
-	      std::cerr << std::setprecision(17)
-			<< name << " old=" << oldv
-			<< " new=" << newv
-			<< " diff=" << (newv - oldv)
-			<< std::endl;
-	    };
-
-	    static int idx_fovx = _size-3;
-	    static int idx_fovy = _size-2;
-	    static int idx_pa = _size-1;
-	    static int idx_shiftx = _size-5;
-	    static int idx_shifty = _size-4;
-	    if (changed(parameters[idx_fovx], _current_parameters[idx_fovx])) {
-	      ++inv_fovx;
-	      dump_change("fovx", parameters[idx_fovx], _current_parameters[idx_fovx]);
-	    }
-	    if (changed(parameters[idx_fovy], _current_parameters[idx_fovy])) {
-	      ++inv_fovy;
-	      dump_change("fovy", parameters[idx_fovy], _current_parameters[idx_fovy]);
-	    }
-	    if (changed(parameters[idx_pa], _current_parameters[idx_pa])) {
-	      ++inv_pa;
-	      dump_change("pa", parameters[idx_pa], _current_parameters[idx_pa]);
-	    }  
-
-	    if (debug_context_ == 2) std::cerr << "[RESTORE] ...";
-	    if (debug_context_ == 1) std::cerr << "[FD] ...";
-
 	    if (new_fovx != old_fovx || new_fovy != old_fovy || new_pa != old_pa) 
 	      phase_cache_valid_ = false;
 	  }
-	int world_rank;
-	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-	
-	if ((calls % 1000)==0 && world_rank==0) std::cerr<<"counters: "<< inv_fovx<<","<<inv_fovy<<","<<inv_pa<<","<<inv_shiftx<<","<<inv_shifty<<","<<inv_other<<","<<calls<<std::endl;
 	
 	_current_parameters = parameters;
 	
 	// Set the fov
-	_xmin = -0.5*parameters[_size-3];
-	_xmax =  0.5*parameters[_size-3];
-	_ymin = -0.5*parameters[_size-2];
-	_ymax =  0.5*parameters[_size-2];
+	_xmin = -0.5*parameters[idx_fovx];
+	_xmax =  0.5*parameters[idx_fovx];
+	_ymin = -0.5*parameters[idx_fovy];
+	_ymax =  0.5*parameters[idx_fovy];
 	_tpdx = 2.*M_PI*(_xmax-_xmin)/(_Nx-1);
 	_tpdy = 2.*M_PI*(_ymax-_ymin)/(_Ny-1); 
-	_cpa = std::cos(parameters[_size-1]);
-	_spa = std::sin(parameters[_size-1]);
+	_cpa = std::cos(parameters[idx_pa]);
+	_spa = std::sin(parameters[idx_pa]);
 	
 	
 	// Generate the image using the user-supplied routine
@@ -582,7 +551,7 @@ namespace Themis {
       {
 	for (size_t i=0; i<_Nx; ++i)
 	  for (size_t j=0; j<_Ny; ++j)
-	    V += _I[i][j] * utils::fast_img_exp7( -(ur*_alpha[i][j]+vr*_beta[i][j]) ); // RG:CHECK 2PI
+	    V += _I[i][j] * utils::fast_img_exp7( -(ur*_alpha[i][j]+vr*_beta[i][j]) );
       }
       else
       {
@@ -597,7 +566,6 @@ namespace Themis {
   }
 
   std::complex<double> model_image_adaptive_splined_raster::visibility(size_t d_idx, datum_visibility& d, double acc)
-  // std::complex<double> model_image_adaptive_splined_raster::visibility_epoch_local(size_t d_idx, datum_visibility& d, double acc)
   {
     if (!_use_cached_exp) {
       // Explicitly fall back to the polymorphic non-cached path
@@ -614,15 +582,13 @@ namespace Themis {
                     : TimerID::VisibilitySingle,
     timer_ns_, timer_calls_);
 
+    /*
     if (_use_cached_exp && !phase_cache_valid_) {
       std::cerr << "[CACHE ERROR] visibility called without cache. " << "d_idx=" << d_idx << std::endl;
-      throw std::logic_error("Cached visibility called without a valid epoch cache");
+      throw std::logic_error("Cached visibility called without a valid cache");
     }
+    */
 
-    if (_use_cached_exp)
-      if (!phase_cache_valid_) 
-	throw std::logic_error("Cached visibility requested but phase cache is invalid");
-    
     if (_use_analytical_visibilities)
     {
       double ur,vr;

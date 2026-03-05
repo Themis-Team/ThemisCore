@@ -1,7 +1,7 @@
 /*!
   \file model_image_adaptive_splined_raster.h
-  \author Avery Broderick
-  \date February, 2020
+  \author Avery Broderick, Roman Gold
+  \date February, 2020, February 2026
   \brief Header file for the model_image_adaptive_splined_raster image class.
   \details To be added
 */
@@ -58,8 +58,6 @@ class model_image_adaptive_splined_raster : public model_image
   enum class VisibilityCacheMode {None, Global, EpochLocal};
   VisibilityCacheMode cache_mode_ = VisibilityCacheMode::Global;
 
-  void set_debug_context(int c) { debug_context_ = c; } // 0=normal, 1=FD_probe, 2=restore
-  
   size_t Nx() const { return _Nx; }
   size_t Ny() const { return _Ny; }
 
@@ -100,8 +98,6 @@ class model_image_adaptive_splined_raster : public model_image
   std::vector<double> spline_kernel_dpa_cache_;
 
   double cubic_spline_kernel_1d_prime(double k) const;
-  
-  int debug_context_ = 0;
   
 public:
   //! Constructs a model_image_splined_raster object.  Takes the extents and number of pixels in each directions (xmin and xmax are the locations of the minimum and maximum pixel centers, etc.).
