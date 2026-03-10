@@ -147,6 +147,7 @@ namespace Themis
 
     void print_timing_summary(int) const;
 
+    
   protected:
 
     //! Outputs the data and model, as modified by the likelihood appropriately,
@@ -175,7 +176,7 @@ namespace Themis
 
      bool _solve_for_gains;
      bool _solve_for_gains_during_gradient;
-     
+    
      void check_station_codes();
      void allocate_memory();
 
@@ -225,6 +226,7 @@ namespace Themis
      
      void covsrt(double **covar, int ma, int mfit);
      int gaussj(double **a, int n, double **b, int m);
+     int cholesky_solve(double **a, int n, const double rhs[], double x[]);
      void mrqcof(double y[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq);
      void mrqcof_amplitude(double y[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq);
      void mrqcof_log(double y[], double sig[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq);
