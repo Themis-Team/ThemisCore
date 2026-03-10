@@ -161,7 +161,24 @@ namespace Themis {
 
     return station_codes;
   }
-  
+
+  std::vector<ImageSize> parseImageSizes(const std::string& input) {
+    std::vector<ImageSize> sizes;
+    std::stringstream ss(input);
+    std::string token;
+
+    while (std::getline(ss, token, '+')) {
+        int w, h;
+        if (sscanf(token.c_str(), "%dx%d", &w, &h) == 2) {
+            sizes.push_back({w, h});
+        } else {
+            std::cerr << "Invalid format: " << token << std::endl;
+        }
+    }
+
+    return sizes;
+  }
+
 };
 
 

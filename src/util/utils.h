@@ -45,6 +45,8 @@ namespace Themis {
     //! to give global behavior while permiting relative naming conventions
     std::string global_path(std::string file_name);
 
+    static double uas2rad = 1e-6/3600. * M_PI/180.;
+    
     //! Returns a vector of station codes.  Takes a name, which currently
     //! is "Two-letter 2017" or "HOPS 2017" or "uvfits 2017"
     std::vector<std::string> station_codes(std::string listname="Two-letter 2017");
@@ -155,6 +157,9 @@ namespace Themis {
       GainsSolveTotal,
       GainsSolveTrial,
       GainsSolveLogTrial,
+      matrix_determinant,
+      gaussj,
+      mrqcof,
       LikelihoodEpochTotal,
       LikelihoodMultiprocTotal,
       LikelihoodModelVisBuild,
@@ -189,10 +194,19 @@ namespace Themis {
 	calls[(size_t)id]  += 1;
       }
     };
-      
+
+    
       
   };
-      
+
+  struct ImageSize {
+    int width;
+    int height;
+  };
+
+  // Declaration only
+  std::vector<ImageSize> parseImageSizes(const std::string& input);
+
 };
 
 #endif
