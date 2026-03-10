@@ -265,6 +265,7 @@ namespace Themis {
 
   void model_image_adaptive_splined_raster::prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& ids)
   {
+    // NOT USED AT THE MOMENT
     if (!_use_cached_exp) return;
     
     cache_mode_ = VisibilityCacheMode::EpochLocal;
@@ -295,7 +296,7 @@ namespace Themis {
 	for (size_t ix = 0; ix < _Nx; ++ix)
 	  for (size_t iy = 0; iy < _Ny; ++iy, ++k)
 	    {
-	      const double phi = /*2.0 * M_PI **/ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+	      const double phi = /*twopi **/ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
 	      
 	      phase_cache_[i * Npix + k] =
 		_use_fast_exp_approx
@@ -394,10 +395,10 @@ namespace Themis {
     for (size_t ix = 0; ix < _Nx; ++ix)
       for (size_t iy = 0; iy < _Ny; ++iy, ++k)
       {
-        const double phi = /*2.0*M_PI **/ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+        const double phi = /*twopi* */ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
         phase_cache_[d * Npix + k] =
           _use_fast_exp_approx ? utils::fast_img_exp7(-phi)
-                               : std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
+	  : std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
       }
   }
 
@@ -513,16 +514,18 @@ namespace Themis {
 	*/
 	
 	size_t k = 0;
+	const double twopi=2.0*M_PI;
+
 	for (size_t i = 0; i < _Nx; ++i)
 	  for (size_t j = 0; j < _Ny; ++j, ++k)
 	    {
-	      const double phi = 2.0 * M_PI *
+	      const double phi = /* twopi * */
 		(ur * _alpha[i][j] + vr * _beta[i][j]);
 	      
 	      phase_cache_[d * Npix + k] =
 		_use_fast_exp_approx
 		? utils::fast_img_exp7(-phi)
-		: std::exp(-std::complex<double>(0.0, 1.0) * phi);
+		: std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
 	    }
       }
     
