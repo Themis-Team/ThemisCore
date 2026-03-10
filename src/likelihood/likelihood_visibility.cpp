@@ -348,16 +348,7 @@ namespace Themis{
     // dL/d(log I) = I * dL/dI
     for (size_t k = 0; k < Npix && k < Npar; ++k)
       grad[k] = Iflat[k] * grad_I_local[k];
-    
-    if (do_geom) {
-      // grad[idx_fovx] = geom_global[0];
-      // grad[idx_fovy] = geom_global[1];
-      // grad[idx_pa]   = geom_global[2];
-      grad[idx_fovx] = geom_global[0];
-      grad[idx_fovy] = geom_global[1];
-      grad[idx_pa]   = fd_param(idx_pa); // instead geom_global[2] until pa gradients are fixed
-    }
-    
+        
     // Temporary surgical FD helper
     auto fd_param = [&](size_t p) -> double {
       double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
@@ -376,6 +367,15 @@ namespace Themis{
       return (Lp - Lm) / (2.0 * h);
     };
 
+    if (do_geom) {
+      // grad[idx_fovx] = geom_global[0];
+      // grad[idx_fovy] = geom_global[1];
+      // grad[idx_pa]   = geom_global[2];
+      grad[idx_fovx] = geom_global[0];
+      grad[idx_fovy] = geom_global[1];
+      grad[idx_pa]   = fd_param(idx_pa); // instead geom_global[2] until pa gradients are fixed
+    }
+    
     // Temporary surgical fix for localized bad intensity component (something seems special about pixel (0,0) ...)
     if (Npix > 0 && Npar > 0)
       grad[0] = fd_param(0);
