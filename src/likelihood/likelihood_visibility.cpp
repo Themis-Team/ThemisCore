@@ -1,7 +1,7 @@
 /*! 
   \file likelihood_visibility.cpp
-  \author Avery E Broderick
-  \date  February, 2020
+  \author Avery E Broderick, Roman Gold
+  \date  February, 2020, February, 2026
   \brief Implementation file for the Visibility Likelihood class
 */
 
@@ -70,7 +70,7 @@ namespace Themis{
 		     +
 		     std::pow( (V.imag()-Vm.imag())/err.imag(), 2) );
 
-      sum += _uncertainty.log_normalization(_data.datum(i)); // RG: revisit race condition with noise modeling ... no mutable in uncertainty ...
+      sum += _uncertainty.log_normalization(_data.datum(i)); // RG: revisit potential race condition with noise modeling ... no mutable in uncertainty ...
     }
     // the factor 0.25 accounts for finite accuracy of the model prediction;
     // it currently gives an error of 3% in the reconstructed uncertainties
@@ -145,7 +145,7 @@ namespace Themis{
 	  // Pure FD through base helper (this calls operator()(y) repeatedly)
 	  std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
 	  
-	  // IMPORTANT: restore model/uncertainty to basepoint x after FD loop
+	  // restore model/uncertainty to basepoint x after FD loop
 	  {
 	    std::vector<double> mx(_model.size()), ux(_uncertainty.size());
 	    size_t ii = 0;
@@ -165,7 +165,7 @@ namespace Themis{
 	return gradient_hybrid(x, Pr /*intensity+geom*/);
       }
   }
-  
+
   std::vector<double> likelihood_visibility::gradient_hybrid(std::vector<double>& x, prior& Pr)
   {
     const GradientMode mode = gradient_mode();
@@ -214,8 +214,8 @@ namespace Themis{
       
       std::vector<double> mx(_model.size()), ux(_uncertainty.size());
       size_t ii = 0;
-      for (size_t j=0; j<_model.size(); ++j) mx[j] = x[ii++];
-      for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
+      for (size_t j = 0; j < _model.size(); ++j)       mx[j] = x[ii++];
+      for (size_t j = 0; j < _uncertainty.size(); ++j) ux[j] = x[ii++];
       _model.generate_model(mx);
       _uncertainty.generate_uncertainty(ux);
       
@@ -223,7 +223,7 @@ namespace Themis{
     }
     
     // ---- index layout ----
-    // safest: fov/pa are the last 3 model params (matches generate_model usage)
+    // fov/pa are the last 3 model params
     const size_t Nm = _model.size();
     const size_t idx_fovx = Nm - 3;
     const size_t idx_fovy = Nm - 2;
@@ -242,18 +242,19 @@ namespace Themis{
     double grad_fovy_local = 0.0;
     double grad_pa_local   = 0.0;
     
-    // Precompute xfrac/yfrac per pixel index (cheap and avoids divs in inner loop)
+    // Precompute xfrac/yfrac per pixel index
     static std::vector<double> xfrac, yfrac;
     static size_t lastNx = 0, lastNy = 0;
     if (lastNx != Nx || lastNy != Ny || xfrac.size() != Npix) {
-      lastNx = Nx; lastNy = Ny;
+      lastNx = Nx;
+      lastNy = Ny;
       xfrac.resize(Npix);
       yfrac.resize(Npix);
       for (size_t ix = 0; ix < Nx; ++ix) {
-	const double xf = (Nx > 1) ? (double(ix)/double(Nx-1) - 0.5) : 0.0;
+	const double xf = (Nx > 1) ? (double(ix) / double(Nx - 1) - 0.5) : 0.0;
 	for (size_t iy = 0; iy < Ny; ++iy) {
-	  const double yf = (Ny > 1) ? (double(iy)/double(Ny-1) - 0.5) : 0.0;
-	  const size_t k = ix*Ny + iy; // MUST match your flattening convention
+	  const double yf = (Ny > 1) ? (double(iy) / double(Ny - 1) - 0.5) : 0.0;
+	  const size_t k = ix * Ny + iy;
 	  xfrac[k] = xf;
 	  yfrac[k] = yf;
 	}
@@ -273,8 +274,8 @@ namespace Themis{
 	const double u = d.u;
 	const double v = d.v;
 	
-	const double ur =  cpa*u + spa*v;
-	const double vr = -spa*u + cpa*v;
+	const double ur =  cpa * u + spa * v;
+	const double vr = -spa * u + cpa * v;
 	
 	const std::complex<double> err = _uncertainty.error(d);
 	const double er = err.real();
@@ -295,12 +296,12 @@ namespace Themis{
 	for (size_t k = 0; k < Npix; ++k) {
 	  const std::complex<double> ph = phase[off + k];
 	  const double Ik = Iflat[k];
-	  const double xf = xfrac[k];
-	  const double yf = yfrac[k];
 	  const std::complex<double> Ikph = Ik * ph;
 	  S0 += Ikph;
-	  Sx += Ikph * xf;
-	  Sy += Ikph * yf;
+	  if (do_geom) {
+	    Sx += Ikph * xfrac[k];
+	    Sy += Ikph * yfrac[k];
+	  }
 	}
 	
 	const std::complex<double> Vm = Ki * S0;
@@ -318,13 +319,11 @@ namespace Themis{
 	}
 	
 	if (do_geom) {
-	  // dS0 parts (phase derivative)
 	  const std::complex<double> dS0_dfovx = (minus_i * (two_pi * ur)) * Sx;
 	  const std::complex<double> dS0_dfovy = (minus_i * (two_pi * vr)) * Sy;
 	  const std::complex<double> dS0_dpa   =
-	    (minus_i * two_pi) * ( (vr * fovx) * Sx - (ur * fovy) * Sy );
+	    (minus_i * two_pi) * ((vr * fovx) * Sx - (ur * fovy) * Sy);
 	  
-	  // Product rule with dK caches
 	  const std::complex<double> dVm_dfovx = dK_fovx[i] * S0 + Ki * dS0_dfovx;
 	  const std::complex<double> dVm_dfovy = dK_fovy[i] * S0 + Ki * dS0_dfovy;
 	  const std::complex<double> dVm_dpa   = dK_pa[i]   * S0 + Ki * dS0_dpa;
@@ -351,10 +350,35 @@ namespace Themis{
       grad[k] = Iflat[k] * grad_I_local[k];
     
     if (do_geom) {
+      // grad[idx_fovx] = geom_global[0];
+      // grad[idx_fovy] = geom_global[1];
+      // grad[idx_pa]   = geom_global[2];
       grad[idx_fovx] = geom_global[0];
       grad[idx_fovy] = geom_global[1];
-      grad[idx_pa]   = geom_global[2];
+      grad[idx_pa]   = fd_param(idx_pa); // instead geom_global[2] until pa gradients are fixed
     }
+    
+    // Temporary surgical FD helper
+    auto fd_param = [&](size_t p) -> double {
+      double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
+      if (!(h > 0.0))
+	h = 1e-6 * std::max(1.0, std::fabs(x[p]));
+      
+      std::vector<double> y = x;
+      
+      y[p] = x[p] + h;
+      const double Lp = std::isfinite(Pr(y)) ? this->operator()(y) : -std::numeric_limits<double>::infinity();
+      
+      y[p] = x[p] - h;
+      const double Lm = std::isfinite(Pr(y)) ? this->operator()(y) :  std::numeric_limits<double>::infinity();
+      
+      y[p] = x[p];
+      return (Lp - Lm) / (2.0 * h);
+    };
+
+    // Temporary surgical fix for localized bad intensity component (something seems special about pixel (0,0) ...)
+    if (Npix > 0 && Npar > 0)
+      grad[0] = fd_param(0);
     
     // FD everything else
     std::vector<double> y = x;
@@ -363,32 +387,32 @@ namespace Themis{
 	if (do_geom && (p == idx_fovx || p == idx_fovy || p == idx_pa))
 	  continue;
 	
-	const double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
+	double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
+	if (!(h > 0.0))
+	  h = 1e-6 * std::max(1.0, std::fabs(x[p]));
 	
 	y[p] = x[p] + h;
-	const double Lp = std::isfinite(Pr(y)) ? this->operator()(y)
-	  : -std::numeric_limits<double>::infinity();
+	const double Lp = std::isfinite(Pr(y)) ? this->operator()(y) : -std::numeric_limits<double>::infinity();
 	
 	y[p] = x[p] - h;
-	const double Lm = std::isfinite(Pr(y)) ? this->operator()(y)
-	  :  std::numeric_limits<double>::infinity();
+	const double Lm = std::isfinite(Pr(y)) ? this->operator()(y) :  std::numeric_limits<double>::infinity();
 	
 	y[p] = x[p];
 	grad[p] = (Lp - Lm) / (2.0 * h);
       }
     
-    // Restore basepoint model/uncertainty (important after FD loop)
+    // Restore basepoint model/uncertainty (NB: FD loop perturbed x state)
     {
       std::vector<double> mx(_model.size()), ux(_uncertainty.size());
       size_t ii = 0;
-      for (size_t j=0; j<_model.size(); ++j) mx[j] = x[ii++];
-      for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
+      for (size_t j = 0; j < _model.size(); ++j)       mx[j] = x[ii++];
+      for (size_t j = 0; j < _uncertainty.size(); ++j) ux[j] = x[ii++];
       _model.generate_model(mx);
       _uncertainty.generate_uncertainty(ux);
     }
     
     return grad;
-  }
+  }  
 
   void likelihood_visibility::output(std::ostream& out)
   {
