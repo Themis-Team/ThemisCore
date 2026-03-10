@@ -1156,14 +1156,14 @@ int main(int argc, char* argv[])
     means.push_back(Position_angle);
   }
 
-  double uas2rad = 1e-6/3600. * M_PI/180.;
+  // double uas2rad = 1e-6/3600. * M_PI/180.;
 
   // x offset of image (center raster!)
-  P.push_back(new Themis::prior_linear(-100*uas2rad,100*uas2rad));
+  P.push_back(new Themis::prior_linear(-100*Themis::utils::uas2rad,100*Themis::utils::uas2rad));
   means.push_back(0.0);
   
   // y offset of image (center raster)
-  P.push_back(new Themis::prior_linear(-100*uas2rad,100*uas2rad));
+  P.push_back(new Themis::prior_linear(-100*Themis::utils::uas2rad,100*Themis::utils::uas2rad));
   means.push_back(0.0);
   
 
@@ -1175,8 +1175,8 @@ int main(int argc, char* argv[])
     means.push_back(4.0);
     
     // Size
-    P.push_back(new Themis::prior_linear(1e2*uas2rad,1e7*uas2rad));
-    means.push_back(1e3*uas2rad);
+    P.push_back(new Themis::prior_linear(1e2*Themis::utils::uas2rad,1e7*Themis::utils::uas2rad));
+    means.push_back(1e3*Themis::utils::uas2rad);
     
     // Asymmetry
     P.push_back(new Themis::prior_linear(0.0,0.99));
@@ -1187,13 +1187,13 @@ int main(int argc, char* argv[])
     means.push_back(0.5*M_PI);
     
     // x offset
-    P.push_back(new Themis::prior_linear(-200*uas2rad,200*uas2rad));
-    // P.push_back(new Themis::prior_linear(-250*uas2rad,250*uas2rad));
+    P.push_back(new Themis::prior_linear(-200*Themis::utils::uas2rad,200*Themis::utils::uas2rad));
+    // P.push_back(new Themis::prior_linear(-250*Themis::utils::uas2rad,250*Themis::utils::uas2rad));
     means.push_back(0.0);
 
     // y offset
-    P.push_back(new Themis::prior_linear(-200*uas2rad,200*uas2rad));
-    // P.push_back(new Themis::prior_linear(-250*uas2rad,250*uas2rad));
+    P.push_back(new Themis::prior_linear(-200*Themis::utils::uas2rad,200*Themis::utils::uas2rad));
+    // P.push_back(new Themis::prior_linear(-250*Themis::utils::uas2rad,250*Themis::utils::uas2rad));
     means.push_back(0.0);
   }
 
@@ -1205,8 +1205,8 @@ int main(int argc, char* argv[])
     P.push_back(new Themis::prior_linear(0.0,2));
     means.push_back(0.3);
     //   1 Outer size R
-    P.push_back(new Themis::prior_linear(0.0,100*uas2rad));
-    means.push_back(0.5*initial_ring_diameter*uas2rad);
+    P.push_back(new Themis::prior_linear(0.0,100*Themis::utils::uas2rad));
+    means.push_back(0.5*initial_ring_diameter*Themis::utils::uas2rad);
     //   2 psi
     P.push_back(new Themis::prior_linear(0.0001,0.05));
     means.push_back(0.01);
@@ -1242,10 +1242,10 @@ int main(int argc, char* argv[])
     }
 
     //   9 x offset REVISIT
-    P.push_back(new Themis::prior_linear(-40*uas2rad,40*uas2rad));
+    P.push_back(new Themis::prior_linear(-40*Themis::utils::uas2rad,40*Themis::utils::uas2rad));
     means.push_back(0.0);
     //  10 y offset REVISIT
-    P.push_back(new Themis::prior_linear(-40*uas2rad,40*uas2rad));
+    P.push_back(new Themis::prior_linear(-40*Themis::utils::uas2rad,40*Themis::utils::uas2rad));
     means.push_back(0.0);
   }
 
@@ -1266,13 +1266,13 @@ int main(int argc, char* argv[])
     }
     
     // Size
-    P.push_back(new Themis::prior_linear(0*uas2rad,1e2*uas2rad));
-    means.push_back(10*uas2rad);
+    P.push_back(new Themis::prior_linear(0*Themis::utils::uas2rad,1e2*Themis::utils::uas2rad));
+    means.push_back(10*Themis::utils::uas2rad);
     // Derivatives
     for (size_t j=1; j<=size_t(order_rg[1]); ++j)
     {
       dtj=1.0/std::pow(maximum_time-minimum_time,j);
-      P.push_back(new Themis::prior_linear(-1e2*uas2rad*dtj,1e2*uas2rad*dtj));
+      P.push_back(new Themis::prior_linear(-1e2*Themis::utils::uas2rad*dtj,1e2*Themis::utils::uas2rad*dtj));
       means.push_back(0.0);
     }
     
@@ -1299,13 +1299,13 @@ int main(int argc, char* argv[])
     }
 
     // r offset
-    P.push_back(new Themis::prior_linear(0*uas2rad,50*uas2rad));
-    means.push_back(25.0*uas2rad);
+    P.push_back(new Themis::prior_linear(0*Themis::utils::uas2rad,50*Themis::utils::uas2rad));
+    means.push_back(25.0*Themis::utils::uas2rad);
     // Derivatives
     for (size_t j=1; j<=size_t(order_rg[4]); ++j)
     {
       dtj=1.0/std::pow(maximum_time-minimum_time,j);
-      P.push_back(new Themis::prior_linear(-200*uas2rad*dtj,200*uas2rad*dtj));
+      P.push_back(new Themis::prior_linear(-200*Themis::utils::uas2rad*dtj,200*Themis::utils::uas2rad*dtj));
       means.push_back(0.0);
     }
 
@@ -1320,11 +1320,11 @@ int main(int argc, char* argv[])
     }
     
     // x offset
-    P.push_back(new Themis::prior_linear(-50*uas2rad,50*uas2rad));
+    P.push_back(new Themis::prior_linear(-50*Themis::utils::uas2rad,50*Themis::utils::uas2rad));
     means.push_back(0.0);
 
     // y offset
-    P.push_back(new Themis::prior_linear(-50*uas2rad,50*uas2rad));
+    P.push_back(new Themis::prior_linear(-50*Themis::utils::uas2rad,50*Themis::utils::uas2rad));
     means.push_back(0.0);
   }
 
@@ -1971,8 +1971,10 @@ int main(int argc, char* argv[])
       if (world_rank == 0) {
 	std::cerr << "Done MCMC on round " << rep << std::endl
 		  << "it took " << (end-start)/CLOCKS_PER_SEC/3600.0 << " hours" << std::endl;
-	image_pulse.print_timing_summary(world_rank);
-	if (Reconstruct_gains) lvg[0]->print_timing_summary(world_rank);
+	image_pulse.print_timing_summary(world_rank); // only print for one sub image for now
+	if (Reconstruct_gains) {
+	  lvg[0]->print_timing_summary(world_rank);
+	}
       }
     }
     
