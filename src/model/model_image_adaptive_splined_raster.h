@@ -52,17 +52,26 @@ class model_image_adaptive_splined_raster : public model_image
   void invalidate_phase_cache() {
     phase_cache_valid_ = false;
     cached_Nd_ = 0;
+    cached_slot_count_ = 0;
+    cache_slot_valid_.clear();
   }
   bool use_cached_exp() const override { return _use_cached_exp; }
 
-  enum class VisibilityCacheMode {None, Global, EpochLocal};
+  enum class VisibilityCacheMode {None, Global, EpochLocal, OwnedGlobal};
   VisibilityCacheMode cache_mode_ = VisibilityCacheMode::Global;
 
+  void set_cache_mode(VisibilityCacheMode mode) {
+    if (cache_mode_ != mode) {
+      cache_mode_ = mode;
+      invalidate_phase_cache();
+    }
+  }
+  
   size_t Nx() const { return _Nx; }
   size_t Ny() const { return _Ny; }
 
   // Cache / raster accessors for analytic pixel gradients (read-only).
-  // Valid only when _use_cached_exp && phase_cache_valid_ and cache_mode_ == Global.
+  // Valid only when _use_cached_exp && phase_cache_valid_ and cache_mode_ == Global or cache_mode_ == OwnedGlobal .
   const std::vector<std::complex<double>>& phase_cache() const { return phase_cache_; }
   const std::vector<double>& spline_kernel_cache() const { return spline_kernel_cache_; }
   const std::vector<double>& spline_kernel_dfovx_cache() const override { return spline_kernel_dfovx_cache_; }
@@ -108,7 +117,7 @@ public:
 
   void set_data(const std::vector<datum_visibility>& data) {
     _data = &data;              // COPY ONCE
-    phase_cache_valid_ = false;
+    invalidate_phase_cache();
   }
 
   //! State switch to select numerically computed visibilities using the machinery in model_image.  Once called, all future visibilities will be computed numerically until use_analytical_visibilities() is called.
@@ -134,13 +143,15 @@ public:
   std::vector<std::complex<double>> phase_cache_; // size = _Nx * _Ny * Nd
   // std::vector<std::complex<float>> phase_cache_; // size = _Nx * _Ny * Nd ; [potential speedup if we get away with float, but not for our problem size and cache layout ...]
   bool phase_cache_valid_ = false;
+  std::vector<std::uint8_t> cache_slot_valid_; // global datum slot -> cache present?
 
 #ifndef NDEBUG
     std::vector<size_t> cached_ids_;   // global datum indices for debug validation
 #endif
 
   // Metadata
-  size_t cached_Nd_; // Indexing convention: phase_cache_[k * Nd + d]
+  size_t cached_Nd_=0; // Indexing convention: phase_cache_[k * Nd + d]
+  size_t cached_slot_count_ = 0;
 
   void update_phase_cache_all_data(const std::vector<datum_visibility>& data);
   

@@ -344,12 +344,54 @@ namespace Themis
     _use_prior_gain_solutions = false;
   }
 
+
+
+  std::vector<size_t> collect_owned_datum_indices(const std::vector<std::vector<size_t>>& datum_index_list, int lrank, int lsize)
+  {
+    std::vector<size_t> ids;
+    size_t n = 0;
+    for (size_t e = 0; e < datum_index_list.size(); ++e)
+      if (e % size_t(lsize) == size_t(lrank))
+	n += datum_index_list[e].size();
+    
+    ids.reserve(n);
+    for (size_t e = 0; e < datum_index_list.size(); ++e)
+      if (e % size_t(lsize) == size_t(lrank))
+	ids.insert(ids.end(),
+		   datum_index_list[e].begin(),
+		   datum_index_list[e].end());
+    return ids;
+  }
+  
+  std::vector<size_t> collect_all_datum_indices(size_t n)
+  {
+    std::vector<size_t> ids(n);
+    for (size_t i = 0; i < n; ++i)
+      ids[i] = i;
+    return ids;
+  }
+
+
+  
   void likelihood_optimal_complex_gain_visibility::output(std::ostream& out)
   {
     int rank;
     MPI_Comm_rank(_comm, &rank);
 
+    /*
     distribute_gains();
+    
+    if (rank==0)
+      out << "# likelihood_visibility output file\n#"
+    */
+        distribute_gains();
+
+    if (rank != 0)
+      return;
+    
+    // Intentionally rebuild a full cache by passing all datum ids.
+    // This still uses the OwnedGlobal builder, but with all global slots filled.
+    _model.prepare_visibility_cache(_data, collect_all_datum_indices(_data.size()));
     
     if (rank==0)
       out << "# likelihood_visibility output file\n#"
@@ -575,7 +617,13 @@ namespace Themis
       mx[j] = x[i++];
     for (size_t j=0; j<_uncertainty.size(); ++j)
       ux[j] = x[i++];
+
+    if (auto* mr = dynamic_cast<model_image_adaptive_splined_raster*>(&_model)) {
+      mr->set_cache_mode(model_image_adaptive_splined_raster::VisibilityCacheMode::OwnedGlobal);
+    }
+    
     _model.generate_model(mx);
+    _model.prepare_visibility_cache(_data, collect_owned_datum_indices(_datum_index_list, _L_rank, _L_size));
     _uncertainty.generate_uncertainty(ux);
 
     // Log-likelihood accumulator
@@ -689,6 +737,11 @@ namespace Themis
       mx[j] = x[i++];
     for (size_t j=0; j<_uncertainty.size(); ++j)
       ux[j] = x[i++];
+
+    if (auto* mr = dynamic_cast<model_image_adaptive_splined_raster*>(&_model)) {
+      mr->set_cache_mode(model_image_adaptive_splined_raster::VisibilityCacheMode::Global);
+    }
+    
     _model.generate_model(mx);
     _uncertainty.generate_uncertainty(ux);
 
@@ -870,24 +923,18 @@ namespace Themis
     delete[] local_buff;
     delete[] global_buff;
   }
-
-  
   
   std::vector<double> likelihood_optimal_complex_gain_visibility::gradient_fd_all(std::vector<double>& x, prior& Pr)
   {
     utils::ScopedTimer T(utils::TimerID::GradientFiniteDiff, timer_ns_, timer_calls_);
-
-
-    
-static bool once = false;
-int wrank = 0;
-MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
-if (!once && wrank == 0) {
-  std::cerr << "[CHECK] likelihood_visibility::gradient_fd_all() entered\n" << std::flush;
-  once = true;
-}
-
- 
+   
+    static bool once = false;
+    int wrank = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &wrank);
+    if (!once && wrank == 0) {
+      std::cerr << "[CHECK] likelihood_visibility::gradient_fd_all() entered\n" << std::flush;
+      once = true;
+    }
     
     // Make sure that gains are computed
     this->operator()(x);
@@ -913,7 +960,6 @@ if (!once && wrank == 0) {
     // Return gradients
     return grad;
   }
-
 
   std::vector<double> likelihood_optimal_complex_gain_visibility::gradient(std::vector<double>& x, prior& Pr)
   {
@@ -1014,13 +1060,36 @@ if (!once && wrank == 0) {
     
     int global_ok = 0;
     MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
-    
+
+    /*  
     auto restore_basepoint = [&](){
       std::vector<double> mx(_model.size()), ux(_uncertainty.size());
       size_t ii = 0;
       for (size_t j=0; j<_model.size(); ++j)       mx[j] = x[ii++];
       for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
       _model.generate_model(mx);
+      _uncertainty.generate_uncertainty(ux);
+      _x_last = x;
+      _L_last = Lx;
+    };
+    */
+    
+    auto restore_basepoint = [&](){
+      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
+      size_t ii = 0;
+      for (size_t j=0; j<_model.size(); ++j) mx[j] = x[ii++];
+      for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
+
+      if (auto* mr = dynamic_cast<model_image_adaptive_splined_raster*>(&_model)) {
+	mr->set_cache_mode(_parallelize_likelihood
+			   ? model_image_adaptive_splined_raster::VisibilityCacheMode::OwnedGlobal
+			   : model_image_adaptive_splined_raster::VisibilityCacheMode::Global);
+      }
+
+      _model.generate_model(mx);
+      if (_parallelize_likelihood) {
+	_model.prepare_visibility_cache(_data, collect_owned_datum_indices(_datum_index_list, _L_rank, _L_size));
+      }
       _uncertainty.generate_uncertainty(ux);
       _x_last = x;
       _L_last = Lx;
@@ -1264,7 +1333,12 @@ if (!once && wrank == 0) {
       mx[j] = x[i++];
     for (size_t j=0; j<_uncertainty.size(); ++j)
       ux[j] = x[i++];
+
+    if (auto* mr = dynamic_cast<model_image_adaptive_splined_raster*>(&_model)) {
+      mr->set_cache_mode(model_image_adaptive_splined_raster::VisibilityCacheMode::Global);
+    }
     _model.generate_model(mx);
+    _model.prepare_visibility_cache(_data, collect_all_datum_indices(_data.size()));
     _uncertainty.generate_uncertainty(ux);
 
     // Log-likelihood accumulator
@@ -1355,9 +1429,14 @@ if (!once && wrank == 0) {
   double likelihood_optimal_complex_gain_visibility::chi_squared_with_gain_priors(std::vector<double>& x)
   {
     distribute_gains();
+
+    if (auto* mr = dynamic_cast<model_image_adaptive_splined_raster*>(&_model)) {
+      mr->set_cache_mode(model_image_adaptive_splined_raster::VisibilityCacheMode::Global);
+    }
     
     _model.generate_model(x);
-
+    _model.prepare_visibility_cache(_data, collect_all_datum_indices(_data.size()));
+    
     // Log-likelihood accumulator
     double L = 0;
 

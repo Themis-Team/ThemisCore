@@ -131,7 +131,7 @@ namespace Themis {
 
 	static int idx_fovx = _size-3;
 	static int idx_fovy = _size-2;
-	static int idx_pa = idx_pa;
+	static int idx_pa = _size-1;
 	static int idx_shiftx = _size-5;
 	static int idx_shifty = _size-4;
 
@@ -253,54 +253,95 @@ namespace Themis {
 	}
   }
 
-  // Currently there is only no cache or global, but who knows mybe in the future epochlocal gets interesting too?!
-  enum class CacheMode {Global, EpochLocal};
-  CacheMode cache_mode_;
-  // Then use as
-  // if (cache_mode_ == CacheMode::EpochLocal)
-  //   update_phase_cache_for_data(epoch_data);
-  // else
-  //   update_phase_cache_all_data(all_data);
-  // Same for visibility
-
-  void model_image_adaptive_splined_raster::prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& ids)
+  void model_image_adaptive_splined_raster::update_phase_cache_all_data(const std::vector<datum_visibility>& data)
   {
-    // NOT USED AT THE MOMENT
-    if (!_use_cached_exp) return;
+    ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
     
-    cache_mode_ = VisibilityCacheMode::EpochLocal;
-    cached_Nd_  = ids.size();
-    cached_ids_ = ids;
+    cache_mode_ = VisibilityCacheMode::Global;
     
-    const size_t Nd   = ids.size();
     const size_t Npix = _Nx * _Ny;
+    const size_t Nd   = data.size();
     
     phase_cache_.resize(Npix * Nd);
     spline_kernel_cache_.resize(Nd);
     
-#ifndef NDEBUG
-    cached_ids_ = ids;   // exact mapping epoch-local → global
-#endif
+    // Only needed for mode-2 “correct-correct”
+    spline_kernel_dfovx_cache_.resize(Nd);
+    spline_kernel_dfovy_cache_.resize(Nd);
+    spline_kernel_dpa_cache_.resize(Nd);
     
-    for (size_t i = 0; i < Nd; ++i)
+    cache_slot_valid_.assign(Nd, static_cast<std::uint8_t>(1));
+    cached_slot_count_ = Nd;
+    
+    // Grid spacings (exactly what the old code used via alpha/beta diffs)
+    // Safe because Nx,Ny >= 2 for your use-cases.
+    const double dx = (_xmax - _xmin) / double(_Nx - 1);
+    const double dy = (_ymax - _ymin) / double(_Ny - 1);
+    const double dxdy = dx * dy;
+    
+    // fovx,fovy used only for dx/dy derivatives (equivalently: dx = fovx/(Nx-1))
+    const double fovx = (_xmax - _xmin);
+    const double fovy = (_ymax - _ymin);
+    
+    const double inv_nx1 = 1.0 / double(_Nx - 1);
+    const double inv_ny1 = 1.0 / double(_Ny - 1);
+    
+    // dxdy = fovx*fovy/((Nx-1)(Ny-1))
+    const double d_dxdy_dfovx = (fovy * inv_nx1 * inv_ny1);
+    const double d_dxdy_dfovy = (fovx * inv_nx1 * inv_ny1);
+    
+    // tpdx = 2π*fovx/(Nx-1), tpdy = 2π*fovy/(Ny-1)
+    const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
+    const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
+    
+    for (size_t d = 0; d < Nd; ++d)
       {
-	const auto& d = data.datum(ids[i]);
+	const double u = data[d].u;
+	const double v = data[d].v;
 	
-	const double ur =  _cpa*d.u + _spa*d.v;
-	const double vr = -_spa*d.u + _cpa*d.v;
+	// MUST match visibility() and phase construction convention
+	const double ur =  _cpa*u + _spa*v;
+	const double vr = -_spa*u + _cpa*v;
 	
-	spline_kernel_cache_[i] = cubic_spline_kernel(ur, vr) * (_alpha[1][1] - _alpha[0][0]) * (_beta [1][1] - _beta [0][0]);
+	// Kernel arguments: ku = ur*tpdx, kv = vr*tpdy  (NOT divide!)
+	const double ku = ur * _tpdx;
+	const double kv = vr * _tpdy;
 	
+	const double Ku  = cubic_spline_kernel_1d(ku);
+	const double Kv  = cubic_spline_kernel_1d(kv);
+	const double Kup = cubic_spline_kernel_1d_prime(ku);
+	const double Kvp = cubic_spline_kernel_1d_prime(kv);
+	
+	const double kernel = Ku * Kv;
+	const double K = dxdy * kernel;
+	
+	spline_kernel_cache_[d] = K;
+	
+	// dK/dfovx = d(dxdy)/dfovx * Ku*Kv + dxdy * (dKu/dku)*(dku/dfovx)*Kv
+	// dku/dfovx = ur * d(tpdx)/dfovx
+	spline_kernel_dfovx_cache_[d] =
+	  d_dxdy_dfovx * kernel + dxdy * (Kup * (ur * dtpdx_dfovx)) * Kv;
+	
+	// dK/dfovy similarly
+	spline_kernel_dfovy_cache_[d] =
+	  d_dxdy_dfovy * kernel + dxdy * Ku * (Kvp * (vr * dtpdy_dfovy));
+	
+	// dK/dpa: dxdy, tpdx, tpdy independent of pa; only ur,vr depend on pa:
+	// dur/dpa = vr, dvr/dpa = -ur
+	// dku/dpa = tpdx*dur/dpa = tpdx*vr
+	// dkv/dpa = tpdy*dvr/dpa = -tpdy*ur
+	spline_kernel_dpa_cache_[d] =
+	  dxdy * ( (Kup * (_tpdx * vr)) * Kv + Ku * (Kvp * (_tpdy * (-ur))) );
+	
+	// Phase cache: exp(-i phi), phi = 2π(ur*alpha + vr*beta)
 	size_t k = 0;
-	const double twopi=2.0*M_PI;
+	const double twopi=2.*M_PI;
 	for (size_t ix = 0; ix < _Nx; ++ix)
 	  for (size_t iy = 0; iy < _Ny; ++iy, ++k)
 	    {
-	      const double phi = /*twopi **/ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
-	      
-	      phase_cache_[i * Npix + k] =
-		_use_fast_exp_approx
-		? utils::fast_img_exp7(-phi)
+	      const double phi = /*twopi* */ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+	      phase_cache_[d * Npix + k] =
+		_use_fast_exp_approx ? utils::fast_img_exp7(-phi)
 		: std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
 	    }
       }
@@ -309,104 +350,94 @@ namespace Themis {
     phase_cache_valid_ = true;
   }
 
-
-
-
- void model_image_adaptive_splined_raster::update_phase_cache_all_data(const std::vector<datum_visibility>& data)
-{
-  ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
-
-  cache_mode_ = VisibilityCacheMode::Global;
-
-  const size_t Npix = _Nx * _Ny;
-  const size_t Nd   = data.size();
-
-  phase_cache_.resize(Npix * Nd);
-  spline_kernel_cache_.resize(Nd);
-
-  // Only needed for mode-2 “correct-correct”
-  spline_kernel_dfovx_cache_.resize(Nd);
-  spline_kernel_dfovy_cache_.resize(Nd);
-  spline_kernel_dpa_cache_.resize(Nd);
-
-  // Grid spacings (exactly what the old code used via alpha/beta diffs)
-  // Safe because Nx,Ny >= 2 for your use-cases.
-  const double dx = (_xmax - _xmin) / double(_Nx - 1);
-  const double dy = (_ymax - _ymin) / double(_Ny - 1);
-  const double dxdy = dx * dy;
-
-  // fovx,fovy used only for dx/dy derivatives (equivalently: dx = fovx/(Nx-1))
-  const double fovx = (_xmax - _xmin);
-  const double fovy = (_ymax - _ymin);
-
-  const double inv_nx1 = 1.0 / double(_Nx - 1);
-  const double inv_ny1 = 1.0 / double(_Ny - 1);
-
-  // dxdy = fovx*fovy/((Nx-1)(Ny-1))
-  const double d_dxdy_dfovx = (fovy * inv_nx1 * inv_ny1);
-  const double d_dxdy_dfovy = (fovx * inv_nx1 * inv_ny1);
-
-  // tpdx = 2π*fovx/(Nx-1), tpdy = 2π*fovy/(Ny-1)
-  const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
-  const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
-
-  for (size_t d = 0; d < Nd; ++d)
+  void model_image_adaptive_splined_raster::prepare_visibility_cache(const data_visibility& data, const std::vector<size_t>& ids)
   {
-    const double u = data[d].u;
-    const double v = data[d].v;
-
-    // MUST match visibility() and phase construction convention
-    const double ur =  _cpa*u + _spa*v;
-    const double vr = -_spa*u + _cpa*v;
-
-    // Kernel arguments: ku = ur*tpdx, kv = vr*tpdy  (NOT divide!)
-    const double ku = ur * _tpdx;
-    const double kv = vr * _tpdy;
-
-    const double Ku  = cubic_spline_kernel_1d(ku);
-    const double Kv  = cubic_spline_kernel_1d(kv);
-    const double Kup = cubic_spline_kernel_1d_prime(ku);
-    const double Kvp = cubic_spline_kernel_1d_prime(kv);
-
-    const double kernel = Ku * Kv;
-    const double K = dxdy * kernel;
-
-    spline_kernel_cache_[d] = K;
-
-    // dK/dfovx = d(dxdy)/dfovx * Ku*Kv + dxdy * (dKu/dku)*(dku/dfovx)*Kv
-    // dku/dfovx = ur * d(tpdx)/dfovx
-    spline_kernel_dfovx_cache_[d] =
-      d_dxdy_dfovx * kernel + dxdy * (Kup * (ur * dtpdx_dfovx)) * Kv;
-
-    // dK/dfovy similarly
-    spline_kernel_dfovy_cache_[d] =
-      d_dxdy_dfovy * kernel + dxdy * Ku * (Kvp * (vr * dtpdy_dfovy));
-
-    // dK/dpa: dxdy, tpdx, tpdy independent of pa; only ur,vr depend on pa:
-    // dur/dpa = vr, dvr/dpa = -ur
-    // dku/dpa = tpdx*dur/dpa = tpdx*vr
-    // dkv/dpa = tpdy*dvr/dpa = -tpdy*ur
-    spline_kernel_dpa_cache_[d] =
-      dxdy * ( (Kup * (_tpdx * vr)) * Kv + Ku * (Kvp * (_tpdy * (-ur))) );
-
-    // Phase cache: exp(-i phi), phi = 2π(ur*alpha + vr*beta)
-    size_t k = 0;
-    const double twopi=2.*M_PI;
-    for (size_t ix = 0; ix < _Nx; ++ix)
-      for (size_t iy = 0; iy < _Ny; ++iy, ++k)
+    ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
+    if (!_use_cached_exp) return;
+    
+    const size_t Nd_all = data.size();
+    const size_t Npix   = _Nx * _Ny;
+    
+    if (phase_cache_valid_
+	&& cache_mode_ == VisibilityCacheMode::OwnedGlobal
+	&& cached_Nd_ == Nd_all
+	&& cached_slot_count_ == ids.size())
+      return;
+    
+    cache_mode_ = VisibilityCacheMode::OwnedGlobal;
+    cached_Nd_ = Nd_all;
+    cached_slot_count_ = ids.size();
+    
+    phase_cache_.resize(Npix * Nd_all);
+    spline_kernel_cache_.resize(Nd_all);
+    spline_kernel_dfovx_cache_.resize(Nd_all);
+    spline_kernel_dfovy_cache_.resize(Nd_all);
+    spline_kernel_dpa_cache_.resize(Nd_all);
+    cache_slot_valid_.assign(Nd_all, static_cast<std::uint8_t>(0));
+    
+#ifndef NDEBUG
+    cached_ids_ = ids;
+#endif
+    
+    const double fovx = (_xmax - _xmin);
+    const double fovy = (_ymax - _ymin);
+    
+    const double inv_nx1 = 1.0 / double(_Nx - 1);
+    const double inv_ny1 = 1.0 / double(_Ny - 1);
+    
+    const double dxdy = fovx * fovy * inv_nx1 * inv_ny1;
+    
+    const double d_dxdy_dfovx = fovy * inv_nx1 * inv_ny1;
+    const double d_dxdy_dfovy = fovx * inv_nx1 * inv_ny1;
+    
+    const double dtpdx_dfovx = 2.0 * M_PI * inv_nx1;
+    const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
+    
+    for (size_t i = 0; i < ids.size(); ++i)
       {
-        const double phi = /*twopi* */ (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
-        phase_cache_[d * Npix + k] =
-          _use_fast_exp_approx ? utils::fast_img_exp7(-phi)
-	  : std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
+	const size_t gid = ids[i];
+	const auto& d = data.datum(gid);
+	
+	const double ur =  _cpa*d.u + _spa*d.v;
+	const double vr = -_spa*d.u + _cpa*d.v;
+	
+	const double ku = ur * _tpdx;
+	const double kv = vr * _tpdy;
+	
+	const double Ku  = cubic_spline_kernel_1d(ku);
+	const double Kv  = cubic_spline_kernel_1d(kv);
+	const double Kup = cubic_spline_kernel_1d_prime(ku);
+	const double Kvp = cubic_spline_kernel_1d_prime(kv);
+	
+	const double kernel = Ku * Kv;
+	
+	spline_kernel_cache_[gid] = dxdy * kernel;
+	spline_kernel_dfovx_cache_[gid] =
+	  d_dxdy_dfovx * kernel + dxdy * (Kup * (ur * dtpdx_dfovx)) * Kv;
+	spline_kernel_dfovy_cache_[gid] =
+	  d_dxdy_dfovy * kernel + dxdy * Ku * (Kvp * (vr * dtpdy_dfovy));
+	spline_kernel_dpa_cache_[gid] =
+	  dxdy * ((Kup * (_tpdx * vr)) * Kv + Ku * (Kvp * (_tpdy * (-ur))));
+	
+	cache_slot_valid_[gid] = 1;
+	
+	size_t k = 0;
+	const double twopi = 2.0 * M_PI;
+	for (size_t ix = 0; ix < _Nx; ++ix)
+	  for (size_t iy = 0; iy < _Ny; ++iy, ++k)
+	    {
+	      const double phi = (ur * _alpha[ix][iy] + vr * _beta[ix][iy]);
+	      
+	      phase_cache_[gid * Npix + k] =
+		_use_fast_exp_approx
+		? utils::fast_img_exp7(-phi)
+		: std::exp(-std::complex<double>(0.0, 1.0) * phi * twopi);
+	    }
       }
+    
+    phase_cache_valid_ = true;
   }
-
-  cached_Nd_ = Nd;
-  phase_cache_valid_ = true;
-}
-
-
+  
   void model_image_adaptive_splined_raster::update_phase_cache_for_data(const std::vector<datum_visibility>& data)
   {
     ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
@@ -421,6 +452,10 @@ namespace Themis {
     spline_kernel_dfovy_cache_.resize(Nd);
     spline_kernel_dpa_cache_.resize(Nd);
 
+    cache_mode_ = VisibilityCacheMode::EpochLocal;
+    cache_slot_valid_.assign(Nd, static_cast<std::uint8_t>(1));
+    cached_slot_count_ = Nd;
+    
     const double fovx = (_xmax - _xmin);
     const double fovy = (_ymax - _ymin);
     
@@ -580,17 +615,19 @@ namespace Themis {
       once = true;
     }
 
+    if (_use_cached_exp && cache_mode_ == VisibilityCacheMode::OwnedGlobal)
+      {
+	if (d_idx >= cache_slot_valid_.size() || !cache_slot_valid_[d_idx])
+	  {
+	    std::cerr << "OwnedGlobal cache miss for datum index " << d_idx << std::endl;
+	    std::abort();
+	  }
+      }
+
     ScopedTimer T(
     _use_cached_exp ? TimerID::VisibilityCached
                     : TimerID::VisibilitySingle,
     timer_ns_, timer_calls_);
-
-    /*
-    if (_use_cached_exp && !phase_cache_valid_) {
-      std::cerr << "[CACHE ERROR] visibility called without cache. " << "d_idx=" << d_idx << std::endl;
-      throw std::logic_error("Cached visibility called without a valid cache");
-    }
-    */
 
     if (_use_analytical_visibilities)
     {
