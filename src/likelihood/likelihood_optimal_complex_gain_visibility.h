@@ -146,7 +146,6 @@ namespace Themis
     void assume_independently_varying_gains();
 
     void print_timing_summary(int) const;
-
     
   protected:
 

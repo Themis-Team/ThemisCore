@@ -1060,19 +1060,6 @@ namespace Themis
     int global_ok = 0;
     MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
 
-    /*  
-    auto restore_basepoint = [&](){
-      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
-      size_t ii = 0;
-      for (size_t j=0; j<_model.size(); ++j)       mx[j] = x[ii++];
-      for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
-      _model.generate_model(mx);
-      _uncertainty.generate_uncertainty(ux);
-      _x_last = x;
-      _L_last = Lx;
-    };
-    */
-    
     auto restore_basepoint = [&](){
       std::vector<double> mx(_model.size()), ux(_uncertainty.size());
       size_t ii = 0;
@@ -1268,35 +1255,6 @@ namespace Themis
       grad[idx_fovy] = geom_global[1];
       grad[idx_pa]   = geom_global[2];
     }
-    
-    auto fd_param = [&](size_t p) -> double {
-      double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
-      if (!(h > 0.0))
-	h = 1e-6 * std::max(1.0, std::fabs(x[p]));
-      
-      std::vector<double> y = x;
-      
-      y[p] = x[p] + h;
-      const double Lp = std::isfinite(Pr(y)) ? this->operator()(y) : -std::numeric_limits<double>::infinity();
-      
-      y[p] = x[p] - h;
-      const double Lm = std::isfinite(Pr(y)) ? this->operator()(y) :  std::numeric_limits<double>::infinity();
-      
-      y[p] = x[p];
-      return (Lp - Lm) / (2.0 * h);
-    };
-    
-    // Temporary localized fixes matching the no-gain path conclusions
-    if (Npix > 0 && Npar > 0)
-      grad[0] = fd_param(0);
-
-    /*
-    if (do_geom) { // analytic gradients not working properly in gain case yet ...
-      // grad[idx_pa] = fd_param(idx_pa);
-      grad[idx_fovx] = fd_param(idx_fovx);
-      grad[idx_fovy] = fd_param(idx_fovy);
-    }
-    */
     
     // ---- FD all remaining parameters except analytic geom ----
     std::vector<double> y = x;
@@ -1885,6 +1843,8 @@ double likelihood_optimal_complex_gain_visibility::optimal_complex_gains_trial(
   
   double likelihood_optimal_complex_gain_visibility::optimal_complex_gains_trial(std::vector< std::complex<double> >& y, std::vector< std::complex<double> >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector< std::complex<double> >& gest, double& chisq_opt)
   {
+    utils::ScopedTimer T(utils::TimerID::GainsSolveTrial, timer_ns_, timer_calls_);
+    
     // Get the size of y (factor of 2 from real,imag)
     int ndata = int( 2*y.size() );
 
@@ -1959,7 +1919,8 @@ double likelihood_optimal_complex_gain_visibility::optimal_complex_gains_trial(
       if (mrqmin(_ogc_y,ndata,_g,ma,_covar,_alpha,&chisq,&alambda))
 	return -1;
 
-      if (iteration>5 && chisq<ochisq)
+      // if (iteration>5 && chisq<ochisq) // original develop version 
+      if (iteration>0 && chisq<ochisq)
       {
 	dg2 = 0.0;
 	for (int i=1; i<=ma; ++i)
@@ -2029,6 +1990,8 @@ double likelihood_optimal_complex_gain_visibility::optimal_complex_gains_trial(
 
   double likelihood_optimal_complex_gain_visibility::optimal_complex_gains_log_trial(std::vector< std::complex<double> >& y, std::vector< std::complex<double> >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector< std::complex<double> >& gest, double& chisq_opt)
   {
+    utils::ScopedTimer T(utils::TimerID::GainsSolveLogTrial, timer_ns_, timer_calls_);
+
     // Get the size of y (factor of 2 from real,imag)
     int ndata = int( 2*y.size() );
 
@@ -2103,7 +2066,8 @@ double likelihood_optimal_complex_gain_visibility::optimal_complex_gains_trial(
       if (mrqmin_log(_ogc_y,_sig,ndata,_g,ma,_covar,_alpha,&chisq,&alambda))
 	return -1;
 
-      if (iteration>5 && chisq<ochisq)
+      // if (iteration>5 && chisq<ochisq) // original develop version 
+      if (iteration>0 && chisq<ochisq)
       {
 	dg2 = 0.0;
 	for (int i=1; i<=ma; ++i)
@@ -3207,252 +3171,6 @@ int likelihood_optimal_complex_gain_visibility::mrqmin(double y[], int ndata, do
 */
 
 
-/*
-int likelihood_optimal_complex_gain_visibility::mrqmin(double y[], int ndata, double a[], int ma,
-                                                       double **covar, double **alpha,
-                                                       double *chisq, double *alamda)
-{
-  int j,k,l;
-  int mfit = ma;
-
-  if (*alamda < 0.0)
-  {
-    *alamda = 0.001;
-    mrqcof(y, ndata, a, ma, alpha, _mrq_beta, chisq);
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=ma; ++j)
-      _mrq_atry[j] = a[j];
-  }
-
-  for (j=1; j<=mfit; ++j)
-  {
-    for (k=1; k<=mfit; ++k)
-      covar[j][k] = alpha[j][k];
-    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-  }
-
-  if (*alamda == 0.0)
-  {
-    // Final covariance/inverse: keep the old Gauss-Jordan path.
-    for (j=1; j<=mfit; ++j)
-      _mrq_oneda[j][1] = _mrq_beta[j];
-
-    if (gaussj(covar, mfit, _mrq_oneda, 1))
-      return 1;
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-
-    covsrt(covar, ma, mfit);
-    return 0;
-  }
-
-  // Hot path: Cholesky solve of the damped LM system.
-  ++g_chol_calls;
-
-  if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
-  {
-    ++g_chol_failures;
-
-    // Rebuild the same damped system and fall back to Gauss-Jordan.
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        covar[j][k] = alpha[j][k];
-      covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-      _mrq_oneda[j][1] = _mrq_beta[j];
-    }
-
-    if (gaussj(covar, mfit, _mrq_oneda, 1))
-      return 1;
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-  }
-  else
-  {
-    // Debug-only A/B comparison on the first few successful Cholesky solves.
-    if (g_chol_compares < 50)
-    {
-      ++g_chol_compares;
-
-      // Rebuild the same damped system in _alpha and solve with Gauss-Jordan.
-      for (j=1; j<=mfit; ++j)
-      {
-        for (k=1; k<=mfit; ++k)
-          _alpha[j][k] = alpha[j][k];
-        _alpha[j][j] = alpha[j][j] * (1.0 + (*alamda));
-        _mrq_oneda[j][1] = _mrq_beta[j];
-      }
-
-      if (!gaussj(_alpha, mfit, _mrq_oneda, 1))
-      {
-        for (j=1; j<=mfit; ++j)
-        {
-          const double da_chol = _mrq_da[j];
-          const double da_gj   = _mrq_oneda[j][1];
-          const double absdiff = std::fabs(da_chol - da_gj);
-          const double reldiff = absdiff / std::max(1.0, std::fabs(da_gj));
-
-          g_chol_max_abs_da_diff = std::max(g_chol_max_abs_da_diff, absdiff);
-          g_chol_max_rel_da_diff = std::max(g_chol_max_rel_da_diff, reldiff);
-        }
-      }
-    }
-  }
-
-  for (l=1; l<=ma; ++l)
-    _mrq_atry[l] = a[l] + _mrq_da[l];
-
-  mrqcof(y, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
-
-  if (*chisq < _mrq_ochisq)
-  {
-    *alamda *= 0.1;
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        alpha[j][k] = covar[j][k];
-      _mrq_beta[j] = _mrq_da[j];
-    }
-    for (l=1; l<=ma; ++l)
-      a[l] = _mrq_atry[l];
-  }
-  else
-  {
-    *alamda *= 10.0;
-    *chisq = _mrq_ochisq;
-  }
-
-  return 0;
-}
-*/
-
-/*
-// cholesky w diagnostics
-int likelihood_optimal_complex_gain_visibility::mrqmin_log(double y[], double sig[], int ndata,
-                                                           double a[], int ma,
-                                                           double **covar, double **alpha,
-                                                           double *chisq, double *alamda)
-{
-  int j,k,l;
-  int mfit = ma;
-
-  if (*alamda < 0.0)
-  {
-    *alamda = 0.001;
-    mrqcof_log(y, sig, ndata, a, ma, alpha, _mrq_beta, chisq);
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=ma; ++j)
-      _mrq_atry[j] = a[j];
-  }
-
-  for (j=1; j<=mfit; ++j)
-  {
-    for (k=1; k<=mfit; ++k)
-      covar[j][k] = alpha[j][k];
-    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-  }
-
-  if (*alamda == 0.0)
-  {
-    // Final covariance/inverse: keep the old Gauss-Jordan path.
-    for (j=1; j<=mfit; ++j)
-      _mrq_oneda[j][1] = _mrq_beta[j];
-
-    if (gaussj(covar, mfit, _mrq_oneda, 1))
-      return 1;
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-
-    covsrt(covar, ma, mfit);
-    return 0;
-  }
-
-  // Hot path: Cholesky solve of the damped LM system.
-  ++g_chol_calls;
-
-  if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
-  {
-    ++g_chol_failures;
-
-    // Rebuild the same damped system and fall back to Gauss-Jordan.
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        covar[j][k] = alpha[j][k];
-      covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-      _mrq_oneda[j][1] = _mrq_beta[j];
-    }
-
-    if (gaussj(covar, mfit, _mrq_oneda, 1))
-      return 1;
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-  }
-  else
-  {
-    // Debug-only A/B comparison on the first few successful Cholesky solves.
-    if (g_chol_compares < 50)
-    {
-      ++g_chol_compares;
-
-      // Rebuild the same damped system in _alpha and solve with Gauss-Jordan.
-      for (j=1; j<=mfit; ++j)
-      {
-        for (k=1; k<=mfit; ++k)
-          _alpha[j][k] = alpha[j][k];
-        _alpha[j][j] = alpha[j][j] * (1.0 + (*alamda));
-        _mrq_oneda[j][1] = _mrq_beta[j];
-      }
-
-      if (!gaussj(_alpha, mfit, _mrq_oneda, 1))
-      {
-        for (j=1; j<=mfit; ++j)
-        {
-          const double da_chol = _mrq_da[j];
-          const double da_gj   = _mrq_oneda[j][1];
-          const double absdiff = std::fabs(da_chol - da_gj);
-          const double reldiff = absdiff / std::max(1.0, std::fabs(da_gj));
-
-          g_chol_max_abs_da_diff = std::max(g_chol_max_abs_da_diff, absdiff);
-          g_chol_max_rel_da_diff = std::max(g_chol_max_rel_da_diff, reldiff);
-        }
-      }
-    }
-  }
-
-  for (l=1; l<=ma; ++l)
-    _mrq_atry[l] = a[l] + _mrq_da[l];
-
-  mrqcof_log(y, sig, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
-
-  if (*chisq < _mrq_ochisq)
-  {
-    *alamda *= 0.1;
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        alpha[j][k] = covar[j][k];
-      _mrq_beta[j] = _mrq_da[j];
-    }
-    for (l=1; l<=ma; ++l)
-      a[l] = _mrq_atry[l];
-  }
-  else
-  {
-    *alamda *= 10.0;
-    *chisq = _mrq_ochisq;
-  }
-
-  return 0;
-}
-*/
-
 
 // Cholesky version wo diagnostics:
 int likelihood_optimal_complex_gain_visibility::mrqmin_log(double y[], double sig[], int ndata,
@@ -3753,15 +3471,12 @@ int likelihood_optimal_complex_gain_visibility::mrqmin_log(double y[], double si
     std::cout << "=================================\n\n";
 
     std::cerr << "===== Cholesky diagnostics =====\n";
-std::cerr << "chol calls          : " << g_chol_calls << "\n";
-std::cerr << "chol failures       : " << g_chol_failures << "\n";
-std::cerr << "chol compares       : " << g_chol_compares << "\n";
-std::cerr << "max |da_chol-da_gj| : " << g_chol_max_abs_da_diff << "\n";
-std::cerr << "max rel da diff     : " << g_chol_max_rel_da_diff << "\n";
+    std::cerr << "chol calls          : " << g_chol_calls << "\n";
+    std::cerr << "chol failures       : " << g_chol_failures << "\n";
+    std::cerr << "chol compares       : " << g_chol_compares << "\n";
+    std::cerr << "max |da_chol-da_gj| : " << g_chol_max_abs_da_diff << "\n";
+    std::cerr << "max rel da diff     : " << g_chol_max_rel_da_diff << "\n";
   }
-
-
-  
   
 };
 
