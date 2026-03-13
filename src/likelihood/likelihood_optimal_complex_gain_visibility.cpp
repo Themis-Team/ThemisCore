@@ -985,8 +985,7 @@ namespace Themis
 	return gradient_hybrid(x, Pr, /*do_geom=*/false);
 	
       case GradientMode::HYBRID_INTENSITY_GEOM:
-	// Temporary: gain-side do_geom path perturbs state; use stable warp-1 path for now.
-	return gradient_hybrid(x, Pr, /*do_geom=*/false);
+	return gradient_hybrid(x, Pr, /*do_geom=*/true);
 	
       default:
 	return gradient_fd_all(x, Pr);
@@ -1290,12 +1289,14 @@ namespace Themis
     // Temporary localized fixes matching the no-gain path conclusions
     if (Npix > 0 && Npar > 0)
       grad[0] = fd_param(0);
-    
+
+    /*
     if (do_geom) { // analytic gradients not working properly in gain case yet ...
-      grad[idx_pa] = fd_param(idx_pa);
+      // grad[idx_pa] = fd_param(idx_pa);
       grad[idx_fovx] = fd_param(idx_fovx);
       grad[idx_fovy] = fd_param(idx_fovy);
     }
+    */
     
     // ---- FD all remaining parameters except analytic geom ----
     std::vector<double> y = x;
