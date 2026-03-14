@@ -64,6 +64,7 @@ namespace Themis{
       bool _use_cached_exp = false;
       std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr); // for analytic diff
       std::vector<double> gradient_dispatch_(std::vector<double>& x, prior& Pr);
+      void restore_basepoint(const std::vector<double>& x);
   };
 };
 

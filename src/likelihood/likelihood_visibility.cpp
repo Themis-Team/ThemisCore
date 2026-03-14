@@ -115,9 +115,17 @@ namespace Themis{
     return sum;
   }
 
-
+  void likelihood_visibility::restore_basepoint(const std::vector<double>& x)
+  {
+    std::vector<double> mx(_model.size()), ux(_uncertainty.size());
+    size_t ii = 0;
+    for (size_t j = 0; j < _model.size(); ++j)       mx[j] = x[ii++];
+    for (size_t j = 0; j < _uncertainty.size(); ++j) ux[j] = x[ii++];
+    _model.generate_model(mx);
+    _uncertainty.generate_uncertainty(ux);
+  }
   
-  std::vector<double> likelihood_visibility::gradient(std::vector<double>& x, prior& Pr)
+  std::vector<double> likelihood_visibility::gradient(const std::vector<double>& x, prior& Pr)
   {
     static bool once=false;
     if(!once){
@@ -143,17 +151,8 @@ namespace Themis{
       case GradientMode::FD_ALL:
 	{
 	  // Pure FD through base helper (this calls operator()(y) repeatedly)
-	  std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
-	  
-	  // restore model/uncertainty to basepoint x after FD loop
-	  {
-	    std::vector<double> mx(_model.size()), ux(_uncertainty.size());
-	    size_t ii = 0;
-	    for (size_t j = 0; j < _model.size(); ++j) mx[j] = x[ii++];
-	    for (size_t j = 0; j < _uncertainty.size(); ++j) ux[j] = x[ii++];
-	    _model.generate_model(mx);
-	    _uncertainty.generate_uncertainty(ux);
-	  }
+	  std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);	  
+	  restore_basepoint(x); // restore model/uncertainty to basepoint x after FD loop
 	  return g;
 	}
 
@@ -204,31 +203,44 @@ namespace Themis{
       if (dK_fovy.size() < _data.size()) local_ok = 0;
       if (dK_pa.size()   < _data.size()) local_ok = 0;
     }
-    
+
     int global_ok = 0;
     MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
     
     if (!global_ok) {
       // FD fallback (and restore basepoint)
-      std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
-      
-      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
-      size_t ii = 0;
-      for (size_t j = 0; j < _model.size(); ++j)       mx[j] = x[ii++];
-      for (size_t j = 0; j < _uncertainty.size(); ++j) ux[j] = x[ii++];
-      _model.generate_model(mx);
-      _uncertainty.generate_uncertainty(ux);
-      
+      std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);      
+      restore_basepoint(x); // Restore basepoint model/uncertainty (NB: FD loop perturbed x state)
       return g;
     }
     
     // ---- index layout ----
-    // fov/pa are the last 3 model params
     const size_t Nm = _model.size();
-    const size_t idx_fovx = Nm - 3;
-    const size_t idx_fovy = Nm - 2;
-    const size_t idx_pa   = Nm - 1;
+
+    // ---- Infer parameter layout in the MODEL block ----
+    const size_t extra = (Nm >= Npix) ? (Nm - Npix) : 0;
     
+    bool has_shift = false;
+    size_t idx_shiftx = 0, idx_shifty = 0, idx_fovx = 0, idx_fovy = 0, idx_pa = 0;
+    
+    if (extra == 3) {
+      idx_fovx = Npix + 0;
+      idx_fovy = Npix + 1;
+      idx_pa   = Npix + 2;
+    } else if (extra == 5) {
+      has_shift = true;
+      idx_shiftx = Npix + 0;
+      idx_shifty = Npix + 1;
+      idx_fovx   = Npix + 2;
+      idx_fovy   = Npix + 3;
+      idx_pa     = Npix + 4;
+    } else {
+      // Unknown layout → be conservative.
+      std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+      restore_basepoint(x);
+      return g;
+    }
+
     const double fovx = x[idx_fovx];
     const double fovy = x[idx_fovy];
     const double pa   = x[idx_pa];
@@ -349,36 +361,11 @@ namespace Themis{
     for (size_t k = 0; k < Npix && k < Npar; ++k)
       grad[k] = Iflat[k] * grad_I_local[k];
         
-    // Temporary surgical FD helper
-    auto fd_param = [&](size_t p) -> double {
-      double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
-      if (!(h > 0.0))
-	h = 1e-6 * std::max(1.0, std::fabs(x[p]));
-      
-      std::vector<double> y = x;
-      
-      y[p] = x[p] + h;
-      const double Lp = std::isfinite(Pr(y)) ? this->operator()(y) : -std::numeric_limits<double>::infinity();
-      
-      y[p] = x[p] - h;
-      const double Lm = std::isfinite(Pr(y)) ? this->operator()(y) :  std::numeric_limits<double>::infinity();
-      
-      y[p] = x[p];
-      return (Lp - Lm) / (2.0 * h);
-    };
-
     if (do_geom) {
-      // grad[idx_fovx] = geom_global[0];
-      // grad[idx_fovy] = geom_global[1];
-      // grad[idx_pa]   = geom_global[2];
       grad[idx_fovx] = geom_global[0];
       grad[idx_fovy] = geom_global[1];
-      grad[idx_pa]   = fd_param(idx_pa); // instead geom_global[2] until pa gradients are fixed
+      grad[idx_pa]   = geom_global[2];
     }
-    
-    // Temporary surgical fix for localized bad intensity component (something seems special about pixel (0,0) ...)
-    if (Npix > 0 && Npar > 0)
-      grad[0] = fd_param(0);
     
     // FD everything else
     std::vector<double> y = x;
@@ -401,15 +388,7 @@ namespace Themis{
 	grad[p] = (Lp - Lm) / (2.0 * h);
       }
     
-    // Restore basepoint model/uncertainty (NB: FD loop perturbed x state)
-    {
-      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
-      size_t ii = 0;
-      for (size_t j = 0; j < _model.size(); ++j)       mx[j] = x[ii++];
-      for (size_t j = 0; j < _uncertainty.size(); ++j) ux[j] = x[ii++];
-      _model.generate_model(mx);
-      _uncertainty.generate_uncertainty(ux);
-    }
+    restore_basepoint(x); // Restore basepoint model/uncertainty (NB: FD loop perturbed x state)
     
     return grad;
   }  
