@@ -125,7 +125,7 @@ namespace Themis{
     _uncertainty.generate_uncertainty(ux);
   }
   
-  std::vector<double> likelihood_visibility::gradient(const std::vector<double>& x, prior& Pr)
+  std::vector<double> likelihood_visibility::gradient(std::vector<double>& x, prior& Pr)
   {
     static bool once=false;
     if(!once){
