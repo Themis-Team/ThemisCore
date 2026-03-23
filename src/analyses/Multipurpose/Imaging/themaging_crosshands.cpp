@@ -119,7 +119,9 @@ int main(int argc, char* argv[])
   bool restart_flag = false;
 
   bool use_fast_exp_approx = false;
-  
+  bool use_cached_exp = false;
+  int gradient_mode = 0; // FD per default
+
   bool preoptimize_flag = false;
   double opt_ko_llrf = 10.0;
   size_t opt_ko_itermax = 5;
@@ -461,7 +463,23 @@ int main(int argc, char* argv[])
     else if (opt=="-fea" || opt=="--fast-exp-approx")
     {
       use_fast_exp_approx=true;
-    }    
+    }
+    else if (opt=="-c" || opt=="--cached-exp")
+    {
+      use_cached_exp=true;
+    }
+    else if (opt=="--gradient-mode" || opt=="--warp")
+    {
+      if (k<argc)
+	gradient_mode=atoi(argv[k++]);
+      else
+      {
+	if (world_rank==0)
+	  std::cerr << "ERROR: An int argument must be provided after --gradient-mode, --warp\n";
+	std::exit(1);
+      }	
+    }
+
     else if (opt=="-A" || opt=="--background-gaussian")
     {
       add_background_gaussian=true;
@@ -817,6 +835,10 @@ int main(int argc, char* argv[])
   image_pulse.use_analytical_visibilities();
   if (use_fast_exp_approx)
     image_pulse.use_fast_exp_approx();
+  if (use_cached_exp) {
+    image_pulse.use_cached_exp();
+  }
+
   Themis::model_polarized_image* image_ptr = &image_pulse;
   
   // Generate sum to get a shift and add possibly components
@@ -1822,6 +1844,13 @@ int main(int argc, char* argv[])
 
   // Make a likelihood object
   Themis::likelihood L_obj(P, L, W);
+  L_obj.use_intrinsic_likelihood_gradients();
+
+  if (gradient_mode==0) { L_obj.set_sublikelihood_gradient_mode(Themis::likelihood_base::GradientMode::FD_ALL);}
+  else if (gradient_mode==1) { L_obj.set_sublikelihood_gradient_mode(Themis::likelihood_base::GradientMode::HYBRID_INTENSITY);}
+  else if (gradient_mode==2) { L_obj.set_sublikelihood_gradient_mode(Themis::likelihood_base::GradientMode::HYBRID_INTENSITY_GEOM);}
+  else {throw std::logic_error("Invalid gradient_mode must be within 0-2");}
+
   Themis::likelihood_power_tempered L_temp(L_obj);
   
   double Lstart = L_obj(means);
@@ -2108,9 +2137,18 @@ int main(int argc, char* argv[])
 	std::cerr << "Starting MCMC on round " << rep << std::endl;
       DEO.run_sampler( 1, thin_factor, refresh_rate, verbosity);
       clock_t end = clock();
-      if (world_rank == 0)
+      if (world_rank == 0) {
 	std::cerr << "Done MCMC on round " << rep << std::endl
 		  << "it took " << (end-start)/CLOCKS_PER_SEC/3600.0 << " hours" << std::endl;
+      	image_pulse.print_timing_summary(world_rank); // only print for one sub image for now
+
+	if (Reconstruct_gains) {
+	  // lxg[0]->print_timing_summary(world_rank);
+	}
+	else {
+	  lx[0]->print_timing_summary(world_rank);
+	}
+      }
     }
     
     // Reset pbest

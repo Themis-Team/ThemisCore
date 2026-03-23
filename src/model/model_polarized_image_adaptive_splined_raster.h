@@ -12,6 +12,11 @@
 #include "model_polarized_image.h"
 #include <vector>
 
+#include <chrono>
+#include <array>
+#include <cstdint>
+#include <iostream>
+
 namespace Themis {
 
   /*!
@@ -91,6 +96,28 @@ namespace Themis {
     //! Returns a vector of complex visibility corresponding to RR,LL,RL,LR in Jy computed from the image given a datum_crosshand_visibilities_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.
     virtual std::vector< std::complex<double> > crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy);
 
+
+
+    size_t Nx() const { return _Nx; }
+    size_t Ny() const { return _Ny; }
+    
+    bool phase_cache_valid() const { return phase_cache_valid_; }
+    size_t cached_Nd() const { return cached_Nd_; }
+    
+    const std::vector<std::complex<double>>& phase_cache() const { return phase_cache_; }
+    
+    const std::vector<double>& spline_kernel_cache() const { return spline_kernel_cache_; }
+    const std::vector<double>& spline_kernel_dfovx_cache() const { return spline_kernel_dfovx_cache_; }
+    const std::vector<double>& spline_kernel_dfovy_cache() const { return spline_kernel_dfovy_cache_; }
+    const std::vector<double>& spline_kernel_dpa_cache()   const { return spline_kernel_dpa_cache_; }
+    
+    const std::vector<double>& I_flat() const { return _I_flat; }
+    const std::vector<double>& Q_flat() const { return _Q_flat; }
+    const std::vector<double>& U_flat() const { return _U_flat; }
+    const std::vector<double>& V_flat() const { return _V_flat; }
+
+
+    
     //! Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
     virtual std::complex<double> visibility(datum_visibility& d, double accuracy);
     
@@ -125,8 +152,145 @@ namespace Themis {
   double cubic_spline_kernel(double u, double v) const;
 
   bool _use_analytical_visibilities;
-  bool _use_fast_exp_approx;  
-};
+  bool _use_fast_exp_approx = false;
 
+    private:
+  std::vector<double> _I_flat, _Q_flat, _U_flat, _V_flat;
+
+  virtual void generate_polarized_image(
+      std::vector<double> parameters,
+      std::vector<std::vector<double>>& I,
+      std::vector<std::vector<double>>& Q,
+      std::vector<std::vector<double>>& U,
+      std::vector<std::vector<double>>& V,
+      std::vector<double>& I_flat,
+      std::vector<double>& Q_flat,
+      std::vector<double>& U_flat,
+      std::vector<double>& V_flat,
+      std::vector<std::vector<double>>& alpha,
+      std::vector<std::vector<double>>& beta);
+
+    // optimization:
+    const data_crosshand_visibilities* _data = nullptr;
+    
+    std::vector<std::complex<double>> phase_cache_;
+    std::vector<double> spline_kernel_cache_;
+    std::vector<double> spline_kernel_dfovx_cache_;
+    std::vector<double> spline_kernel_dfovy_cache_;
+    std::vector<double> spline_kernel_dpa_cache_;
+    
+    bool phase_cache_valid_ = false;
+    size_t cached_Nd_ = 0;
+    
+    double cubic_spline_kernel_1d_prime(double k) const;
+    void update_phase_cache_all_data(const data_crosshand_visibilities& data);
+
+
+    
+virtual void fill_crosshand_visibilities(size_t d_idx,
+                                         datum_crosshand_visibilities& d,
+                                         double accuracy,
+                                         std::complex<double>* out) override;
+    
+inline void cached_crosshand_into(size_t d_idx,
+                                  datum_crosshand_visibilities& d,
+                                  std::complex<double>* out)
+{
+  const size_t Npix   = _Nx * _Ny;
+  const size_t offset = d_idx * Npix;
+
+  std::complex<double> VI(0.0,0.0), VQ(0.0,0.0), VU(0.0,0.0), VV(0.0,0.0);
+
+  for (size_t k = 0; k < Npix; ++k)
+  {
+    const std::complex<double>& ph = phase_cache_[offset + k];
+    VI += _I_flat[k] * ph;
+    VQ += _Q_flat[k] * ph;
+    VU += _U_flat[k] * ph;
+    VV += _V_flat[k] * ph;
+  }
+
+  const double K = spline_kernel_cache_[d_idx];
+  VI *= K; VQ *= K; VU *= K; VV *= K;
+
+  out[0] = VI + VV;
+  out[1] = VI - VV;
+  out[2] = VQ + std::complex<double>(0.0,1.0)*VU;
+  out[3] = VQ - std::complex<double>(0.0,1.0)*VU;
+
+  std::vector<std::complex<double>> tmp(4);
+  tmp[0]=out[0]; tmp[1]=out[1]; tmp[2]=out[2]; tmp[3]=out[3];
+  apply_Dterms(d, tmp);
+  out[0]=tmp[0]; out[1]=tmp[1]; out[2]=tmp[2]; out[3]=tmp[3];
+}
+
+
+    
+  public:
+    virtual void print_timing_summary(int mpi_rank = -1) const;  
+
+    void set_data(const data_crosshand_visibilities& data) override {
+      _data = &data;
+      phase_cache_valid_ = false;
+      cached_Nd_ = 0;
+    }
+    bool _use_cached_exp = false;
+    bool use_cached_exp() const override { return _use_cached_exp; }
+    void use_cached_exp();
+    
+    std::vector<std::complex<double>>
+    crosshand_visibilities(size_t d_idx, datum_crosshand_visibilities& d, double accuracy) override;
+
+
+
+ // ---------- PROFILING ----------
+  enum class TimerID {
+		      GenerateModel,
+		      GenerateImage,
+		      GeneratePolarizedImage,
+		      UpdatePhaseCache,
+		      VisibilitySingle,
+		      VisibilityCached,
+		      CrosshandVisibilitySingle,
+		      CrosshandVisibilityCached,
+
+		      VisibilityCached_Rotation,
+		      VisibilityCached_Loop,
+		      VisibilityCached_Kernel,
+		      VisibilityCached_Scale,
+
+		      VisibilityNumerical,
+		      ClosurePhase,
+		      ClosureAmplitude,
+		      COUNT
+  };
+  
+  mutable std::array<std::uint64_t,(size_t)TimerID::COUNT> timer_ns_{};
+  mutable std::array<std::uint64_t,(size_t)TimerID::COUNT> timer_calls_{};
+  
+  struct ScopedTimer {
+    TimerID id;
+    std::chrono::steady_clock::time_point t0;
+    std::array<std::uint64_t,(size_t)TimerID::COUNT>& totals;
+    std::array<std::uint64_t,(size_t)TimerID::COUNT>& calls;
+    
+    ScopedTimer(TimerID i,
+		std::array<std::uint64_t,(size_t)TimerID::COUNT>& t,
+		std::array<std::uint64_t,(size_t)TimerID::COUNT>& c)
+      : id(i), t0(std::chrono::steady_clock::now()), totals(t), calls(c) {}
+    
+    ~ScopedTimer() {
+      auto t1 = std::chrono::steady_clock::now();
+      std::uint64_t ns =
+	std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
+      totals[(size_t)id] += ns;
+      calls[(size_t)id]  += 1;
+    }
+  };
+ 
+    
+    
+  };
+  
 };
 #endif

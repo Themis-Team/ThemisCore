@@ -229,6 +229,125 @@ void model_polarized_image::apply_Dterms(const datum_crosshand_visibilities& d, 
   }
 }
 
+
+
+void model_polarized_image::fill_Dterm_matrix_derivatives(
+    const datum_crosshand_visibilities& d,
+    const std::vector<size_t>& params,
+    std::vector<std::array<std::complex<double>,16>>& dMdp) const
+{
+  dMdp.resize(params.size());
+  for (size_t q = 0; q < dMdp.size(); ++q)
+    dMdp[q].fill(std::complex<double>(0.0,0.0));
+
+  if (!_modeling_Dterms || _Dterms.empty())
+    return;
+
+  const size_t nst = _station_codes.size();
+  const size_t first_dterm_param = _size - 2*_Dterms.size();   // 4*nst real params
+  const size_t last_dterm_param  = _size;
+
+  const size_t is1 = get_index_from_station_code(d.Station1);
+  const size_t is2 = get_index_from_station_code(d.Station2);
+
+  const std::complex<double> Iunit(0.0,1.0);
+  const std::complex<double> ei2p1 = std::exp(std::complex<double>(0.0,2.0) * d.phi1);
+  const std::complex<double> ei2p2 = std::exp(std::complex<double>(0.0,2.0) * d.phi2);
+  const std::complex<double> ce1   = std::conj(ei2p1);
+  const std::complex<double> ce2   = std::conj(ei2p2);
+
+  // Same definitions as apply_Dterms(...)
+  const std::complex<double> DR1  = _Dterms[2*is1]     * ei2p1;
+  const std::complex<double> DL1  = _Dterms[2*is1 + 1] * ce1;
+  const std::complex<double> DR2c = std::conj(_Dterms[2*is2]     * ei2p2);
+  const std::complex<double> DL2c = std::conj(_Dterms[2*is2 + 1] * ce2);
+
+  auto add = [](std::array<std::complex<double>,16>& J,
+                int row, int col,
+                const std::complex<double>& val)
+  {
+    J[4*row + col] += val;
+  };
+
+  for (size_t q = 0; q < params.size(); ++q)
+  {
+    const size_t p = params[q];
+    if (p < first_dterm_param || p >= last_dterm_param)
+      continue;
+
+    const size_t off = p - first_dterm_param;
+
+    // Original external parameter ordering:
+    // station 0: DR.re, DR.im, DL.re, DL.im, station 1: ...
+    const size_t complex_orig = off / 2;        // 0 .. 2*nst-1
+    const bool imag_part      = (off % 2) == 1; // real or imag of that complex D-term
+    const size_t station_orig = complex_orig / 2;
+    const size_t hand_orig    = complex_orig % 2;   // 0=DR, 1=DL
+
+    if (station_orig >= nst)
+      continue;
+
+    // Map original station order back into the internal sorted/hash order
+    const size_t station_internal = _station_code_index_hash_table[station_orig];
+    const size_t complex_internal = 2*station_internal + hand_orig;  // matches _Dterms indexing
+
+    // d(D)/d(re)=1, d(D)/d(im)=i
+    const std::complex<double> dD = imag_part ? Iunit : std::complex<double>(1.0,0.0);
+
+    auto& J = dMdp[q];
+
+    // Contributions through DR1
+    if (complex_internal == 2*is1)
+    {
+      const std::complex<double> dA = dD * ei2p1;   // d(DR1)/dp
+
+      add(J, 0, 1, dA * DR2c);
+      add(J, 0, 3, dA);
+
+      add(J, 2, 1, dA);
+      add(J, 2, 3, dA * DL2c);
+    }
+
+    // Contributions through DL1
+    if (complex_internal == 2*is1 + 1)
+    {
+      const std::complex<double> dB = dD * ce1;     // d(DL1)/dp
+
+      add(J, 1, 0, dB * DL2c);
+      add(J, 1, 2, dB);
+
+      add(J, 3, 0, dB);
+      add(J, 3, 2, dB * DR2c);
+    }
+
+    // Contributions through DR2c = conj(DR2 * ei2p2)
+    if (complex_internal == 2*is2)
+    {
+      const std::complex<double> dC = std::conj(dD * ei2p2);  // d(DR2c)/dp
+
+      add(J, 0, 1, DR1 * dC);
+      add(J, 0, 2, dC);
+
+      add(J, 3, 1, dC);
+      add(J, 3, 2, DL1 * dC);
+    }
+
+    // Contributions through DL2c = conj(DL2 * conj(ei2p2))
+    if (complex_internal == 2*is2 + 1)
+    {
+      const std::complex<double> dDlc = std::conj(dD * ce2);  // d(DL2c)/dp
+
+      add(J, 1, 0, DL1 * dDlc);
+      add(J, 1, 3, dDlc);
+
+      add(J, 2, 0, dDlc);
+      add(J, 2, 3, DR1 * dDlc);
+    }
+  }
+}
+  
+
+  
 void model_polarized_image::read_and_strip_Dterm_parameters(std::vector<double>& parameters)
 {
   // If modeling Dterms:

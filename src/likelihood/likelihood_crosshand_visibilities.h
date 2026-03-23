@@ -15,6 +15,9 @@
 #include "uncertainty_crosshand_visibilities.h"
 
 #include <mpi.h>
+#include <array>
+#include <cstdint>
+#include "utils.h"
 
 namespace Themis{
 
@@ -31,7 +34,9 @@ namespace Themis{
 
     \todo
   */
-  class likelihood_crosshand_visibilities : public likelihood_base
+
+  /*
+class likelihood_crosshand_visibilities : public likelihood_base
   {
     public:
       likelihood_crosshand_visibilities(data_crosshand_visibilities& data, model_crosshand_visibilities& model);
@@ -57,6 +62,48 @@ namespace Themis{
       uncertainty_crosshand_visibilities _local_uncertainty; // Default if none is passed
       uncertainty_crosshand_visibilities& _uncertainty;
   };
+  */
+
+
+
+class likelihood_crosshand_visibilities : public likelihood_base
+{
+  public:
+    likelihood_crosshand_visibilities(data_crosshand_visibilities& data, model_crosshand_visibilities& model);
+    likelihood_crosshand_visibilities(data_crosshand_visibilities& data, model_crosshand_visibilities& model, uncertainty_crosshand_visibilities& uncertainty);
+
+    ~likelihood_crosshand_visibilities() {};
+
+    virtual double operator()(std::vector<double>& x);
+    virtual double chi_squared(std::vector<double>& x);
+
+    virtual std::vector<double> gradient(std::vector<double>& x, prior& Pr) override;
+    virtual std::vector<double> gradient_uniproc(std::vector<double>& x, prior& Pr) override;
+
+    virtual void set_mpi_communicator(MPI_Comm comm);
+    void print_timing_summary(int mpi_rank = -1) const;
+  
+  protected:
+    virtual void output(std::ostream& out);
+
+  private:
+    std::vector<double> gradient_dispatch_(std::vector<double>& x, prior& Pr);
+    std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr, bool do_geom);
+
+  mutable std::array<std::uint64_t,(size_t)Themis::utils::TimerID::COUNT> timer_ns_{};
+  mutable std::array<std::uint64_t,(size_t)Themis::utils::TimerID::COUNT> timer_calls_{};
+  
+  mutable std::uint64_t dterm_ns_ = 0;
+  mutable std::uint64_t dterm_calls_ = 0;
+
+    data_crosshand_visibilities& _data;
+    model_crosshand_visibilities& _model;
+    uncertainty_crosshand_visibilities _local_uncertainty;
+    uncertainty_crosshand_visibilities& _uncertainty;
+};
+  
+
+
 };
 
 #endif 

@@ -151,6 +151,7 @@ namespace Themis {
       ClosureAmplitude,
       GradientTotal,
       GradientEnsureGains,
+      GradientAnalytic,
       GradientFiniteDiff,
       GainsDistributeTotal,
       GainsMPIAllreduce,

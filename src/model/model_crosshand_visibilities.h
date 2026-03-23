@@ -35,10 +35,31 @@ class model_crosshand_visibilities
   //! A user-supplied function that returns the number of the parameters the model expects
   virtual size_t size() const = 0;
 
+  virtual void set_data(const data_crosshand_visibilities& data) { (void)data; }
 
+  virtual bool use_cached_exp() const { return false; }
+
+  virtual std::vector<std::complex<double>> crosshand_visibilities(size_t d_idx, datum_crosshand_visibilities& d, double accuracy)
+  {
+    (void)d_idx;
+    return crosshand_visibilities(d, accuracy);
+  }
+  
   //! Returns a vector of complex visibility corresponding to RR,LL,RL,LR in Jy computed from the image given a datum_crosshand_visibilities_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   virtual std::vector< std::complex<double> > crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy) = 0;
 
+  virtual void fill_crosshand_visibilities(size_t d_idx,
+                                         datum_crosshand_visibilities& d,
+                                         double accuracy,
+                                         std::complex<double>* out)
+  {
+    std::vector<std::complex<double>> tmp = crosshand_visibilities(d_idx, d, accuracy);
+    out[0] = tmp[0];
+    out[1] = tmp[1];
+    out[2] = tmp[2];
+    out[3] = tmp[3];
+  }
+    
   //! Defines a set of processors provided to the model for parallel computation via an MPI communicator.  Only facilitates code parallelization if the model computation is parallelized via MPI.
   virtual void set_mpi_communicator(MPI_Comm comm) {
     //std::cout << "model_crosshand_visibilities proc " << MPI::COMM_WORLD.Get_rank() << " set comm" << std::endl;

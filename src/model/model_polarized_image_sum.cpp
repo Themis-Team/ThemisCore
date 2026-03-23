@@ -43,6 +43,11 @@ namespace Themis {
     _y.resize(0);
   }
 
+  void model_polarized_image_sum::set_data(const data_crosshand_visibilities& data)
+  {
+    for (size_t j = 0; j < _images.size(); ++j)
+      _images[j]->set_data(data);
+  }
   
   void model_polarized_image_sum::add_model_polarized_image(model_polarized_image& image)
   {
@@ -130,6 +135,97 @@ namespace Themis {
     
     return tag.str();
   }
+
+
+
+void model_polarized_image_sum::fill_crosshand_visibilities(
+    size_t d_idx,
+    datum_crosshand_visibilities& d,
+    double accuracy,
+    std::complex<double>* out)
+{
+  const std::complex<double> I(0.0,1.0);
+
+  out[0] = std::complex<double>(0.0,0.0);
+  out[1] = std::complex<double>(0.0,0.0);
+  out[2] = std::complex<double>(0.0,0.0);
+  out[3] = std::complex<double>(0.0,0.0);
+
+  for (size_t j = 0; j < _images.size(); ++j)
+  {
+    const std::complex<double> phase_factor =
+      std::exp(-2.0*M_PI*I * (_x[j]*(-d.u) + _y[j]*d.v));
+
+    std::complex<double> tmp[4];
+    _images[j]->fill_crosshand_visibilities(d_idx, d, accuracy, tmp);
+
+    out[0] += phase_factor * tmp[0];
+    out[1] += phase_factor * tmp[1];
+    out[2] += phase_factor * tmp[2];
+    out[3] += phase_factor * tmp[3];
+  }
+
+  std::vector<std::complex<double>> tmpv(4);
+  tmpv[0] = out[0];
+  tmpv[1] = out[1];
+  tmpv[2] = out[2];
+  tmpv[3] = out[3];
+  apply_Dterms(d, tmpv);
+  out[0] = tmpv[0];
+  out[1] = tmpv[1];
+  out[2] = tmpv[2];
+  out[3] = tmpv[3];
+
+
+
+
+  #ifndef NDEBUG
+  static bool did0   = false;
+  static bool did1   = false;
+  static bool did2   = false;
+  static bool did10  = false;
+  static bool did100 = false;
+
+  bool do_check = false;
+  if      (d_idx == 0   && !did0)   { did0   = true; do_check = true; }
+  else if (d_idx == 1   && !did1)   { did1   = true; do_check = true; }
+  else if (d_idx == 2   && !did2)   { did2   = true; do_check = true; }
+  else if (d_idx == 10  && !did10)  { did10  = true; do_check = true; }
+  else if (d_idx == 100 && !did100) { did100 = true; do_check = true; }
+
+  if (do_check)
+  {
+    std::vector<std::complex<double>> oldv =
+      crosshand_visibilities(d, accuracy);   // legacy datum-only path
+
+    auto rel = [](const std::complex<double>& a,
+                  const std::complex<double>& b)
+    {
+      const double den = std::max(1.0, std::abs(b));
+      return std::abs(a-b) / den;
+    };
+
+    std::cerr << std::setprecision(17)
+              << "[XH-CHECK] d_idx=" << d_idx
+              << " RR new=" << out[0] << " old=" << oldv[0]
+              << " abs=" << std::abs(out[0]-oldv[0])
+              << " rel=" << rel(out[0], oldv[0])
+              << " LL new=" << out[1] << " old=" << oldv[1]
+              << " abs=" << std::abs(out[1]-oldv[1])
+              << " rel=" << rel(out[1], oldv[1])
+              << " RL new=" << out[2] << " old=" << oldv[2]
+              << " abs=" << std::abs(out[2]-oldv[2])
+              << " rel=" << rel(out[2], oldv[2])
+              << " LR new=" << out[3] << " old=" << oldv[3]
+              << " abs=" << std::abs(out[3]-oldv[3])
+              << " rel=" << rel(out[3], oldv[3])
+              << "\n";
+  }
+#endif
+}
+  
+  
+
   
   std::vector< std::complex<double> > model_polarized_image_sum::crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy)
   {
@@ -152,6 +248,47 @@ namespace Themis {
     return ( crosshand_vector );
   }  
 
+
+
+std::vector<std::complex<double>>
+model_polarized_image_sum::crosshand_visibilities(size_t d_idx,
+                                                  datum_crosshand_visibilities& d,
+                                                  double accuracy)
+{
+  std::complex<double> out[4];
+  fill_crosshand_visibilities(d_idx, d, accuracy, out);
+
+  std::vector<std::complex<double>> v(4);
+  v[0] = out[0];
+  v[1] = out[1];
+  v[2] = out[2];
+  v[3] = out[3];
+  return v;
+}
+
+
+  /* 
+  std::vector< std::complex<double> > model_polarized_image_sum::crosshand_visibilities(size_t d_idx,
+                                                  datum_crosshand_visibilities& d,
+                                                  double accuracy)
+  {
+    const std::complex<double> i(0.0,1.0);
+    std::complex<double> phase_factor;
+    std::vector< std::complex<double> > cvo;
+    std::vector< std::complex<double> > crosshand_vector(4,std::complex<double>(0.0,0.0));
+    
+    for (size_t j=0; j<_images.size(); ++j)
+      {
+	phase_factor = std::exp( -2.0*M_PI*i * (_x[j]*(-d.u) + _y[j]*d.v) );
+	cvo = _images[j]->crosshand_visibilities(d_idx, d, accuracy);
+	for (size_t k=0; k<4; ++k)
+	  crosshand_vector[k] += phase_factor * cvo[k];
+      }
+    
+    apply_Dterms(d, crosshand_vector);
+    return crosshand_vector;
+  }
+  */
 
   std::complex<double> model_polarized_image_sum::visibility(datum_visibility& d, double acc)
   {

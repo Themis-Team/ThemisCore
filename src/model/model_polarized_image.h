@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <complex>
+#include <array>
 
 #include "model_crosshand_visibilities.h"
 #include "model_polarization_fraction.h"
@@ -70,8 +71,42 @@ namespace Themis {
   virtual void generate_complex_visibilities();
 
   //! Returns a vector of complex visibility corresponding to RR,LL,RL,LR in Jy computed from the image given a datum_crosshand_visibilities_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
-  virtual std::vector< std::complex<double> > crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy);
+  // virtual std::vector< std::complex<double> > crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy);
 
+  using model_crosshand_visibilities::crosshand_visibilities;
+
+  virtual std::vector< std::complex<double> >
+  crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy);
+
+  virtual std::vector< std::complex<double> >
+  crosshand_visibilities(size_t d_idx,
+                         datum_crosshand_visibilities& d,
+                         double accuracy) override
+  {
+    return model_crosshand_visibilities::crosshand_visibilities(d_idx, d, accuracy);
+  }
+
+
+  void apply_Dterms_linear(datum_crosshand_visibilities& d,
+                         std::complex<double>* io)
+  {
+    std::vector<std::complex<double>> tmp(4);
+    tmp[0] = io[0];
+    tmp[1] = io[1];
+    tmp[2] = io[2];
+    tmp[3] = io[3];
+    apply_Dterms(d, tmp);
+    io[0] = tmp[0];
+    io[1] = tmp[1];
+    io[2] = tmp[2];
+    io[3] = tmp[3];
+  }
+
+  void fill_Dterm_matrix_derivatives(
+    const datum_crosshand_visibilities& d,
+    const std::vector<size_t>& params,
+    std::vector<std::array<std::complex<double>,16>>& dMdp) const;
+  
   //! Returns complex visibility in Jy computed from the image given a datum_visibility object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   virtual std::complex<double> visibility(datum_visibility& d, double accuracy);
 
