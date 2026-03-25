@@ -101,6 +101,8 @@ int main(int argc, char* argv[])
 
   size_t Number_of_pixels_x = 4;
   size_t Number_of_pixels_y = 4;
+  double Imin = 31;
+  double Imax = 50;
   double Field_of_view_x = 0;
   double Field_of_view_y = 0;
   double Position_angle = -999;
@@ -329,6 +331,20 @@ int main(int argc, char* argv[])
       {
 	Field_of_view_x = atof(argv[k++]) * 1e-6/3600./180.*M_PI;
 	Field_of_view_y = atof(argv[k++]) * 1e-6/3600./180.*M_PI;
+      }
+      else
+      {
+	if (world_rank==0)
+	  std::cerr << "ERROR: TWO float arguments must be provided after --fovxy, corresponding to the x/y extents of the fov.\n";
+	std::exit(1);
+      }
+    }
+    else if (opt=="--Iprior")
+    {
+      if (k+1<argc)
+      {
+	Imin = atof(argv[k++]);
+	Imax = atof(argv[k++]);
       }
       else
       {
@@ -1125,7 +1141,8 @@ int main(int argc, char* argv[])
   // Container of base prior class pointers
   std::vector<Themis::prior_base*> P;
   for (size_t j=0; j<Number_of_pixels_x*Number_of_pixels_y; ++j)
-    P.push_back(new Themis::prior_linear(38,50)); // Itotal
+    P.push_back(new Themis::prior_linear(Imin,Imax)); // Itotal
+  // P.push_back(new Themis::prior_linear(31,50)); // Itotal
   P.push_back(new Themis::prior_linear(0.1*Field_of_view_x,5*Field_of_view_x)); // fovx
   P.push_back(new Themis::prior_linear(0.1*Field_of_view_y,5*Field_of_view_y)); // fovy
   P.push_back(new Themis::prior_linear(-M_PI/4,M_PI/4)); // PA
@@ -1143,7 +1160,9 @@ int main(int argc, char* argv[])
     {
       x = Field_of_view_x*double(i)/double(Number_of_pixels_x-1) - 0.5*Field_of_view_x;
       y = Field_of_view_y*double(j)/double(Number_of_pixels_y-1) - 0.5*Field_of_view_y;
-      means[k++] = std::min( std::max(norm  - (x*x+y*y)/(2.0*sig*sig),38.1) , 59.0 );
+      means[k++] = std::min( std::max(norm  - (x*x+y*y)/(2.0*sig*sig),Imin) , Imax );
+      // means[k++] = std::min( std::max(norm  - (x*x+y*y)/(2.0*sig*sig),38.1) , 59.0 );
+      // means[k++] = std::min( std::max(norm  - (x*x+y*y)/(2.0*sig*sig),31.0) , 49.9 );
     }
   means.push_back(Field_of_view_x);
   means.push_back(Field_of_view_y);
@@ -1515,7 +1534,9 @@ int main(int argc, char* argv[])
 
 	// Set value
 	//means[k++] = std::min( std::max( std::log(val*mask), 31.0 ), 59.0 );
-	means[k++] = std::min( std::max( std::log(val*mask), 38.1 ), 49.9 ); // New floor priors
+	means[k++] = std::min( std::max( std::log(val*mask), Imin ), Imax ); // New floor priors
+	// means[k++] = std::min( std::max( std::log(val*mask), 38.1 ), 49.9 ); // New floor priors
+	// means[k++] = std::min( std::max( std::log(val*mask), 31.0 ), 49.9 ); // New floor priors
       }
 
     means[k++] = Field_of_view_x;
