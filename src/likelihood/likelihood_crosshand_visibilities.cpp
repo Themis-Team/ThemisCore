@@ -893,7 +893,7 @@ namespace Themis{
     {
       const double ms = dterm_ns_ / 1.0e6;
       const double avg = (dterm_calls_ > 0) ? ms / double(dterm_calls_) : 0.0;
-      std::cout << std::setw(24) << "GradientDTerms"
+      std::cout << std::setw(24) << "DTermTotal"
 		<< " : total = " << ms << " ms"
 		<< ", calls = " << dterm_calls_
 		<< ", avg = " << avg << " ms/call\n";

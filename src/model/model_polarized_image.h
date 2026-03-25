@@ -87,6 +87,107 @@ namespace Themis {
   }
 
 
+  void apply_Dterms_linear(datum_crosshand_visibilities& d, std::complex<double>* io)
+  {
+    std::vector<std::complex<double>> tmp(4);
+    tmp[0] = io[0];
+    tmp[1] = io[1];
+    tmp[2] = io[2];
+    tmp[3] = io[3];
+    apply_Dterms(d, tmp);
+    io[0] = tmp[0];
+    io[1] = tmp[1];
+    io[2] = tmp[2];
+    io[3] = tmp[3];
+  }
+
+  void apply_Dterms_parameter_jacobian_linear(
+      const datum_crosshand_visibilities& d,
+      const std::complex<double>* in,
+      std::complex<double> deriv[8][4]) const
+  {
+    for (int q = 0; q < 8; ++q)
+      for (int h = 0; h < 4; ++h)
+        deriv[q][h] = std::complex<double>(0.0, 0.0);
+
+    if (!_modeling_Dterms)
+      return;
+
+    const size_t is1 = get_index_from_station_code(d.Station1);
+    const size_t is2 = get_index_from_station_code(d.Station2);
+
+    const std::complex<double> I(0.0,1.0);
+    const std::complex<double> ei2p1 = std::exp(std::complex<double>(0.0,2.0)*d.phi1);
+    const std::complex<double> ei2p2 = std::exp(std::complex<double>(0.0,2.0)*d.phi2);
+
+    const std::complex<double> DR1  = _Dterms[2*is1]   * ei2p1;
+    const std::complex<double> DL1  = _Dterms[2*is1+1] * std::conj(ei2p1);
+    const std::complex<double> DR2c = std::conj(_Dterms[2*is2]   * ei2p2);
+    const std::complex<double> DL2c = std::conj(_Dterms[2*is2+1] * std::conj(ei2p2));
+
+    const std::complex<double> c0 = in[0];
+    const std::complex<double> c1 = in[1];
+    const std::complex<double> c2 = in[2];
+    const std::complex<double> c3 = in[3];
+
+    const std::complex<double> dDR1_re  = ei2p1;
+    const std::complex<double> dDR1_im  = I * ei2p1;
+    const std::complex<double> dDL1_re  = std::conj(ei2p1);
+    const std::complex<double> dDL1_im  = I * std::conj(ei2p1);
+    const std::complex<double> dDR2c_re = std::conj(ei2p2);
+    const std::complex<double> dDR2c_im = -I * std::conj(ei2p2);
+    const std::complex<double> dDL2c_re = ei2p2;
+    const std::complex<double> dDL2c_im = -I * ei2p2;
+
+    // q=0: Re DR1
+    deriv[0][0] = dDR1_re * (DR2c*c1 + c3);
+    deriv[0][1] = 0.0;
+    deriv[0][2] = dDR1_re * (c1 + DL2c*c3);
+    deriv[0][3] = 0.0;
+
+    // q=1: Im DR1
+    deriv[1][0] = dDR1_im * (DR2c*c1 + c3);
+    deriv[1][1] = 0.0;
+    deriv[1][2] = dDR1_im * (c1 + DL2c*c3);
+    deriv[1][3] = 0.0;
+
+    // q=2: Re DL1
+    deriv[2][0] = 0.0;
+    deriv[2][1] = dDL1_re * (DL2c*c0 + c2);
+    deriv[2][2] = 0.0;
+    deriv[2][3] = dDL1_re * (c0 + DR2c*c2);
+
+    // q=3: Im DL1
+    deriv[3][0] = 0.0;
+    deriv[3][1] = dDL1_im * (DL2c*c0 + c2);
+    deriv[3][2] = 0.0;
+    deriv[3][3] = dDL1_im * (c0 + DR2c*c2);
+
+    // q=4: Re DR2
+    deriv[4][0] = dDR2c_re * (DR1*c1 + c2);
+    deriv[4][1] = 0.0;
+    deriv[4][2] = 0.0;
+    deriv[4][3] = dDR2c_re * (c1 + DL1*c2);
+
+    // q=5: Im DR2
+    deriv[5][0] = dDR2c_im * (DR1*c1 + c2);
+    deriv[5][1] = 0.0;
+    deriv[5][2] = 0.0;
+    deriv[5][3] = dDR2c_im * (c1 + DL1*c2);
+
+    // q=6: Re DL2
+    deriv[6][0] = 0.0;
+    deriv[6][1] = dDL2c_re * (DL1*c0 + c3);
+    deriv[6][2] = dDL2c_re * (c0 + DR1*c3);
+    deriv[6][3] = 0.0;
+
+    // q=7: Im DL2
+    deriv[7][0] = 0.0;
+    deriv[7][1] = dDL2c_im * (DL1*c0 + c3);
+    deriv[7][2] = dDL2c_im * (c0 + DR1*c3);
+    deriv[7][3] = 0.0;
+  }
+  /*
   void apply_Dterms_linear(datum_crosshand_visibilities& d,
                          std::complex<double>* io)
   {
@@ -101,7 +202,7 @@ namespace Themis {
     io[2] = tmp[2];
     io[3] = tmp[3];
   }
-
+  */
   void fill_Dterm_matrix_derivatives(
     const datum_crosshand_visibilities& d,
     const std::vector<size_t>& params,

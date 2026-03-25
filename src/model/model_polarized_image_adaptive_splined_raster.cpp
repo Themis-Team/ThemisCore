@@ -329,6 +329,7 @@ namespace Themis {
   }
 
 
+  /*
   void model_polarized_image_adaptive_splined_raster::fill_crosshand_visibilities(
     size_t d_idx,
     datum_crosshand_visibilities& d,
@@ -400,8 +401,106 @@ namespace Themis {
     std::exit(1);
   }
 }
+  */
+
+
+
 
   
+void model_polarized_image_adaptive_splined_raster::fill_crosshand_visibilities(
+    size_t d_idx,
+    datum_crosshand_visibilities& d,
+    double accuracy,
+    std::complex<double>* out)
+{
+  ScopedTimer T(
+    _use_cached_exp ? TimerID::CrosshandVisibilityCached
+                    : TimerID::CrosshandVisibilitySingle,
+    timer_ns_, timer_calls_);
+
+  (void)accuracy;
+
+  if (!_use_cached_exp || !phase_cache_valid_ || d_idx >= cached_Nd_) {
+    int rank = 0;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+
+    std::cerr
+      << "[XH-FILL-FALLBACK] rank=" << rank
+      << " use_cached_exp=" << _use_cached_exp
+      << " phase_cache_valid=" << phase_cache_valid_
+      << " d_idx=" << d_idx
+      << " cached_Nd=" << cached_Nd_
+      << " phase_cache_size=" << phase_cache_.size()
+      << " spline_kernel_cache_size=" << spline_kernel_cache_.size()
+      << " Nx=" << _Nx
+      << " Ny=" << _Ny
+      << " u=" << d.u
+      << " v=" << d.v
+      << " source=" << d.Source
+      << " stations=" << d.Station1 << "-" << d.Station2
+      << "\n";
+
+    std::cerr
+      << "ERROR: model_polarized_image_adaptive_splined_raster::fill_crosshand_visibilities\n"
+      << "       attempted to fall back to old datum-only crosshand path.\n"
+      << "       This should not happen in the cached crosshand gain implementation.\n";
+
+    std::exit(1);
+  }
+
+  if (_use_analytical_visibilities)
+  {
+    const size_t Npix   = _Nx * _Ny;
+    const size_t offset = d_idx * Npix;
+
+    std::complex<double> VI(0.0,0.0);
+    std::complex<double> VQ(0.0,0.0);
+    std::complex<double> VU(0.0,0.0);
+    std::complex<double> VV(0.0,0.0);
+
+    for (size_t k = 0; k < Npix; ++k)
+    {
+      const std::complex<double>& ph = phase_cache_[offset + k];
+      VI += _I_flat[k] * ph;
+      VQ += _Q_flat[k] * ph;
+      VU += _U_flat[k] * ph;
+      VV += _V_flat[k] * ph;
+    }
+
+    const double K = spline_kernel_cache_[d_idx];
+    VI *= K;
+    VQ *= K;
+    VU *= K;
+    VV *= K;
+
+    out[0] = VI + VV;
+    out[1] = VI - VV;
+    out[2] = VQ + std::complex<double>(0.0,1.0)*VU;
+    out[3] = VQ - std::complex<double>(0.0,1.0)*VU;
+
+    std::vector<std::complex<double>> tmp(4);
+    tmp[0] = out[0];
+    tmp[1] = out[1];
+    tmp[2] = out[2];
+    tmp[3] = out[3];
+    apply_Dterms(d, tmp);
+    out[0] = tmp[0];
+    out[1] = tmp[1];
+    out[2] = tmp[2];
+    out[3] = tmp[3];
+  }
+  else
+  {
+    std::cerr << "ERROR: model_polarized_image_adaptive_splined_raster::fill_crosshand_visibilities :"
+              << " numerical visibilities have not been implemented.\n\n";
+    std::exit(1);
+  }
+}
+
+
+
+
+
 
 std::vector<std::complex<double>>
 model_polarized_image_adaptive_splined_raster::crosshand_visibilities(
@@ -409,12 +508,72 @@ model_polarized_image_adaptive_splined_raster::crosshand_visibilities(
     datum_crosshand_visibilities& d,
     double accuracy)
 {
+  // utils::ScopedTimer T(
+  // 		       _use_cached_exp ? utils::TimerID::CrosshandVisibilityCached
+  // 		       : utils::TimerID::CrosshandVisibilitySingle,
+  //     timer_ns_, timer_calls_);
+
+  (void)accuracy;
+
+  if (!_use_cached_exp || !phase_cache_valid_ || d_idx >= cached_Nd_)
+    return crosshand_visibilities(d, accuracy);
+
+  if (_use_analytical_visibilities)
+  {
+    const size_t Npix   = _Nx * _Ny;
+    const size_t offset = d_idx * Npix;
+
+    std::complex<double> VI(0.0,0.0);
+    std::complex<double> VQ(0.0,0.0);
+    std::complex<double> VU(0.0,0.0);
+    std::complex<double> VV(0.0,0.0);
+
+    for (size_t k = 0; k < Npix; ++k)
+    {
+      const std::complex<double>& ph = phase_cache_[offset + k];
+      VI += _I_flat[k] * ph;
+      VQ += _Q_flat[k] * ph;
+      VU += _U_flat[k] * ph;
+      VV += _V_flat[k] * ph;
+    }
+
+    const double spline_factor = spline_kernel_cache_[d_idx];
+    VI *= spline_factor;
+    VQ *= spline_factor;
+    VU *= spline_factor;
+    VV *= spline_factor;
+
+    std::vector<std::complex<double> > crosshand_vector(4);
+    crosshand_vector[0] = VI + VV;                                // RR
+    crosshand_vector[1] = VI - VV;                                // LL
+    crosshand_vector[2] = VQ + std::complex<double>(0.0,1.0)*VU;  // RL
+    crosshand_vector[3] = VQ - std::complex<double>(0.0,1.0)*VU;  // LR
+
+    apply_Dterms(d, crosshand_vector);
+
+    return crosshand_vector;
+  }
+  else
+  {
+    std::cerr << "ERROR: model_polarized_image_adaptive_splined_raster::crosshand_visibilities(size_t,...) : "
+              << "numerical visibilities have not been implemented.\n";
+    std::exit(1);
+  }
+}
+  
+  
   /*
-  ScopedTimer T(
-    _use_cached_exp ? TimerID::CrosshandVisibilityCached
-                    : TimerID::CrosshandVisibilitySingle,
-    timer_ns_, timer_calls_);
-  */
+std::vector<std::complex<double>>
+model_polarized_image_adaptive_splined_raster::crosshand_visibilities(
+    size_t d_idx,
+    datum_crosshand_visibilities& d,
+    double accuracy)
+{
+
+  // ScopedTimer T(
+  //   _use_cached_exp ? TimerID::CrosshandVisibilityCached
+  //                   : TimerID::CrosshandVisibilitySingle,
+  //   timer_ns_, timer_calls_);
 
   std::complex<double> out[4];
   fill_crosshand_visibilities(d_idx, d, accuracy, out);
@@ -426,7 +585,7 @@ model_polarized_image_adaptive_splined_raster::crosshand_visibilities(
   v[3] = out[3];
   return v;
 }
-
+  */
 
   /* 
   std::vector< std::complex<double> >
@@ -536,13 +695,6 @@ if (!did_check) {
   
   std::vector< std::complex<double> > model_polarized_image_adaptive_splined_raster::crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy)
   {
-    static bool did_old = false;
-    if (!did_old) {
-      did_old = true;
-      std::cerr << "[TIMERCHK] entered old datum-only crosshand_visibilities\n";
-    }
-
-    
     if (_use_analytical_visibilities)
     {
       // Counter-rotate point
@@ -752,12 +904,6 @@ for (size_t iy = 0; iy < _Ny; ++iy)
   std::complex<double> model_polarized_image_adaptive_splined_raster::visibility(datum_visibility& d, double acc)
   {
     ScopedTimer T_total(TimerID::VisibilitySingle, timer_ns_, timer_calls_);
-
-    static bool did_vis = false;
-    if (!did_vis) {
-      did_vis = true;
-      std::cerr << "[TIMERCHK] entered plain visibility(datum_visibility)\n";
-    }
 
     if (_use_analytical_visibilities)
     {

@@ -48,6 +48,23 @@ namespace Themis {
     for (size_t j = 0; j < _images.size(); ++j)
       _images[j]->set_data(data);
   }
+
+  bool model_polarized_image_sum::use_cached_exp() const
+  {
+    if (_images.empty())
+      return false;
+    
+    for (size_t j = 0; j < _images.size(); ++j)
+      {
+	const model_crosshand_visibilities* m =
+	  static_cast<const model_crosshand_visibilities*>(_images[j]);
+	
+	if (!m->use_cached_exp())
+	  return false;
+      }
+    
+    return true;
+  }
   
   void model_polarized_image_sum::add_model_polarized_image(model_polarized_image& image)
   {
@@ -204,7 +221,7 @@ void model_polarized_image_sum::fill_crosshand_visibilities(
       const double den = std::max(1.0, std::abs(b));
       return std::abs(a-b) / den;
     };
-
+    /*
     std::cerr << std::setprecision(17)
               << "[XH-CHECK] d_idx=" << d_idx
               << " RR new=" << out[0] << " old=" << oldv[0]
@@ -220,6 +237,7 @@ void model_polarized_image_sum::fill_crosshand_visibilities(
               << " abs=" << std::abs(out[3]-oldv[3])
               << " rel=" << rel(out[3], oldv[3])
               << "\n";
+    */
   }
 #endif
 }

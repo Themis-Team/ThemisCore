@@ -74,6 +74,7 @@ class model_polarized_image_sum : public model_polarized_image
   virtual std::vector< std::complex<double> > crosshand_visibilities(datum_crosshand_visibilities& d, double accuracy);
 
   virtual void set_data(const data_crosshand_visibilities& data) override;
+  virtual bool use_cached_exp() const override;
   
   virtual std::vector< std::complex<double> > crosshand_visibilities(size_t d_idx, datum_crosshand_visibilities& d, double accuracy) override;
 

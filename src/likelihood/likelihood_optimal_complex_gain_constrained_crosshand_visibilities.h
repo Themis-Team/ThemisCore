@@ -20,6 +20,9 @@
 #include "uncertainty_crosshand_visibilities.h"
 
 #include <mpi.h>
+#include <array>
+#include <cstdint>
+#include "utils.h"
 
 namespace Themis
 {
@@ -72,7 +75,9 @@ namespace Themis
     //! Returns the gradient of the log-likelihood of a vector of parameters \f$ \mathbf{x} \f$
     //! The prior permits parameter checking if required during likelihood gradient evaluation, through the gradients of the prior is applied elsewhere.
     virtual std::vector<double> gradient(std::vector<double>& x, prior& Pr);
-     
+
+    virtual std::vector<double> gradient_uniproc(std::vector<double>& x, prior& Pr) override;
+    
     //! Returns the \f$ \chi^2 \f$ of a vector of parameters \f$ \mathbf{x} \f$
     virtual double chi_squared(std::vector<double>& x);
 
@@ -93,6 +98,8 @@ namespace Themis
     //! Defines a set of processors provided to the model for parallel computation via an MPI communicator.  Only facilates code parallelization if the model computation is parallelized via MPI.
     virtual void set_mpi_communicator(MPI_Comm comm);
 
+    void print_timing_summary(int mpi_rank = -1) const;
+    
     //! Returns the number of independent gains, which is generally less than product of the number of stations and number of epochs.
     size_t number_of_independent_gains();
 
@@ -158,6 +165,9 @@ namespace Themis
      double likelihood_multiproc(std::vector<double>& x);
      double likelihood_uniproc(std::vector<double>& x);
 
+     std::vector<double> gradient_dispatch_(std::vector<double>& x, prior& Pr);
+     std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr, bool do_geom);
+    
      void distribute_gains();
 
 
@@ -177,29 +187,44 @@ namespace Themis
      double optimal_complex_gains_trial(std::vector< std::vector< std::complex<double> > >& y, std::vector< std::vector< std::complex<double> > >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector< std::complex<double> >& gest, double& chisq);
 
      double optimal_complex_gains_log_trial(std::vector< std::vector< std::complex<double> > >& y, std::vector< std::vector< std::complex<double> > >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector<std::complex<double> >& gest, double& chisq_opt);
-     
-     // Compute the inverse in place and the determininate of a matrix
+
+
+
+
+         // Compute the inverse in place and the determinant of a matrix
+     int *_indx, *_indxc, *_indxr, *_ipiv;
+     double *_vv, *_dyda;
      double matrix_determinant(double** a);
-     // Matrix determinant
      void ludcmp(double **a, int n, int *indx, double &d);
      
      // Levenberg-Marquardt Method
      // Assumes that _y, _yb, _is1, _is2 are set
-     double *_ogc_y, *_ogc_yb;
+     double *_ogc_y, *_ogc_yb, *_sig;
      size_t *_ogc_is1, *_ogc_is2;
+     double **_covar, **_alpha, *_g, *_og;
      void gain_optimization_likelihood(size_t i, const double g[], double *y, double dydg[]) const;
      void gain_optimization_log_likelihood(size_t i, const double g[], double *y, double dydg[]) const;
-     
+
      void covsrt(double **covar, int ma, int mfit);
      int gaussj(double **a, int n, double **b, int m);
+     int cholesky_solve(double **a, int n, const double rhs[], double x[]);
      void mrqcof(double y[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq);
      void mrqcof_log(double y[], double sig[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq);
 
      double _mrq_ochisq, *_mrq_atry, *_mrq_beta, *_mrq_da, **_mrq_oneda;
-     
+
+
+    
+    
      int mrqmin(double y[], int ndata, double a[], int ma, double **covar, double **alpha, double *chisq, double *alamda);
      int mrqmin_log(double y[], double sig[], int ndata, double a[], int ma, double **covar, double **alpha, double *chisq, double *alamda);
 
+     mutable std::array<std::uint64_t,(size_t)Themis::utils::TimerID::COUNT> timer_ns_{};
+     mutable std::array<std::uint64_t,(size_t)Themis::utils::TimerID::COUNT> timer_calls_{};
+
+     mutable std::uint64_t dterm_ns_ = 0;
+     mutable std::uint64_t dterm_calls_ = 0;
+    
      std::vector<double> _x_last;
      double _L_last;
   };

@@ -9,12 +9,19 @@
 #include "random_number_generator.h"
 
 #include "likelihood_optimal_complex_gain_constrained_crosshand_visibilities.h"
+#include "model_polarized_image_adaptive_splined_raster.h"
+#include "model_polarized_image_sum.h"
+#include <limits>
+#include <algorithm>
 #include <cmath>
 
 #include <iostream>
 #include <fstream>
 #include <cstring>
 #include <iomanip>
+#include "utils.h"
+#include <chrono>
+#include <array>
 
 namespace Themis
 {  
@@ -54,6 +61,9 @@ namespace Themis
 
     // Setup organized hash tables
     organize_data_lists();
+
+    _model.set_data(_data);
+
   }
 
   likelihood_optimal_complex_gain_constrained_crosshand_visibilities::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(data_crosshand_visibilities& data, model_crosshand_visibilities& model, std::vector<std::string> station_codes, std::vector<double> sigma_g, std::vector<double> t_ge)
@@ -67,6 +77,8 @@ namespace Themis
 
     // Setup organized hash tables
     organize_data_lists();
+
+    _model.set_data(_data);
   }
 
   likelihood_optimal_complex_gain_constrained_crosshand_visibilities::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(data_crosshand_visibilities& data, model_crosshand_visibilities& model, std::vector<std::string> station_codes, std::vector<double> sigma_g, std::vector<double> t_ge, std::vector<double> max_g)
@@ -80,6 +92,8 @@ namespace Themis
 
     // Setup organized hash tables
     organize_data_lists();
+
+    _model.set_data(_data);
   }
 
   likelihood_optimal_complex_gain_constrained_crosshand_visibilities::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(
@@ -118,6 +132,8 @@ namespace Themis
 
     // Setup organized hash tables
     organize_data_lists();
+
+    _model.set_data(_data);
   }
 
   likelihood_optimal_complex_gain_constrained_crosshand_visibilities::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(data_crosshand_visibilities& data, model_crosshand_visibilities& model, uncertainty_crosshand_visibilities& uncertainty, std::vector<std::string> station_codes, std::vector<double> sigma_g, std::vector<double> t_ge)
@@ -131,6 +147,8 @@ namespace Themis
 
     // Setup organized hash tables
     organize_data_lists();
+
+    _model.set_data(_data);
   }
 
   likelihood_optimal_complex_gain_constrained_crosshand_visibilities::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(data_crosshand_visibilities& data, model_crosshand_visibilities& model, uncertainty_crosshand_visibilities& uncertainty, std::vector<std::string> station_codes, std::vector<double> sigma_g, std::vector<double> t_ge, std::vector<double> max_g)
@@ -144,6 +162,8 @@ namespace Themis
 
     // Setup organized hash tables
     organize_data_lists();
+
+    _model.set_data(_data);
   }
   
   
@@ -156,6 +176,30 @@ namespace Themis
     delete[] _mrq_da;
     delete[] _mrq_beta;
     delete[] _mrq_atry;
+
+        for (int i=1; i<=2*int(_sigma_g.size()); ++i)
+    {
+      delete[] _covar[i];
+      delete[] _alpha[i];
+    }
+    delete[] _covar;
+    delete[] _alpha;
+
+    delete[] _g;
+    delete[] _og;
+
+    delete[] _sig;
+    delete[] _ogc_is2;
+    delete[] _ogc_is1;
+    delete[] _ogc_yb;
+    delete[] _ogc_y;
+
+    delete[] _dyda;
+    delete[] _vv;
+    delete[] _ipiv;
+    delete[] _indxr;
+    delete[] _indxc;
+    delete[] _indx;
   }
 
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::check_station_codes()
@@ -228,7 +272,33 @@ namespace Themis
     _mrq_oneda = new double*[ma+1];
     for (int j=0; j<=ma; j++)
       _mrq_oneda[j] = new double[2];
+
+        _indx  = new int[ma+1];
+    _indxc = new int[ma+1];
+    _indxr = new int[ma+1];
+    _ipiv  = new int[ma+1];
+    _vv    = new double[ma+1];
+    _dyda  = new double[ma+1];
+
+    const int ndatamax = 8 * int(_data.size());
+    _ogc_y   = new double[ndatamax+1];
+    _ogc_yb  = new double[ndatamax+1];
+    _ogc_is1 = new size_t[ndatamax+1];
+    _ogc_is2 = new size_t[ndatamax+1];
+    _sig     = new double[ndatamax+1];
+
+    _covar = new double*[ma+1];
+    _alpha = new double*[ma+1];
+    for (int i=1; i<=ma; ++i)
+    {
+      _covar[i] = new double[ma+1];
+      _alpha[i] = new double[ma+1];
+    }
+
+    _g  = new double[ma+1];
+    _og = new double[ma+1];
   }
+ 
 
   
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::set_mpi_communicator(MPI_Comm comm)
@@ -284,13 +354,9 @@ namespace Themis
   {
     int rank;
     MPI_Comm_rank(_comm, &rank);
-
+    
     distribute_gains();
-
-    // DEBUG
-    //std::cerr << "Started in output\n";
-
-
+    
     if (rank==0)
       out << "# likelihood_crosshand_visibilities output file\n#"
 	  << std::setw(14) << "u (Gl)"
@@ -330,80 +396,70 @@ namespace Themis
 	  << std::setw(15) << "mod LR.i (Jy)"
 	  << std::setw(15) << "LRres.i (Jy)"
 	  << std::endl;
-
-
-    // For each gain correction epoch
+    
     for (size_t epoch=0; epoch<_tge.size()-1; ++epoch)
-    {
-      for (size_t j=0; j<_datum_index_list[epoch].size(); ++j)
       {
-
-	// DEBUG
-	//std::cerr << "  on " << epoch << " : " << j << '\n';
-
-	size_t i = _datum_index_list[epoch][j];
-
-	std::vector< std::complex<double> > err = _uncertainty.error(_data.datum(i));
-	std::vector<std::complex<double> > cvo = _model.crosshand_visibilities(_data.datum(i),0.25*std::sqrt(std::abs(err[0]*err[0])+std::abs(err[1]*err[1])));
-
-	for (size_t k=0; k<4; ++k) 
-	  cvo[k] = _G[epoch][_is1_list[epoch][j]]*std::conj(_G[epoch][_is2_list[epoch][j]])*cvo[k];
-
-	if (rank==0)
-	  out << std::setw(15) << _data.datum(i).u/1e9
-	      << std::setw(15) << _data.datum(i).v/1e9
-	      << std::setw(15) << _data.datum(i).phi1
-	      << std::setw(15) << _data.datum(i).phi2
-	    // RR
-	      << std::setw(15) << _data.datum(i).RR.real()
-	    //<< std::setw(15) << _data.datum(i).RRerr.real()
-	      << std::setw(15) << err[0].real()
-	      << std::setw(15) << cvo[0].real()
-	      << std::setw(15) << (_data.datum(i).RR-cvo[0]).real()
-	      << std::setw(15) << _data.datum(i).RR.imag()
-	    //<< std::setw(15) << _data.datum(i).RRerr.imag()
-	      << std::setw(15) << err[0].imag()
-	      << std::setw(15) << cvo[0].imag()
-	      << std::setw(15) << (_data.datum(i).RR-cvo[0]).imag()
-	    // LL
-	      << std::setw(15) << _data.datum(i).LL.real()
-	    //<< std::setw(15) << _data.datum(i).LLerr.real()
-	      << std::setw(15) << err[1].real()
-	      << std::setw(15) << cvo[1].real()
-	      << std::setw(15) << (_data.datum(i).LL-cvo[1]).real()
-	      << std::setw(15) << _data.datum(i).LL.imag()
-	    //<< std::setw(15) << _data.datum(i).LLerr.imag()
-	      << std::setw(15) << err[1].imag()
-	      << std::setw(15) << cvo[1].imag()
-	      << std::setw(15) << (_data.datum(i).LL-cvo[1]).imag()
-	    // RL
-	      << std::setw(15) << _data.datum(i).RL.real()
-	    //<< std::setw(15) << _data.datum(i).RLerr.real()
-	      << std::setw(15) << err[2].real()
-	      << std::setw(15) << cvo[2].real()
-	      << std::setw(15) << (_data.datum(i).RL-cvo[2]).real()
-	      << std::setw(15) << _data.datum(i).RL.imag()
-	    //<< std::setw(15) << _data.datum(i).RLerr.imag()
-	      << std::setw(15) << err[2].imag()
-	      << std::setw(15) << cvo[2].imag()
-	      << std::setw(15) << (_data.datum(i).RL-cvo[2]).imag()
-	    // LR
-	      << std::setw(15) << _data.datum(i).LR.real()
-	    //<< std::setw(15) << _data.datum(i).LRerr.real()
-	      << std::setw(15) << err[3].real()
-	      << std::setw(15) << cvo[3].real()
-	      << std::setw(15) << (_data.datum(i).LR-cvo[3]).real()
-	      << std::setw(15) << _data.datum(i).LR.imag()
-	    //<< std::setw(15) << _data.datum(i).LRerr.imag()
-	      << std::setw(15) << err[3].imag()
-	      << std::setw(15) << cvo[3].imag()
-	      << std::setw(15) << (_data.datum(i).LR-cvo[3]).imag()
-	      << '\n';
+	for (size_t jj=0; jj<_datum_index_list[epoch].size(); ++jj)
+	  {
+	    const size_t i = _datum_index_list[epoch][jj];
+	    
+	    std::vector<std::complex<double> > err = _uncertainty.error(_data.datum(i));
+	    const double acc = 0.25 * std::sqrt(std::abs(err[0]*err[0]) + std::abs(err[1]*err[1]));
+	    
+	    std::complex<double> cvo[4];
+	    _model.fill_crosshand_visibilities(i, _data.datum(i), acc, cvo);
+	    
+	    const std::complex<double> G12 = _G[epoch][_is1_list[epoch][jj]] * std::conj(_G[epoch][_is2_list[epoch][jj]]);
+	    
+	    for (size_t k=0; k<4; ++k)
+	      cvo[k] = G12 * cvo[k];
+	    
+	    if (rank==0)
+	      out << std::setw(15) << _data.datum(i).u/1e9
+		  << std::setw(15) << _data.datum(i).v/1e9
+		  << std::setw(15) << _data.datum(i).phi1
+		  << std::setw(15) << _data.datum(i).phi2
+		// RR
+		  << std::setw(15) << _data.datum(i).RR.real()
+		  << std::setw(15) << err[0].real()
+		  << std::setw(15) << cvo[0].real()
+		  << std::setw(15) << (_data.datum(i).RR-cvo[0]).real()
+		  << std::setw(15) << _data.datum(i).RR.imag()
+		  << std::setw(15) << err[0].imag()
+		  << std::setw(15) << cvo[0].imag()
+		  << std::setw(15) << (_data.datum(i).RR-cvo[0]).imag()
+		// LL
+		  << std::setw(15) << _data.datum(i).LL.real()
+		  << std::setw(15) << err[1].real()
+		  << std::setw(15) << cvo[1].real()
+		  << std::setw(15) << (_data.datum(i).LL-cvo[1]).real()
+		  << std::setw(15) << _data.datum(i).LL.imag()
+		  << std::setw(15) << err[1].imag()
+		  << std::setw(15) << cvo[1].imag()
+		  << std::setw(15) << (_data.datum(i).LL-cvo[1]).imag()
+		// RL
+		  << std::setw(15) << _data.datum(i).RL.real()
+		  << std::setw(15) << err[2].real()
+		  << std::setw(15) << cvo[2].real()
+		  << std::setw(15) << (_data.datum(i).RL-cvo[2]).real()
+		  << std::setw(15) << _data.datum(i).RL.imag()
+		  << std::setw(15) << err[2].imag()
+		  << std::setw(15) << cvo[2].imag()
+		  << std::setw(15) << (_data.datum(i).RL-cvo[2]).imag()
+		// LR
+		  << std::setw(15) << _data.datum(i).LR.real()
+		  << std::setw(15) << err[3].real()
+		  << std::setw(15) << cvo[3].real()
+		  << std::setw(15) << (_data.datum(i).LR-cvo[3]).real()
+		  << std::setw(15) << _data.datum(i).LR.imag()
+		  << std::setw(15) << err[3].imag()
+		  << std::setw(15) << cvo[3].imag()
+		  << std::setw(15) << (_data.datum(i).LR-cvo[3]).imag()
+		  << '\n';
+	  }
       }
-    }
   }
 
-  
   size_t likelihood_optimal_complex_gain_constrained_crosshand_visibilities::number_of_independent_gains()
   {
     /*
@@ -577,14 +633,15 @@ namespace Themis
       return likelihood_uniproc(x);
   }
 
+
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::likelihood_multiproc(std::vector<double>& x)
   {
+    Themis::utils::ScopedTimer Ttot(Themis::utils::TimerID::LikelihoodMultiprocTotal, timer_ns_, timer_calls_);
+    
     if (x==_x_last)
       return _L_last;
     _x_last = x;
-
-    // _model.generate_model(x);
-    // Make sure that model and uncertainty are properly generated
+    
     std::vector<double> mx(_model.size()), ux(_uncertainty.size());
     size_t i=0;
     for (size_t j=0; j<_model.size(); ++j)
@@ -595,275 +652,257 @@ namespace Themis
     _model.generate_model(mx);
     _uncertainty.generate_uncertainty(ux);
     
-    // Log-likelihood accumulator
-    double L = 0;
-
-    // For each gain correction epoch
+    double L = 0.0;
+    
     for (size_t epoch=0; epoch<_tge.size()-1; ++epoch)
-    {
-      if (epoch%_L_size==size_t(_L_rank))
       {
-	// Get vector of error-normed model and data visibilities once
-	std::vector< std::complex<double> > ybrr,ybll,ybrl,yblr;
-	std::vector< std::complex<double> > yrr,yll,yrl,ylr;
-	std::vector< std::vector< std::complex<double> > > yb, y;
+	if (epoch%_L_size!=size_t(_L_rank))
+	  continue;
+	
+	const size_t n = _datum_index_list[epoch].size();
+	
+	std::vector< std::complex<double> > ybrr; ybrr.reserve(n);
+	std::vector< std::complex<double> > ybll; ybll.reserve(n);
+	std::vector< std::complex<double> > ybrl; ybrl.reserve(n);
+	std::vector< std::complex<double> > yblr; yblr.reserve(n);
+	
+	std::vector< std::complex<double> > yrr;  yrr.reserve(n);
+	std::vector< std::complex<double> > yll;  yll.reserve(n);
+	std::vector< std::complex<double> > yrl;  yrl.reserve(n);
+	std::vector< std::complex<double> > ylr;  ylr.reserve(n);
+	
+	std::vector< std::vector< std::complex<double> > > yb(4), y(4);
 	std::vector<size_t> is1, is2;
-      
+	
 	double lognorm = 0.0;
-	for (size_t i=0; i<_datum_index_list[epoch].size(); ++i)
-	{
-	  size_t j = _datum_index_list[epoch][i];
-	  
-	  // std::complex<double> RRerr = _data.datum(_datum_index_list[epoch][i]).RRerr;
-	  // std::complex<double> LLerr = _data.datum(_datum_index_list[epoch][i]).LLerr;
-	  // std::complex<double> RLerr = _data.datum(_datum_index_list[epoch][i]).RLerr;
-	  // std::complex<double> LRerr = _data.datum(_datum_index_list[epoch][i]).LRerr;
-	  std::vector< std::complex<double> > err = _uncertainty.error(_data.datum(j));
-	  std::vector< std::complex<double> > cvo = _model.crosshand_visibilities(_data.datum(j),0.25*std::sqrt(std::abs(err[0]*err[0])+std::abs(err[1]*err[1])));
-
-	  ybrr.push_back( std::complex<double>(cvo[0].real()/err[0].real(), cvo[0].imag()/err[0].imag()) );
-	  ybll.push_back( std::complex<double>(cvo[1].real()/err[1].real(), cvo[1].imag()/err[1].imag()) );
-	  ybrl.push_back( std::complex<double>(cvo[2].real()/err[2].real(), cvo[2].imag()/err[2].imag()) );
-	  yblr.push_back( std::complex<double>(cvo[3].real()/err[3].real(), cvo[3].imag()/err[3].imag()) );
-
-	  yrr.push_back( std::complex<double>(_data.datum(j).RR.real()/err[0].real(), _data.datum(j).RR.imag()/err[0].imag()) );
-	  yll.push_back( std::complex<double>(_data.datum(j).LL.real()/err[1].real(), _data.datum(j).LL.imag()/err[1].imag()) );
-	  yrl.push_back( std::complex<double>(_data.datum(j).RL.real()/err[2].real(), _data.datum(j).RL.imag()/err[2].imag()) );
-	  ylr.push_back( std::complex<double>(_data.datum(j).LR.real()/err[3].real(), _data.datum(j).LR.imag()/err[3].imag()) );
-
-	  lognorm += _uncertainty.log_normalization(_data.datum(j));
-	}
-
-	yb.push_back( ybrr );
-	yb.push_back( ybll );
-	yb.push_back( ybrl );
-	yb.push_back( yblr );
-
-	y.push_back( yrr );
-	y.push_back( yll );
-	y.push_back( yrl );
-	y.push_back( ylr );
-
-	// y.push_back( _yrr_list[epoch] );
-	// y.push_back( _yll_list[epoch] );
-	// y.push_back( _yrl_list[epoch] );
-	// y.push_back( _ylr_list[epoch] );
+	
+	for (size_t ii=0; ii<n; ++ii)
+	  {
+	    const size_t j = _datum_index_list[epoch][ii];
+	    
+	    std::vector< std::complex<double> > err = _uncertainty.error(_data.datum(j));
+	    const double acc = 0.25 * std::sqrt(std::abs(err[0]*err[0]) + std::abs(err[1]*err[1]));
+	    
+	    std::complex<double> cvo[4];
+	    _model.fill_crosshand_visibilities(j, _data.datum(j), acc, cvo);
+	    
+	    ybrr.push_back( std::complex<double>(cvo[0].real()/err[0].real(), cvo[0].imag()/err[0].imag()) );
+	    ybll.push_back( std::complex<double>(cvo[1].real()/err[1].real(), cvo[1].imag()/err[1].imag()) );
+	    ybrl.push_back( std::complex<double>(cvo[2].real()/err[2].real(), cvo[2].imag()/err[2].imag()) );
+	    yblr.push_back( std::complex<double>(cvo[3].real()/err[3].real(), cvo[3].imag()/err[3].imag()) );
+	    
+	    yrr.push_back( std::complex<double>(_data.datum(j).RR.real()/err[0].real(), _data.datum(j).RR.imag()/err[0].imag()) );
+	    yll.push_back( std::complex<double>(_data.datum(j).LL.real()/err[1].real(), _data.datum(j).LL.imag()/err[1].imag()) );
+	    yrl.push_back( std::complex<double>(_data.datum(j).RL.real()/err[2].real(), _data.datum(j).RL.imag()/err[2].imag()) );
+	    ylr.push_back( std::complex<double>(_data.datum(j).LR.real()/err[3].real(), _data.datum(j).LR.imag()/err[3].imag()) );
+	    
+	    lognorm += _uncertainty.log_normalization(_data.datum(j));
+	  }
+	
+	yb[0].swap(ybrr);
+	yb[1].swap(ybll);
+	yb[2].swap(ybrl);
+	yb[3].swap(yblr);
+	
+	y[0].swap(yrr);
+	y[1].swap(yll);
+	y[2].swap(yrl);
+	y[3].swap(ylr);
 	
 	is1 = _is1_list[epoch];
 	is2 = _is2_list[epoch];
-
+	
 	double marg_term;
 	if (_solve_for_gains)
-	{
-	  // Determine the initial guess for the gains based on currently stated assumptions.
-	  if (epoch>0)
 	  {
-	    if (_use_prior_gain_solutions==false)
-	    {
-	      for (size_t a=0; a<_sigma_g.size(); ++a)
-		_G[epoch][a] = std::complex<double>(1.0,0.0);
-	      // if (_smoothly_varying_gains)
-	      // {
-	      // 	_G[epoch] = _G[epoch-1];
-	      // }
-	      // else
-	      // {
-	      // 	for (size_t a=0; a<_sigma_g.size(); ++a)
-	      // 	  _G[epoch][a] = std::complex<double>(1.0,0.0);
-	      // }
-	    }
+	    if (epoch>0)
+	      {
+		if (_use_prior_gain_solutions==false)
+		  {
+		    for (size_t a=0; a<_sigma_g.size(); ++a)
+		      _G[epoch][a] = std::complex<double>(1.0,0.0);
+		  }
+	      }
+	    
+	    const double marg = optimal_complex_gains(y, yb, is1, is2, _G[epoch]);
+	    if (marg>0)
+	      _sqrt_detC[epoch] = marg;
 	  }
-
-	  // Levenberg-Marquardt minimization of full likelihood
-	  double marg = optimal_complex_gains(y,yb,is1,is2,_G[epoch]);
-
-	  if (marg>0)
-	    _sqrt_detC[epoch] = marg;
-	}
 	marg_term = _sqrt_detC[epoch];
-
-	// Add in the direct likelihood
+	
 	double dL = 0.0;
-	for (size_t i=0; i<y[0].size(); ++i)
-	{
-	  std::complex<double> GGybrr=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[0][i];
-	  std::complex<double> GGybll=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[1][i];
-	  std::complex<double> GGybrl=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[2][i];
-	  std::complex<double> GGyblr=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[3][i];
-	  dL += -0.5 * ( std::pow( y[0][i].real() - GGybrr.real(), 2) + std::pow( y[0][i].imag() - GGybrr.imag(), 2) );
-	  dL += -0.5 * ( std::pow( y[1][i].real() - GGybll.real(), 2) + std::pow( y[1][i].imag() - GGybll.imag(), 2) );
-	  dL += -0.5 * ( std::pow( y[2][i].real() - GGybrl.real(), 2) + std::pow( y[2][i].imag() - GGybrl.imag(), 2) );
-	  dL += -0.5 * ( std::pow( y[3][i].real() - GGyblr.real(), 2) + std::pow( y[3][i].imag() - GGyblr.imag(), 2) );
-	}
-      
-	// Add the Gaussian prior 
+	for (size_t ii=0; ii<y[0].size(); ++ii)
+	  {
+	    const std::complex<double> G12 =
+	      _G[epoch][is1[ii]] * std::conj(_G[epoch][is2[ii]]);
+	    
+	    const std::complex<double> GGybrr = G12 * yb[0][ii];
+	    const std::complex<double> GGybll = G12 * yb[1][ii];
+	    const std::complex<double> GGybrl = G12 * yb[2][ii];
+	    const std::complex<double> GGyblr = G12 * yb[3][ii];
+	    
+	    dL += -0.5 * ( std::pow( y[0][ii].real() - GGybrr.real(), 2) + std::pow( y[0][ii].imag() - GGybrr.imag(), 2) );
+	    dL += -0.5 * ( std::pow( y[1][ii].real() - GGybll.real(), 2) + std::pow( y[1][ii].imag() - GGybll.imag(), 2) );
+	    dL += -0.5 * ( std::pow( y[2][ii].real() - GGybrl.real(), 2) + std::pow( y[2][ii].imag() - GGybrl.imag(), 2) );
+	    dL += -0.5 * ( std::pow( y[3][ii].real() - GGyblr.real(), 2) + std::pow( y[3][ii].imag() - GGyblr.imag(), 2) );
+	  }
+	
 	for (size_t a=0; a<_sigma_g.size(); ++a)
-	{
-	  double G = std::log(std::abs(_G[epoch][a]));
-	  dL += -0.5*G*G/(_sigma_g[a]*_sigma_g[a]);
-
-	  double ph = std::arg(_G[epoch][a]);
-	  dL += -0.5*ph*ph*_opi2;
-	}
-
-	// Add a quadratic approximation of the integral over the distribution about the best-fit gain corrections
+	  {
+	    const double G  = std::log(std::abs(_G[epoch][a]));
+	    const double ph = std::arg(_G[epoch][a]);
+	    dL += -0.5*G*G/(_sigma_g[a]*_sigma_g[a]);
+	    dL += -0.5*ph*ph*_opi2;
+	  }
+	
 	dL += std::log(marg_term);
-
-	// Add error term
 	dL += lognorm;
-
-	// Accumulate contribution
+	
 	L += dL;
       }
-    }
-
-    double Ltot=0.0;
-    MPI_Allreduce(&L,&Ltot,1,MPI_DOUBLE,MPI_SUM,_Lcomm);
+    
+    double Ltot = 0.0;
+    MPI_Allreduce(&L, &Ltot, 1, MPI_DOUBLE, MPI_SUM, _Lcomm);
     
     _L_last = Ltot;
-    
     return Ltot;
   }
+  
 
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::likelihood_uniproc(std::vector<double>& x)
   {
+    Themis::utils::ScopedTimer Ttot(Themis::utils::TimerID::LikelihoodMultiprocTotal, timer_ns_, timer_calls_);
+    
     if (x==_x_last)
       return _L_last;
     _x_last = x;
-
-    // _model.generate_model(x);
-    // Make sure that model and uncertainty are properly generated
+    
     std::vector<double> mx(_model.size()), ux(_uncertainty.size());
     size_t i=0;
     for (size_t j=0; j<_model.size(); ++j)
       mx[j] = x[i++];
     for (size_t j=0; j<_uncertainty.size(); ++j)
       ux[j] = x[i++];
+    
     _model.generate_model(mx);
     _uncertainty.generate_uncertainty(ux);
-
-    // Log-likelihood accumulator
-    double L = 0;
-
-    // For each gain correction epoch
+    
+    double L = 0.0;
+    
     for (size_t epoch=0; epoch<_tge.size()-1; ++epoch)
-    {
-      // DEBUG
-      //std::cerr << "On epoch " << epoch << '\n';
-
-      // Get vector of error-normed model and data visibilities once
-      std::vector< std::complex<double> > ybrr,ybll,ybrl,yblr;
-      std::vector< std::complex<double> > yrr,yll,yrl,ylr;
-      std::vector< std::vector< std::complex<double> > > yb, y;
-      std::vector<size_t> is1, is2;
-
-      double lognorm = 0.0;      
-      for (size_t i=0; i<_datum_index_list[epoch].size(); ++i)
       {
-	// std::complex<double> RRerr = _data.datum(_datum_index_list[epoch][i]).RRerr;
-	// std::complex<double> LLerr = _data.datum(_datum_index_list[epoch][i]).LLerr;
-	// std::complex<double> RLerr = _data.datum(_datum_index_list[epoch][i]).RLerr;
-	// std::complex<double> LRerr = _data.datum(_datum_index_list[epoch][i]).LRerr;
-
-	size_t j = _datum_index_list[epoch][i];
+	const size_t n = _datum_index_list[epoch].size();
 	
-	std::vector< std::complex<double> > err = _uncertainty.error(_data.datum(j));
-	std::vector< std::complex<double> > cvo = _model.crosshand_visibilities(_data.datum(j),0.25*std::sqrt(std::abs(err[0]*err[0])+std::abs(err[1]*err[1])));
-
-	ybrr.push_back( std::complex<double>(cvo[0].real()/err[0].real(), cvo[0].imag()/err[0].imag()) );
-	ybll.push_back( std::complex<double>(cvo[1].real()/err[1].real(), cvo[1].imag()/err[1].imag()) );
-	ybrl.push_back( std::complex<double>(cvo[2].real()/err[2].real(), cvo[2].imag()/err[2].imag()) );
-	yblr.push_back( std::complex<double>(cvo[3].real()/err[3].real(), cvo[3].imag()/err[3].imag()) );
-
-	yrr.push_back( std::complex<double>(_data.datum(j).RR.real()/err[0].real(), _data.datum(j).RR.imag()/err[0].imag()) );
-	yll.push_back( std::complex<double>(_data.datum(j).LL.real()/err[1].real(), _data.datum(j).LL.imag()/err[1].imag()) );
-	yrl.push_back( std::complex<double>(_data.datum(j).RL.real()/err[2].real(), _data.datum(j).RL.imag()/err[2].imag()) );
-	ylr.push_back( std::complex<double>(_data.datum(j).LR.real()/err[3].real(), _data.datum(j).LR.imag()/err[3].imag()) );
-
-	lognorm += _uncertainty.log_normalization(_data.datum(j));
-      }
-
-      yb.push_back( ybrr );
-      yb.push_back( ybll );
-      yb.push_back( ybrl );
-      yb.push_back( yblr );
-
-      y.push_back( yrr );
-      y.push_back( yll );
-      y.push_back( yrl );
-      y.push_back( ylr );
-      
-      // y.push_back( _yrr_list[epoch] );
-      // y.push_back( _yll_list[epoch] );
-      // y.push_back( _yrl_list[epoch] );
-      // y.push_back( _ylr_list[epoch] );
-      
-      is1 = _is1_list[epoch];
-      is2 = _is2_list[epoch];
-
-      double marg_term;
-      if (_solve_for_gains)
-      {
-	// Determine the initial guess for the gains based on currently stated assumptions.
-	if (epoch>0)
-	{
-	  if (_use_prior_gain_solutions==false)
+	std::vector< std::complex<double> > ybrr; ybrr.reserve(n);
+	std::vector< std::complex<double> > ybll; ybll.reserve(n);
+	std::vector< std::complex<double> > ybrl; ybrl.reserve(n);
+	std::vector< std::complex<double> > yblr; yblr.reserve(n);
+	
+	std::vector< std::complex<double> > yrr;  yrr.reserve(n);
+	std::vector< std::complex<double> > yll;  yll.reserve(n);
+	std::vector< std::complex<double> > yrl;  yrl.reserve(n);
+	std::vector< std::complex<double> > ylr;  ylr.reserve(n);
+	
+	std::vector< std::vector< std::complex<double> > > yb(4), y(4);
+	std::vector<size_t> is1, is2;
+	
+	double lognorm = 0.0;
+	
+	for (size_t ii=0; ii<n; ++ii)
 	  {
-	    if (_smoothly_varying_gains)
-	    {
-	      _G[epoch] = _G[epoch-1];
-	    }
-	    else
-	    {
-	      for (size_t a=0; a<_sigma_g.size(); ++a)
-		_G[epoch][a] = std::complex<double>(1.0,0.0);
-	    }
+	    const size_t j = _datum_index_list[epoch][ii];
+	    
+	    std::vector< std::complex<double> > err = _uncertainty.error(_data.datum(j));
+	    const double acc = 0.25 * std::sqrt(std::abs(err[0]*err[0]) + std::abs(err[1]*err[1]));
+	    
+	    std::complex<double> cvo[4];
+	    _model.fill_crosshand_visibilities(j, _data.datum(j), acc, cvo);
+	    
+	    ybrr.push_back( std::complex<double>(cvo[0].real()/err[0].real(), cvo[0].imag()/err[0].imag()) );
+	    ybll.push_back( std::complex<double>(cvo[1].real()/err[1].real(), cvo[1].imag()/err[1].imag()) );
+	    ybrl.push_back( std::complex<double>(cvo[2].real()/err[2].real(), cvo[2].imag()/err[2].imag()) );
+	    yblr.push_back( std::complex<double>(cvo[3].real()/err[3].real(), cvo[3].imag()/err[3].imag()) );
+	    
+	    yrr.push_back( std::complex<double>(_data.datum(j).RR.real()/err[0].real(), _data.datum(j).RR.imag()/err[0].imag()) );
+	    yll.push_back( std::complex<double>(_data.datum(j).LL.real()/err[1].real(), _data.datum(j).LL.imag()/err[1].imag()) );
+	    yrl.push_back( std::complex<double>(_data.datum(j).RL.real()/err[2].real(), _data.datum(j).RL.imag()/err[2].imag()) );
+	    ylr.push_back( std::complex<double>(_data.datum(j).LR.real()/err[3].real(), _data.datum(j).LR.imag()/err[3].imag()) );
+	    
+	    lognorm += _uncertainty.log_normalization(_data.datum(j));
 	  }
-	}
-
-	// Levenberg-Marquardt minimization of full likelihood
-	double marg = optimal_complex_gains(y,yb,is1,is2,_G[epoch]);
-	if (marg>0)
-	  _sqrt_detC[epoch] = marg;
+	
+	yb[0].swap(ybrr);
+	yb[1].swap(ybll);
+	yb[2].swap(ybrl);
+	yb[3].swap(yblr);
+	
+	y[0].swap(yrr);
+	y[1].swap(yll);
+	y[2].swap(yrl);
+	y[3].swap(ylr);
+	
+	is1 = _is1_list[epoch];
+	is2 = _is2_list[epoch];
+	
+	double marg_term;
+	if (_solve_for_gains)
+	  {
+	    if (epoch>0)
+	      {
+		if (_use_prior_gain_solutions==false)
+		  {
+		    if (_smoothly_varying_gains)
+		      {
+			_G[epoch] = _G[epoch-1];
+		      }
+		    else
+		      {
+			for (size_t a=0; a<_sigma_g.size(); ++a)
+			  _G[epoch][a] = std::complex<double>(1.0,0.0);
+		      }
+		  }
+	      }
+	    
+	    const double marg = optimal_complex_gains(y, yb, is1, is2, _G[epoch]);
+	    if (marg>0)
+	      _sqrt_detC[epoch] = marg;
+	  }
+	marg_term = _sqrt_detC[epoch];
+	
+	double dL = 0.0;
+	for (size_t ii=0; ii<y[0].size(); ++ii)
+	  {
+	    const std::complex<double> G12 = _G[epoch][is1[ii]] * std::conj(_G[epoch][is2[ii]]);
+	    
+	    const std::complex<double> GGybrr = G12 * yb[0][ii];
+	    const std::complex<double> GGybll = G12 * yb[1][ii];
+	    const std::complex<double> GGybrl = G12 * yb[2][ii];
+	    const std::complex<double> GGyblr = G12 * yb[3][ii];
+	    
+	    dL += -0.5 * ( std::pow( y[0][ii].real() - GGybrr.real(), 2) + std::pow( y[0][ii].imag() - GGybrr.imag(), 2) );
+	    dL += -0.5 * ( std::pow( y[1][ii].real() - GGybll.real(), 2) + std::pow( y[1][ii].imag() - GGybll.imag(), 2) );
+	    dL += -0.5 * ( std::pow( y[2][ii].real() - GGybrl.real(), 2) + std::pow( y[2][ii].imag() - GGybrl.imag(), 2) );
+	    dL += -0.5 * ( std::pow( y[3][ii].real() - GGyblr.real(), 2) + std::pow( y[3][ii].imag() - GGyblr.imag(), 2) );
+	  }
+	
+	for (size_t a=0; a<_sigma_g.size(); ++a)
+	  {
+	    const double G  = std::log(std::abs(_G[epoch][a]));
+	    const double ph = std::arg(_G[epoch][a]);
+	    dL += -0.5*G*G/(_sigma_g[a]*_sigma_g[a]);
+	    dL += -0.5*ph*ph*_opi2;
+	  }
+	
+	dL += std::log(marg_term);
+	dL += lognorm;
+	
+	L += dL;
       }
-      marg_term = _sqrt_detC[epoch];
-
-      // Add in the direct likelihood
-      double dL = 0.0;
-      for (size_t i=0; i<y[0].size(); ++i)
-      {
-	std::complex<double> GGybrr=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[0][i];
-	std::complex<double> GGybll=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[1][i];
-	std::complex<double> GGybrl=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[2][i];
-	std::complex<double> GGyblr=_G[epoch][is1[i]]*std::conj(_G[epoch][is2[i]])*yb[3][i];
-	dL += -0.5 * ( std::pow( y[0][i].real() - GGybrr.real(), 2) + std::pow( y[0][i].imag() - GGybrr.imag(), 2) );
-	dL += -0.5 * ( std::pow( y[1][i].real() - GGybll.real(), 2) + std::pow( y[1][i].imag() - GGybll.imag(), 2) );
-	dL += -0.5 * ( std::pow( y[2][i].real() - GGybrl.real(), 2) + std::pow( y[2][i].imag() - GGybrl.imag(), 2) );
-	dL += -0.5 * ( std::pow( y[3][i].real() - GGyblr.real(), 2) + std::pow( y[3][i].imag() - GGyblr.imag(), 2) );
-      }
-      
-      // Add the Gaussian prior 
-      for (size_t a=0; a<_sigma_g.size(); ++a)
-      {
-	double G = std::log(std::abs(_G[epoch][a]));
-	dL += -0.5*G*G/(_sigma_g[a]*_sigma_g[a]);
-
-	double ph = std::arg(_G[epoch][a]);
-	dL += -0.5*ph*ph*_opi2;
-      }
-
-      // Add a quadratic approximation of the integral over the distribution about the best-fit gain corrections
-      dL += std::log(marg_term);
-
-      // Add error term
-      dL += lognorm;
-
-      // Accumulate contribution
-      L += dL;
-    }
-
+    
+    _L_last = L;
     return L;
   }
+
   
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::distribute_gains()
   {
@@ -916,29 +955,630 @@ namespace Themis
     delete[] global_buff;
   }
 
-  
+
   std::vector<double> likelihood_optimal_complex_gain_constrained_crosshand_visibilities::gradient(std::vector<double>& x, prior& Pr)
-  {    
-    // Make sure that gains are computed
-    this->operator()(x);
+  {
+    Themis::utils::ScopedTimer T(Themis::utils::TimerID::GradientTotal, timer_ns_, timer_calls_);
+    return gradient_dispatch_(x, Pr);
+  }
 
-    // Fix the gains (and remember the up to now state)
-    bool solving_for_gains = _solve_for_gains;
-    if (_solve_for_gains_during_gradient==false)
+  
+  std::vector<double> likelihood_optimal_complex_gain_constrained_crosshand_visibilities::gradient_uniproc(std::vector<double>& x, prior& Pr)
+  {
+    return gradient_dispatch_(x, Pr);
+  }
+
+  
+  std::vector<double> likelihood_optimal_complex_gain_constrained_crosshand_visibilities::gradient_dispatch_(std::vector<double>& x, prior& Pr)
+  {
+    switch (gradient_mode())
+      {
+      case GradientMode::FD_ALL:
+	{
+	  Themis::utils::ScopedTimer T(Themis::utils::TimerID::GradientFiniteDiff, timer_ns_, timer_calls_);
+	  const double Lx = ((_x_last.empty() || x != _x_last) ? this->operator()(x) : _L_last);
+	  
+	  const bool solving_for_gains_prev = _solve_for_gains;
+	  if (!_solve_for_gains_during_gradient)
+	    fix_gains();
+	  
+	  std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+	  
+	  std::vector<double> mx(_model.size()), ux(_uncertainty.size());
+	  size_t ii = 0;
+	  for (size_t j=0; j<_model.size(); ++j) mx[j] = x[ii++];
+	  for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
+	  _model.generate_model(mx);
+	  _uncertainty.generate_uncertainty(ux);
+	  _x_last = x;
+	  _L_last = Lx;
+	  
+	  if (!_solve_for_gains_during_gradient && solving_for_gains_prev)
+	    solve_for_gains();
+	  
+	  return g;
+	}
+	
+      case GradientMode::HYBRID_INTENSITY:
+	return gradient_hybrid(x, Pr, /*do_geom=*/false);
+	
+      case GradientMode::HYBRID_INTENSITY_GEOM:
+      default:
+	return gradient_hybrid(x, Pr, /*do_geom=*/true);
+      }
+  }
+
+  
+  std::vector<double> likelihood_optimal_complex_gain_constrained_crosshand_visibilities::gradient_hybrid(std::vector<double>& x, prior& Pr, bool do_geom)
+  {
+    const double Lx = ((_x_last.empty() || x != _x_last) ? this->operator()(x) : _L_last);
+    
+    const bool solving_for_gains_prev = _solve_for_gains;
+    if (!_solve_for_gains_during_gradient)
       fix_gains();
+    
+    auto restore_basepoint = [&]() {
+      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
+      size_t ii = 0;
+      for (size_t j=0; j<_model.size(); ++j) mx[j] = x[ii++];
+      for (size_t j=0; j<_uncertainty.size(); ++j) ux[j] = x[ii++];
+      _model.generate_model(mx);
+      _uncertainty.generate_uncertainty(ux);
+      _x_last = x;
+      _L_last = Lx;
+    };
+    
+    model_polarized_image_adaptive_splined_raster* direct_top = dynamic_cast<model_polarized_image_adaptive_splined_raster*>(&_model);
+    
+    model_polarized_image_sum* sum_top = dynamic_cast<model_polarized_image_sum*>(&_model);
+    
+    struct CompInfo {
+      model_polarized_image_adaptive_splined_raster* r = nullptr;
+      size_t p0 = 0;
+      double xoff = 0.0;
+      double yoff = 0.0;
+      size_t Nx = 0;
+      size_t Ny = 0;
+      size_t Npix = 0;
+      size_t idx_fovx = 0;
+      size_t idx_fovy = 0;
+      size_t idx_pa   = 0;
+      size_t idx_xoff = 0;
+      size_t idx_yoff = 0;
+      std::vector<double> xfrac;
+      std::vector<double> yfrac;
+    };
+    
+    std::vector<CompInfo> comps;
+    const size_t Npar = x.size();
+    
+    if (direct_top)
+      {
+	CompInfo c;
+	c.r = direct_top;
+	c.p0 = 0;
+	c.xoff = 0.0;
+	c.yoff = 0.0;
+	c.Nx = direct_top->Nx();
+	c.Ny = direct_top->Ny();
+	c.Npix = c.Nx * c.Ny;
+	c.idx_fovx = c.p0 + 4*c.Npix;
+	c.idx_fovy = c.p0 + 4*c.Npix + 1;
+	c.idx_pa   = c.p0 + 4*c.Npix + 2;
+	c.xfrac.resize(c.Npix);
+	c.yfrac.resize(c.Npix);
+	for (size_t ix = 0; ix < c.Nx; ++ix) {
+	  const double xf = (c.Nx > 1) ? (double(ix)/double(c.Nx-1) - 0.5) : 0.0;
+	  for (size_t iy = 0; iy < c.Ny; ++iy) {
+	    const double yf = (c.Ny > 1) ? (double(iy)/double(c.Ny-1) - 0.5) : 0.0;
+	    const size_t k = ix*c.Ny + iy;
+	    c.xfrac[k] = xf;
+	    c.yfrac[k] = yf;
+	  }
+	}
+	comps.push_back(c);
+      }
+    else if (sum_top)
+      {
+	size_t p = 0;
+	const auto& imgs = sum_top->components();
+	const auto& xs   = sum_top->x_offsets();
+	const auto& ys   = sum_top->y_offsets();
+	
+	for (size_t j = 0; j < imgs.size(); ++j)
+	  {
+	    model_polarized_image_adaptive_splined_raster* r = dynamic_cast<model_polarized_image_adaptive_splined_raster*>(imgs[j]);
+	    
+	    if (!r) {
+	      std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+	      restore_basepoint();
+	      if (!_solve_for_gains_during_gradient && solving_for_gains_prev) solve_for_gains();
+	      return g;
+	    }
+	    
+	    CompInfo c;
+	    c.r = r;
+	    c.p0 = p;
+	    c.xoff = xs[j];
+	    c.yoff = ys[j];
+	    c.Nx = r->Nx();
+	    c.Ny = r->Ny();
+	    c.Npix = c.Nx * c.Ny;
+	    c.idx_fovx = c.p0 + 4*c.Npix;
+	    c.idx_fovy = c.p0 + 4*c.Npix + 1;
+	    c.idx_pa   = c.p0 + 4*c.Npix + 2;
+	    c.idx_xoff = c.p0 + r->size();
+	    c.idx_yoff = c.p0 + r->size() + 1;
+	    c.xfrac.resize(c.Npix);
+	    c.yfrac.resize(c.Npix);
+	    for (size_t ix = 0; ix < c.Nx; ++ix) {
+	      const double xf = (c.Nx > 1) ? (double(ix)/double(c.Nx-1) - 0.5) : 0.0;
+	      for (size_t iy = 0; iy < c.Ny; ++iy) {
+		const double yf = (c.Ny > 1) ? (double(iy)/double(c.Ny-1) - 0.5) : 0.0;
+		const size_t k = ix*c.Ny + iy;
+		c.xfrac[k] = xf;
+		c.yfrac[k] = yf;
+	      }
+	    }
+	    comps.push_back(c);
+	    
+	    p += r->size();
+	    p += 2;
+	  }
+      }
+    else
+      {
+	std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+	restore_basepoint();
+	if (!_solve_for_gains_during_gradient && solving_for_gains_prev) solve_for_gains();
+	return g;
+      }
+    
+    int local_ok = 1;
+    for (const auto& c : comps)
+      {
+	const model_polarized_image_adaptive_splined_raster* rc = c.r;
+	
+	if (!rc->use_cached_exp()) local_ok = 0;
+	if (!rc->phase_cache_valid()) local_ok = 0;
+	if (rc->cached_Nd() < _data.size()) local_ok = 0;
+	
+	if (rc->phase_cache().size() < _data.size() * c.Npix) local_ok = 0;
+	if (rc->spline_kernel_cache().size() < _data.size()) local_ok = 0;
+	
+	if (rc->I_flat().size() < c.Npix) local_ok = 0;
+	if (rc->Q_flat().size() < c.Npix) local_ok = 0;
+	if (rc->U_flat().size() < c.Npix) local_ok = 0;
+	if (rc->V_flat().size() < c.Npix) local_ok = 0;
+	
+	if (do_geom) {
+	  if (rc->spline_kernel_dfovx_cache().size() < _data.size()) local_ok = 0;
+	  if (rc->spline_kernel_dfovy_cache().size() < _data.size()) local_ok = 0;
+	  if (rc->spline_kernel_dpa_cache().size()   < _data.size()) local_ok = 0;
+	}
+      }
+    
+    int global_ok = 0;
+    MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
+    
+    if (!global_ok)
+      {
+	std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+	restore_basepoint();
+	if (!_solve_for_gains_during_gradient && solving_for_gains_prev) solve_for_gains();
+	return g;
+      }
+    
+    auto apply_top_dterms = [&](datum_crosshand_visibilities& d, std::complex<double>* io)
+    {
+      if (sum_top) {
+	sum_top->apply_Dterms_linear(d, io);
+      } else {
+	direct_top->apply_Dterms_linear(d, io);
+      }
+    };
+  
+    auto apply_top_dterms_param_jac = [&](const datum_crosshand_visibilities& d, const std::complex<double>* in, std::complex<double> deriv[8][4])
+    {
+      if (sum_top) {
+	sum_top->apply_Dterms_parameter_jacobian_linear(d, in, deriv);
+      } else {
+	direct_top->apply_Dterms_parameter_jacobian_linear(d, in, deriv);
+      }
+    };
 
-    // Compute the finite-difference gradient
-    // std::vector<double> grad = likelihood_base::gradient(x,Pr);
-    std::vector<double> grad = likelihood_base::gradient_uniproc(x,Pr);
+    const bool have_model_dterms = (sum_top ? sum_top->modeling_Dterms() : direct_top->modeling_Dterms());
+    
+    const size_t dterm_p0 = (have_model_dterms ? (_model.size() - 4*_station_codes.size()) : 0);
 
-    // Enable solving for gains again if we were doing so before
-    if (_solve_for_gains_during_gradient==false && solving_for_gains) 
+    auto station_index = [&](const std::string& s) -> size_t
+    {
+      return size_t(std::find(_station_codes.begin(), _station_codes.end(), s) - _station_codes.begin());
+    };
+
+    std::vector<double> grad_local(Npar, 0.0);
+    std::vector<char> analytic_mask(Npar, 0);
+    
+    for (const auto& c : comps)
+      {
+	for (size_t k = 0; k < 4*c.Npix; ++k)
+	  analytic_mask[c.p0 + k] = 1;
+	
+	if (do_geom) {
+	  analytic_mask[c.idx_fovx] = 1;
+	  analytic_mask[c.idx_fovy] = 1;
+	  analytic_mask[c.idx_pa]   = 1;
+	}
+	
+	if (sum_top) {
+	  analytic_mask[c.idx_xoff] = 1;
+	  analytic_mask[c.idx_yoff] = 1;
+	}
+      }
+    
+    if (have_model_dterms)
+      for (size_t q = 0; q < 4*_station_codes.size(); ++q)
+	analytic_mask[dterm_p0 + q] = 1;
+    
+    const double two_pi = 2.0 * M_PI;
+    const std::complex<double> Iunit(0.0, 1.0);
+    const std::complex<double> minus_i(0.0, -1.0);
+    
+    {
+      Themis::utils::ScopedTimer T(Themis::utils::TimerID::GradientAnalytic, timer_ns_, timer_calls_);
+      
+      const size_t Nep = _tge.size() - 1;
+      for (size_t epoch = 0; epoch < Nep; ++epoch)
+	{
+	  if (epoch % _L_size != size_t(_L_rank))
+	    continue;
+	  
+	  const auto& idx_list = _datum_index_list[epoch];
+	  const auto& is1_list = _is1_list[epoch];
+	  const auto& is2_list = _is2_list[epoch];
+	  
+	  for (size_t ii = 0; ii < idx_list.size(); ++ii)
+	    {
+	      const size_t j = idx_list[ii];
+	      datum_crosshand_visibilities& d = _data.datum(j);
+	      
+	      std::vector<std::complex<double>> err = _uncertainty.error(d);
+	      
+	      bool bad_err = false;
+	      for (int h = 0; h < 4; ++h)
+		if (err[h].real() == 0.0 || err[h].imag() == 0.0)
+		  bad_err = true;
+	      if (bad_err)
+		continue;
+	      
+	      const double acc = 0.25 * std::sqrt(std::abs(err[0]*err[0]) + std::abs(err[1]*err[1]));
+	      
+	      std::complex<double> base_pred[4];
+	      _model.fill_crosshand_visibilities(j, d, acc, base_pred);
+	      
+	      const std::complex<double> G12 = _G[epoch][is1_list[ii]] * std::conj(_G[epoch][is2_list[ii]]);
+	      
+	      std::complex<double> pred[4];
+	      for (int h = 0; h < 4; ++h)
+		pred[h] = G12 * base_pred[h];
+	      
+	      const std::complex<double> data_h[4] = { d.RR, d.LL, d.RL, d.LR };
+	      double rr[4], ri[4];
+	      for (int h = 0; h < 4; ++h) {
+		rr[h] = data_h[h].real()/err[h].real() - pred[h].real()/err[h].real();
+		ri[h] = data_h[h].imag()/err[h].imag() - pred[h].imag()/err[h].imag();
+	      }
+	      
+	      std::complex<double> base0_total[4] = {
+		std::complex<double>(0.0,0.0),
+		std::complex<double>(0.0,0.0),
+		std::complex<double>(0.0,0.0),
+		std::complex<double>(0.0,0.0)
+	      };
+	      
+	      std::complex<double> Dmat[4][4];
+	      
+	      {
+		const auto t0 = std::chrono::steady_clock::now();
+		for (int col = 0; col < 4; ++col)
+		  {
+		    std::complex<double> basis[4] = {
+		      std::complex<double>(0.0,0.0),
+		      std::complex<double>(0.0,0.0),
+		      std::complex<double>(0.0,0.0),
+		      std::complex<double>(0.0,0.0)
+		    };
+		    basis[col] = std::complex<double>(1.0,0.0);
+		    apply_top_dterms(d, basis);
+		    for (int row = 0; row < 4; ++row)
+		      Dmat[row][col] = basis[row];
+		  }
+		
+		const auto t1 = std::chrono::steady_clock::now();
+		dterm_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(t1 - t0).count();
+		++dterm_calls_;
+	      }
+	      
+	      auto apply_Dmat = [&](std::complex<double>* io)
+	      {
+		std::complex<double> tmp[4];
+		for (int row = 0; row < 4; ++row)
+		  {
+		    tmp[row] = Dmat[row][0]*io[0]
+		      + Dmat[row][1]*io[1]
+		      + Dmat[row][2]*io[2]
+		      + Dmat[row][3]*io[3];
+		  }
+		io[0] = tmp[0];
+		io[1] = tmp[1];
+		io[2] = tmp[2];
+		io[3] = tmp[3];
+	      };
+	      
+	      const double u = d.u;
+	      const double v = d.v;
+	      
+	      for (const auto& c : comps)
+		{
+		  auto& r = *c.r;
+		  const auto& phase = r.phase_cache();
+		  const auto& Kc    = r.spline_kernel_cache();
+		  const auto& Iflat = r.I_flat();
+		  const auto& Qflat = r.Q_flat();
+		  const auto& Uflat = r.U_flat();
+		  const auto& Vflat = r.V_flat();
+		  
+		  const size_t off = j * c.Npix;
+		  const double K   = Kc[j];
+		  
+		  const double pa   = x[c.idx_pa];
+		  const double fovx = x[c.idx_fovx];
+		  const double fovy = x[c.idx_fovy];
+		  const double cpa  = std::cos(pa);
+		  const double spa  = std::sin(pa);
+		  const double ur   =  cpa*u + spa*v;
+		  const double vr   = -spa*u + cpa*v;
+		  
+		  const std::complex<double> shift_phase = std::exp(-2.0*M_PI*Iunit * (c.xoff*(-u) + c.yoff*v));
+		  
+		  std::complex<double> SI0(0.0,0.0), SQ0(0.0,0.0), SU0(0.0,0.0), SV0(0.0,0.0);
+		  std::complex<double> SIx(0.0,0.0), SQx(0.0,0.0), SUx(0.0,0.0), SVx(0.0,0.0);
+		  std::complex<double> SIy(0.0,0.0), SQy(0.0,0.0), SUy(0.0,0.0), SVy(0.0,0.0);
+		  
+		  for (size_t k = 0; k < c.Npix; ++k)
+		    {
+		      const std::complex<double>& ph = phase[off + k];
+		      const double xf = c.xfrac[k];
+		      const double yf = c.yfrac[k];
+		      
+		      SI0 += Iflat[k] * ph;
+		      SQ0 += Qflat[k] * ph;
+		      SU0 += Uflat[k] * ph;
+		      SV0 += Vflat[k] * ph;
+		      
+		      if (do_geom) {
+			SIx += Iflat[k] * ph * xf;
+			SQx += Qflat[k] * ph * xf;
+			SUx += Uflat[k] * ph * xf;
+			SVx += Vflat[k] * ph * xf;
+			
+			SIy += Iflat[k] * ph * yf;
+			SQy += Qflat[k] * ph * yf;
+			SUy += Uflat[k] * ph * yf;
+			SVy += Vflat[k] * ph * yf;
+		      }
+		    }
+		  
+		  if (do_geom)
+		    {
+		      const auto& dKx = r.spline_kernel_dfovx_cache();
+		      const auto& dKy = r.spline_kernel_dfovy_cache();
+		      const auto& dKp = r.spline_kernel_dpa_cache();
+		      
+		      const std::complex<double> dSI_dfovx = (minus_i * (two_pi * ur)) * SIx;
+		      const std::complex<double> dSQ_dfovx = (minus_i * (two_pi * ur)) * SQx;
+		      const std::complex<double> dSU_dfovx = (minus_i * (two_pi * ur)) * SUx;
+		      const std::complex<double> dSV_dfovx = (minus_i * (two_pi * ur)) * SVx;
+		      
+		      const std::complex<double> dSI_dfovy = (minus_i * (two_pi * vr)) * SIy;
+		      const std::complex<double> dSQ_dfovy = (minus_i * (two_pi * vr)) * SQy;
+		      const std::complex<double> dSU_dfovy = (minus_i * (two_pi * vr)) * SUy;
+		      const std::complex<double> dSV_dfovy = (minus_i * (two_pi * vr)) * SVy;
+		      
+		      const std::complex<double> dSI_dpa = (minus_i * two_pi) * ( (vr * fovx) * SIx - (ur * fovy) * SIy );
+		      const std::complex<double> dSQ_dpa = (minus_i * two_pi) * ( (vr * fovx) * SQx - (ur * fovy) * SQy );
+		      const std::complex<double> dSU_dpa = (minus_i * two_pi) * ( (vr * fovx) * SUx - (ur * fovy) * SUy );
+		      const std::complex<double> dSV_dpa = (minus_i * two_pi) * ( (vr * fovx) * SVx - (ur * fovy) * SVy );
+		      
+		      auto add_geom = [&](size_t pidx, double dK, const std::complex<double>& dSI, const std::complex<double>& dSQ, const std::complex<double>& dSU, const std::complex<double>& dSV)
+		      {
+			std::complex<double> dvec[4];
+			
+			const std::complex<double> dVI = shift_phase * (dK * SI0 + K * dSI);
+			const std::complex<double> dVQ = shift_phase * (dK * SQ0 + K * dSQ);
+			const std::complex<double> dVU = shift_phase * (dK * SU0 + K * dSU);
+			const std::complex<double> dVV = shift_phase * (dK * SV0 + K * dSV);
+			
+			dvec[0] = dVI + dVV;
+			dvec[1] = dVI - dVV;
+			dvec[2] = dVQ + Iunit*dVU;
+			dvec[3] = dVQ - Iunit*dVU;
+			
+			apply_Dmat(dvec);
+			for (int h = 0; h < 4; ++h)
+			  dvec[h] *= G12;
+			
+			double contrib = 0.0;
+			for (int h = 0; h < 4; ++h) {
+			  contrib += rr[h] * (dvec[h].real()/err[h].real()) +  ri[h] * (dvec[h].imag()/err[h].imag());
+			}
+			grad_local[pidx] += contrib;
+		      };
+		      
+		      add_geom(c.idx_fovx, dKx[j], dSI_dfovx, dSQ_dfovx, dSU_dfovx, dSV_dfovx);
+		      add_geom(c.idx_fovy, dKy[j], dSI_dfovy, dSQ_dfovy, dSU_dfovy, dSV_dfovy);
+		      add_geom(c.idx_pa,   dKp[j], dSI_dpa,   dSQ_dpa,   dSU_dpa,   dSV_dpa);
+		    }
+		  
+		  const std::complex<double> VI0 = shift_phase * (K * SI0);
+		  const std::complex<double> VQ0 = shift_phase * (K * SQ0);
+		  const std::complex<double> VU0 = shift_phase * (K * SU0);
+		  const std::complex<double> VV0 = shift_phase * (K * SV0);
+		  
+		  std::complex<double> compvec[4];
+		  compvec[0] = VI0 + VV0;
+		  compvec[1] = VI0 - VV0;
+		  compvec[2] = VQ0 + Iunit*VU0;
+		  compvec[3] = VQ0 - Iunit*VU0;
+		  
+		  for (int h = 0; h < 4; ++h)
+		    base0_total[h] += compvec[h];
+		  
+		  if (sum_top)
+		    {
+		      auto add_offset = [&](size_t pidx, const std::complex<double>& fac)
+		      {
+			std::complex<double> dvec[4];
+			dvec[0] = fac * compvec[0];
+			dvec[1] = fac * compvec[1];
+			dvec[2] = fac * compvec[2];
+			dvec[3] = fac * compvec[3];
+			
+			apply_Dmat(dvec);
+			for (int h = 0; h < 4; ++h)
+			  dvec[h] *= G12;
+			
+			double contrib = 0.0;
+			for (int h = 0; h < 4; ++h) {
+			  contrib += rr[h] * (dvec[h].real()/err[h].real()) +  ri[h] * (dvec[h].imag()/err[h].imag());
+			}
+			grad_local[pidx] += contrib;
+		      };
+		      
+		      add_offset(c.idx_xoff, (+two_pi * Iunit * u));
+		      add_offset(c.idx_yoff, (-two_pi * Iunit * v));
+		    }
+		  
+		  for (size_t k = 0; k < c.Npix; ++k)
+		    {
+		      const std::complex<double> z = shift_phase * (K * phase[off + k]);
+		      
+		      const double Ik = Iflat[k];
+		      const double Qk = Qflat[k];
+		      const double Uk = Uflat[k];
+		      const double Vk = Vflat[k];
+		      
+		      const size_t pI    = c.p0 + k;
+		      const size_t pM    = c.p0 + c.Npix + k;
+		      const size_t pEVPA = c.p0 + 2*c.Npix + k;
+		      const size_t pMuV  = c.p0 + 3*c.Npix + k;
+		      
+		      auto add_pixel = [&](size_t pidx, double dI, double dQ, double dU, double dV)
+		      {
+			std::complex<double> dvec[4];
+			dvec[0] = z * (dI + dV);
+			dvec[1] = z * (dI - dV);
+			dvec[2] = z * (dQ + Iunit*dU);
+			dvec[3] = z * (dQ - Iunit*dU);
+			
+			apply_Dmat(dvec);
+			for (int h = 0; h < 4; ++h)
+			  dvec[h] *= G12;
+			
+			double contrib = 0.0;
+			for (int h = 0; h < 4; ++h) {
+			  contrib += rr[h] * (dvec[h].real()/err[h].real()) + ri[h] * (dvec[h].imag()/err[h].imag());
+			}
+			grad_local[pidx] += contrib;
+		      };
+
+		      add_pixel(pI, Ik, Qk, Uk, Vk);
+		      add_pixel(pM, 0.0, Qk, Uk, Vk);
+		      add_pixel(pEVPA, 0.0, -2.0*Uk, 2.0*Qk, 0.0);
+		      
+		      const double mu  = x[pMuV];
+		      const double Ii  = std::exp(x[pI]);
+		      const double m   = std::exp(x[pM]);
+		      const double omm = std::max(1.0e-300, 1.0 - mu*mu);
+		      const double dQdmu = -(mu/omm) * Qk;
+		      const double dUdmu = -(mu/omm) * Uk;
+		      const double dVdmu = Ii * m;
+		      
+		      add_pixel(pMuV, 0.0, dQdmu, dUdmu, dVdmu);
+		    }
+		}
+	      
+	      if (have_model_dterms)
+		{
+		  const size_t s1 = station_index(d.Station1);
+		  const size_t s2 = station_index(d.Station2);
+		  
+		  const size_t pD[8] = {
+		    dterm_p0 + 4*s1 + 0,
+		    dterm_p0 + 4*s1 + 1,
+		    dterm_p0 + 4*s1 + 2,
+		    dterm_p0 + 4*s1 + 3,
+		    dterm_p0 + 4*s2 + 0,
+		    dterm_p0 + 4*s2 + 1,
+		    dterm_p0 + 4*s2 + 2,
+		    dterm_p0 + 4*s2 + 3
+		  };
+		  
+		  std::complex<double> dD[8][4];
+		  apply_top_dterms_param_jac(d, base0_total, dD);
+		  
+		  for (int q = 0; q < 8; ++q)
+		    {
+		      double contrib = 0.0;
+		      for (int h = 0; h < 4; ++h)
+			{
+			  const std::complex<double> z = G12 * dD[q][h];
+			  contrib += rr[h] * (z.real()/err[h].real()) + ri[h] * (z.imag()/err[h].imag());
+			}
+		      grad_local[pD[q]] += contrib;
+		    }
+		}
+	    }
+	}
+      
+    } // Scoped Timer
+    
+    std::vector<double> grad(Npar, 0.0);
+    MPI_Allreduce(grad_local.data(), grad.data(), int(Npar), MPI_DOUBLE, MPI_SUM, _Lcomm);
+    
+    std::vector<double> y = x;
+    for (size_t p = 0; p < Npar; ++p)
+      {
+	if (analytic_mask[p])
+	  continue;
+	
+	double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
+	if (!(h > 0.0))
+	  h = 1.0e-6 * std::max(1.0, std::fabs(x[p]));
+	
+	y[p] = x[p] + h;
+	const double Lp = std::isfinite(Pr(y))
+	  ? this->operator()(y)
+	  : -std::numeric_limits<double>::infinity();
+	
+	y[p] = x[p] - h;
+	const double Lm = std::isfinite(Pr(y))
+	  ? this->operator()(y)
+	  :  std::numeric_limits<double>::infinity();
+	
+	y[p] = x[p];
+	grad[p] = (Lp - Lm) / (2.0 * h);
+      }
+    
+    restore_basepoint();
+    
+    if (!_solve_for_gains_during_gradient && solving_for_gains_prev)
       solve_for_gains();
     
-    // Return gradients
     return grad;
   }
-  
+
+
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::chi_squared(std::vector<double>& x)
   {
     distribute_gains();
@@ -1059,84 +1699,76 @@ namespace Themis
     return (-2.0*L);
   }
 
+
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::matrix_determinant(double **a)
   {
-    int n = int(_sigma_g.size());
+    const int n = int(_sigma_g.size());
     double d;
-    //double **a, d;
-    int i,*indx;
-
-    indx = new int[n+1];
-
-    ludcmp(a,n,indx,d);
-
-    // Find determinant of a
-    for (i=1; i<=n; ++i)
+    
+    ludcmp(a, n, _indx, d);
+    
+    for (int i=1; i<=n; ++i)
       d *= a[i][i];
-
-    // Clean up memory
-    delete[] indx;
-
+    
     return d;
   }
-  
+
 
 #define TINY 1.0e-20;
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::ludcmp(double **a, int n, int *indx, double &d)
   {
     int i,imax=0,j,k;
     double big,dum,sum,temp;
-    double *vv = new double[n+1];
-
-    d=1.0;
-    for (i=1;i<=n;i++) {
-      big=0.0;
-      for (j=1;j<=n;j++)
+    
+    d = 1.0;
+    for (i=1; i<=n; ++i) {
+      big = 0.0;
+      for (j=1; j<=n; ++j)
 	if ((temp=std::fabs(a[i][j])) > big)
-	  big=temp;
+	  big = temp;
       if (big == 0.0)
 	std::cerr << "Singular matrix in routine ludcmp";
-      vv[i]=1.0/big;
+      _vv[i] = 1.0/big;
     }
-    for (j=1;j<=n;j++) {
-      for (i=1;i<j;i++) {
-	sum=a[i][j];
-	for (k=1;k<i;k++)
+    for (j=1; j<=n; ++j) {
+      for (i=1; i<j; ++i) {
+	sum = a[i][j];
+	for (k=1; k<i; ++k)
 	  sum -= a[i][k]*a[k][j];
-	a[i][j]=sum;
+	a[i][j] = sum;
       }
-      big=0.0;
-      for (i=j;i<=n;i++) {
-	sum=a[i][j];
-	for (k=1;k<j;k++)
+      big = 0.0;
+      for (i=j; i<=n; ++i) {
+	sum = a[i][j];
+	for (k=1; k<j; ++k)
 	  sum -= a[i][k]*a[k][j];
-	a[i][j]=sum;
-	if ( (dum=vv[i]*std::fabs(sum)) >= big) {
-	  big=dum;
-	  imax=i;
+	a[i][j] = sum;
+	if ((dum=_vv[i]*std::fabs(sum)) >= big) {
+	  big = dum;
+	  imax = i;
 	}
       }
       if (j != imax) {
-	for (k=1;k<=n;k++) {
-	  dum=a[imax][k];
-	  a[imax][k]=a[j][k];
-	  a[j][k]=dum;
+	for (k=1; k<=n; ++k) {
+	  dum = a[imax][k];
+	  a[imax][k] = a[j][k];
+	  a[j][k] = dum;
 	}
-	d = -(d);
-	vv[imax]=vv[j];
+	d = -d;
+	_vv[imax] = _vv[j];
       }
-      indx[j]=imax;
+      indx[j] = imax;
       if (a[j][j] == 0.0)
-	a[j][j]=TINY;
+	a[j][j] = TINY;
       if (j != n) {
-	dum=1.0/(a[j][j]);
-	for (i=j+1;i<=n;i++)
+	dum = 1.0/(a[j][j]);
+	for (i=j+1; i<=n; ++i)
 	  a[i][j] *= dum;
       }
     }
-    delete[] vv;
   }
 #undef TINY
+
 
   std::vector<double> likelihood_optimal_complex_gain_constrained_crosshand_visibilities::get_gain_times()
   {
@@ -1281,409 +1913,206 @@ namespace Themis
     }
   }
 
+
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::optimal_complex_gains(std::vector< std::vector< std::complex<double> > >& y, std::vector< std::vector< std::complex<double> > >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector< std::complex<double> >& gest)
   {
+    Themis::utils::ScopedTimer T(Themis::utils::TimerID::GainsSolveTotal, timer_ns_, timer_calls_);
+    
     std::vector<std::complex<double> > gest_best = gest;
     double marg_best = -1;
     double chisq_best = std::numeric_limits<double>::infinity();
-
+    
     std::vector<std::complex<double> > gest_try = gest;
     double marg_try, chisq_try;
     
-    // Start at the passed guess
     marg_try = optimal_complex_gains_trial(y,yb,is1,is2,gest_try,chisq_try);
     if (marg_try>=0)
-    {
-      gest_best = gest_try;
-      marg_best = marg_try;
-      chisq_best = chisq_try;
-    }
-
-    // Log fit -- guaranteed to be convergent to the correct root, rapidly, but will
-    // have the wrong covariance.
-    gest_try = gest;
-    marg_try = optimal_complex_gains_log_trial(y,yb,is1,is2,gest_try,chisq_try);
-    if (marg_try>=0) // If successful, try the proper maximization
-      marg_try = optimal_complex_gains_trial(y,yb,is1,is2,gest_try,chisq_try);
-    if (marg_try>0) // If successful and successful, grab the best case
-      if (chisq_try<chisq_best)
       {
 	gest_best = gest_try;
 	marg_best = marg_try;
 	chisq_best = chisq_try;
       }
-
-    // If failed all attempts, fix gains to unity and return fail code
+    
+    gest_try = gest;
+    marg_try = optimal_complex_gains_log_trial(y,yb,is1,is2,gest_try,chisq_try);
+    if (marg_try>=0)
+      marg_try = optimal_complex_gains_trial(y,yb,is1,is2,gest_try,chisq_try);
+    if (marg_try>0)
+      if (chisq_try<chisq_best)
+	{
+	  gest_best = gest_try;
+	  marg_best = marg_try;
+	  chisq_best = chisq_try;
+	}
+    
     if (marg_best<0)
-    {
-      for (size_t j=0; j<gest.size(); ++j)
-	gest[j] = std::complex<double>(1.0,0.0);
-      return -1;
-    }
-    // Otherwise, return the best
-    gest = gest_best;    
+      {
+	for (size_t j=0; j<gest.size(); ++j)
+	  gest[j] = std::complex<double>(1.0,0.0);
+	return -1;
+      }
+    
+    gest = gest_best;
     return marg_best;
   }
 
-    
+
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::optimal_complex_gains_trial(std::vector< std::vector< std::complex<double> > >& y, std::vector< std::vector< std::complex<double> > >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector< std::complex<double> >& gest, double& chisq_opt)
   {
-    // Get the size of y (factor of 2 from real,imag)
+    Themis::utils::ScopedTimer T(Themis::utils::TimerID::GainsSolveTrial, timer_ns_, timer_calls_);
+    
     int ndata = int( 2*(y[0].size()+y[1].size()+y[2].size()+y[3].size()) );
-
-    if (ndata==0) {
+    if (ndata==0)
       return 1.0;
-    }
-
-    // Make global pointers to avoid nightmares in rigging the NR stuff.
-    _ogc_y = new double[ndata+1];
-    _ogc_yb = new double[ndata+1];
-    _ogc_is1 = new size_t[ndata+1];
-    _ogc_is2 = new size_t[ndata+1];
-
-    /*// DEBUG
-    std::cerr << "ndata = " << ndata 
-	      << " vs y[j].size() = " 
-	      << y[0].size() << ", "
-	      << y[1].size() << ", "
-	      << y[2].size() << ", "
-	      << y[3].size() << '\n';
-    */
-
+    
     for (size_t i=0, j=1; i<y[0].size(); ++i)
-    {
-      // RR
-      _ogc_y[j] = y[0][i].real();
-      _ogc_yb[j] = yb[0][i].real();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      _ogc_y[j] = y[0][i].imag();
-      _ogc_yb[j] = yb[0][i].imag();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      // LL
-      _ogc_y[j] = y[1][i].real();
-      _ogc_yb[j] = yb[1][i].real();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      _ogc_y[j] = y[1][i].imag();
-      _ogc_yb[j] = yb[1][i].imag();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      // RL
-      _ogc_y[j] = y[2][i].real();
-      _ogc_yb[j] = yb[2][i].real();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      _ogc_y[j] = y[2][i].imag();
-      _ogc_yb[j] = yb[2][i].imag();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      // LR
-      _ogc_y[j] = y[3][i].real();
-      _ogc_yb[j] = yb[3][i].real();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      _ogc_y[j] = y[3][i].imag();
-      _ogc_yb[j] = yb[3][i].imag();
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-
-      // DEBUG
-      //std::cerr << "    on j = " << j << '\n';
-    }
-
-    // Make space for mrqmin objects
-    int ma = 2*_sigma_g.size(); // real,imag
-    double **covar, **alpha;
-    covar = new double*[ma+1];
-    alpha = new double*[ma+1];
-    for (int i=1; i<=ma; ++i)
-    {
-      covar[i] = new double[ma+1];
-      alpha[i] = new double[ma+1];
-    }
-
-
-    // Start running mrqmin
-    double *g = new double[ma+1]; // Internal gain representation is gain correction magnitude and phase, i.e., G = exp[ g - i phi ].
-    double *og = new double[ma+1];
+      {
+	_ogc_y[j]   = y[0][i].real();   _ogc_yb[j]   = yb[0][i].real();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+	_ogc_y[j]   = y[0][i].imag();   _ogc_yb[j]   = yb[0][i].imag();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+	_ogc_y[j]   = y[1][i].real();   _ogc_yb[j]   = yb[1][i].real();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+	_ogc_y[j]   = y[1][i].imag();   _ogc_yb[j]   = yb[1][i].imag();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+	_ogc_y[j]   = y[2][i].real();   _ogc_yb[j]   = yb[2][i].real();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+	_ogc_y[j]   = y[2][i].imag();   _ogc_yb[j]   = yb[2][i].imag();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+	_ogc_y[j]   = y[3][i].real();   _ogc_yb[j]   = yb[3][i].real();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+	_ogc_y[j]   = y[3][i].imag();   _ogc_yb[j]   = yb[3][i].imag();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
+      }
+    
+    const int ma = 2*_sigma_g.size();
+    
     for (int i=0, j=1; i<int(gest.size()); ++i)
-    {
-      g[j++] = std::log(std::abs(gest[i]));
-      g[j++] = std::arg(gest[i]);
-    }
+      {
+	_g[j++] = std::log(std::abs(gest[i]));
+	_g[j++] = std::arg(gest[i]);
+      }
+    
     double alambda = -1.0;
-    double chisq=0.0, ochisq, dg2;
-    double dg2limit=0.0;
+    double chisq = 0.0, ochisq, dg2;
+    double dg2limit = 0.0;
     for (size_t i=0; i<_sigma_g.size(); ++i)
       dg2limit += _sigma_g[i]*_sigma_g[i];
-    dg2limit *= 1e-12; 
-
-
+    dg2limit *= 1e-12;
+    
     bool notconverged = true;
-    int iteration;
-    for (iteration=0; iteration<_itermax && notconverged; ++iteration)
-    {
-      for (int i=1; i<=ma; ++i)
-	og[i] = g[i];
-      ochisq = chisq;
-
-      if (mrqmin(_ogc_y,ndata,g,ma,covar,alpha,&chisq,&alambda))
-	return -1;
-      
-      if (iteration>5 && chisq<ochisq)
+    for (int iteration=0; iteration<_itermax && notconverged; ++iteration)
       {
-	dg2 = 0.0;
 	for (int i=1; i<=ma; ++i)
-	  dg2 += std::pow((g[i]-og[i]),2);
-
-	if (dg2<dg2limit || (ochisq-chisq)<1e-8*chisq)
-	  notconverged = false;
+	  _og[i] = _g[i];
+	ochisq = chisq;
+	
+	if (mrqmin(_ogc_y, ndata, _g, ma, _covar, _alpha, &chisq, &alambda))
+	  return -1;
+	
+	if (iteration>1 && chisq<ochisq)
+	  {
+	    dg2 = 0.0;
+	    for (int i=1; i<=ma; ++i)
+	      dg2 += std::pow((_g[i]-_og[i]),2);
+	    
+	    if (dg2<dg2limit || (ochisq-chisq)<1e-8*chisq)
+	      notconverged = false;
+	  }
       }
-    }
-    alambda=0.0;
-    mrqmin(_ogc_y,ndata,g,ma,covar,alpha,&chisq,&alambda);
-
-    // Save output
+    
+    alambda = 0.0;
+    mrqmin(_ogc_y, ndata, _g, ma, _covar, _alpha, &chisq, &alambda);
+    
     for (int i=0, j=1; i<int(gest.size()); ++i, j+=2)
-    {
-      double gmag = std::exp(g[j]);
-      /*
-      // Limit from below
-      if (gmag<1.0/(1.0+_sigma_g[i]*_max_g[i]))
-	gmag = 1.0/(1.0+_sigma_g[i]*_max_g[i]);
-      // Limit from above
-      if (gmag>(1.0+_sigma_g[i]*_max_g[i]))
-	gmag = (1.0+_sigma_g[i]*_max_g[i]);
-      */
-      gest[i] = gmag * std::exp( std::complex<double>(0.0,1.0)*g[j+1] );
-    }
-
-    // Determinant of the covariance matrix, which is approximately the integral of the likelihood 
-    double detC = matrix_determinant(covar);
-
-    // Renormalize by the products of 1/_sigma_g^2
+      {
+	const double gmag = std::exp(_g[j]);
+	gest[i] = gmag * std::exp(std::complex<double>(0.0,1.0)*_g[j+1]);
+      }
+    
+    double detC = matrix_determinant(_covar);
     for (size_t a=0; a<_sigma_g.size(); ++a)
       detC *= 1.0/(_sigma_g[a]*_sigma_g[a]) * _opi2;
-
-    // Clean up
-    delete[] og;
-    delete[] g;
-    for (int i=1; i<=ma; ++i)
-    {
-      delete[] covar[i];
-      delete[] alpha[i];
-    }
-    delete[] covar;
-    delete[] alpha;
-    delete[] _ogc_is2;
-    delete[] _ogc_is1;
-    delete[] _ogc_yb;
-    delete[] _ogc_y;
-
-    chisq_opt = chisq;
     
-    return std::sqrt(detC); // Success!
+    chisq_opt = chisq;
+    return std::sqrt(detC);
   }
 
 
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::optimal_complex_gains_log_trial(std::vector< std::vector< std::complex<double> > >& y, std::vector< std::vector< std::complex<double> > >& yb, std::vector<size_t>& is1, std::vector<size_t>& is2, std::vector< std::complex<double> >& gest, double& chisq_opt)
   {
-    // Get the size of y (factor of 2 from real,imag)
+    Themis::utils::ScopedTimer T(Themis::utils::TimerID::GainsSolveLogTrial, timer_ns_, timer_calls_);
+    
     int ndata = int( 2*(y[0].size()+y[1].size()+y[2].size()+y[3].size()) );
-
-    if (ndata==0) {
+    if (ndata==0)
       return 1.0;
-    }
-
-    // Make global pointers to avoid nightmares in rigging the NR stuff.
-    _ogc_y = new double[ndata+1];
-    _ogc_yb = new double[ndata+1];
-    _ogc_is1 = new size_t[ndata+1];
-    _ogc_is2 = new size_t[ndata+1];
-    double *sig = new double[ndata+1];
+    
     std::complex<double> tmp;
     for (size_t i=0, j=1; i<y[0].size(); ++i)
-    {
-      // RR
-      tmp = y[0][i]/yb[0][i];
-      if (std::abs(tmp)<1e-6)
-	tmp = 1e-6;
-      //_ogc_y[j] = std::log((y[0][i]==0.0 ? 1e-15 : y[0][i])/yb[0][i]).real();
-      _ogc_y[j] = std::log(tmp).real();
-      sig[j] = 1.0/std::abs(y[0][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      //_ogc_y[j] = std::log((y[0][i]==0.0 ? 1e-15 : y[0][i])/yb[0][i]).imag();
-      _ogc_y[j] = std::log(tmp).imag();
-      sig[j] = 1.0/std::abs(y[0][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      // LL
-      tmp = y[1][i]/yb[1][i];
-      if (std::abs(tmp)<1e-6)
-	tmp = 1e-6;
-      //_ogc_y[j] = std::log((y[1][i]==0.0 ? 1e-15 : y[1][i])/yb[1][i]).real();
-      _ogc_y[j] = std::log(tmp).real();      
-      sig[j] = 1.0/std::abs(y[1][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      //_ogc_y[j] = std::log((y[1][i]==0.0 ? 1e-15 : y[1][i])/yb[1][i]).imag();
-      _ogc_y[j] = std::log(tmp).imag();      
-      sig[j] = 1.0/std::abs(y[1][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      // RL
-      tmp = y[2][i]/yb[2][i];
-      if (std::abs(tmp)<1e-6)
-	tmp = 1e-6;
-      //_ogc_y[j] = std::log((y[2][i]==0.0 ? 1e-15 : y[2][i])/yb[2][i]).real();
-      _ogc_y[j] = std::log(tmp).real();      
-      sig[j] = 1.0/std::abs(y[2][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      //_ogc_y[j] = std::log((y[2][i]==0.0 ? 1e-15 : y[2][i])/yb[2][i]).imag();
-      _ogc_y[j] = std::log(tmp).imag();      
-      sig[j] = 1.0/std::abs(y[2][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      // LR
-      tmp = y[3][i]/yb[3][i];
-      if (std::abs(tmp)<1e-6)
-	tmp = 1e-6;
-      //_ogc_y[j] = std::log((y[3][i]==0.0 ? 1e-15 : y[3][i])/yb[3][i]).real();
-      _ogc_y[j] = std::log(tmp).real();      
-      sig[j] = 1.0/std::abs(y[3][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-      //_ogc_y[j] = std::log((y[3][i]==0.0 ? 1e-15 : y[3][i])/yb[3][i]).imag();
-      _ogc_y[j] = std::log(tmp).imag();      
-      sig[j] = 1.0/std::abs(y[3][i]);
-      _ogc_yb[j] = 0.0;
-      _ogc_is1[j] = is1[i];
-      _ogc_is2[j] = is2[i];
-      j++;
-    }
-
-    // Make space for mrqmin objects
-    int ma = 2*_sigma_g.size(); // real,imag
-    double **covar, **alpha;
-    covar = new double*[ma+1];
-    alpha = new double*[ma+1];
-    for (int i=1; i<=ma; ++i)
-    {
-      covar[i] = new double[ma+1];
-      alpha[i] = new double[ma+1];
-    }
-
-
-    // Start running mrqmin
-    double *g = new double[ma+1]; // Internal gain representation is gain correction magnitude and phase, i.e., G = exp[ g - i phi ].
-    double *og = new double[ma+1];
+      {
+	tmp = y[0][i]/yb[0][i]; if (std::abs(tmp)<1e-6) tmp = 1e-6;
+	_ogc_y[j] = std::log(tmp).real(); _sig[j] = 1.0/std::abs(y[0][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+	_ogc_y[j] = std::log(tmp).imag(); _sig[j] = 1.0/std::abs(y[0][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+	
+	tmp = y[1][i]/yb[1][i]; if (std::abs(tmp)<1e-6) tmp = 1e-6;
+	_ogc_y[j] = std::log(tmp).real(); _sig[j] = 1.0/std::abs(y[1][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+	_ogc_y[j] = std::log(tmp).imag(); _sig[j] = 1.0/std::abs(y[1][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+	
+	tmp = y[2][i]/yb[2][i]; if (std::abs(tmp)<1e-6) tmp = 1e-6;
+	_ogc_y[j] = std::log(tmp).real(); _sig[j] = 1.0/std::abs(y[2][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+	_ogc_y[j] = std::log(tmp).imag(); _sig[j] = 1.0/std::abs(y[2][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+	
+	tmp = y[3][i]/yb[3][i]; if (std::abs(tmp)<1e-6) tmp = 1e-6;
+	_ogc_y[j] = std::log(tmp).real(); _sig[j] = 1.0/std::abs(y[3][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+	_ogc_y[j] = std::log(tmp).imag(); _sig[j] = 1.0/std::abs(y[3][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
+      }
+    
+    const int ma = 2*_sigma_g.size();
+    
     for (int i=0, j=1; i<int(gest.size()); ++i)
-    {
-      g[j++] = std::log(std::abs(gest[i]));
-      g[j++] = std::arg(gest[i]);
-    }
+      {
+	_g[j++] = std::log(std::abs(gest[i]));
+	_g[j++] = std::arg(gest[i]);
+      }
+    
     double alambda = -1.0;
-    double chisq=0.0, ochisq, dg2;
-    double ch2limit=1.0e-8;
-    double dg2limit=0.0;
+    double chisq = 0.0, ochisq, dg2;
+    const double ch2limit = 1.0e-8;
+    double dg2limit = 0.0;
     for (size_t i=0; i<_sigma_g.size(); ++i)
       dg2limit += _sigma_g[i]*_sigma_g[i];
-    dg2limit *= 1e-12; 
-
-
+    dg2limit *= 1e-12;
+    
     bool notconverged = true;
-    int iteration;
-    for (iteration=0; iteration<_itermax && notconverged; ++iteration)
-    {
-      for (int i=1; i<=ma; ++i)
-	og[i] = g[i];
-      ochisq = chisq;
-      
-      if (mrqmin_log(_ogc_y,sig,ndata,g,ma,covar,alpha,&chisq,&alambda))
-	return -1;
-      
-      if (iteration>5 && chisq<ochisq)
+    for (int iteration=0; iteration<_itermax && notconverged; ++iteration)
       {
-	dg2 = 0.0;
 	for (int i=1; i<=ma; ++i)
-	  dg2 += std::pow((g[i]-og[i]),2);
-
-	if (dg2<dg2limit || (ochisq-chisq)<ch2limit*chisq)
-	  notconverged = false;
+	  _og[i] = _g[i];
+	ochisq = chisq;
+	
+	if (mrqmin_log(_ogc_y, _sig, ndata, _g, ma, _covar, _alpha, &chisq, &alambda))
+	  return -1;
+	
+	if (iteration>1 && chisq<ochisq)
+	  {
+	    dg2 = 0.0;
+	    for (int i=1; i<=ma; ++i)
+	      dg2 += std::pow((_g[i]-_og[i]),2);
+	    
+	    if (dg2<dg2limit || (ochisq-chisq)<ch2limit*chisq)
+	      notconverged = false;
+	  }
       }
-    }
-    alambda=0.0;
-    mrqmin_log(_ogc_y,sig,ndata,g,ma,covar,alpha,&chisq,&alambda);
-
-    // Save output
+    
+    alambda = 0.0;
+    mrqmin_log(_ogc_y, _sig, ndata, _g, ma, _covar, _alpha, &chisq, &alambda);
+    
     for (int i=0, j=1; i<int(gest.size()); ++i, j+=2)
-    {
-      double gmag = std::exp(g[j]);
-      /*
-      // Limit from below
-      if (gmag<1.0/(1.0+_sigma_g[i]*_max_g[i]))
-	gmag = 1.0/(1.0+_sigma_g[i]*_max_g[i]);
-      // Limit from above
-      if (gmag>(1.0+_sigma_g[i]*_max_g[i]))
-	gmag = (1.0+_sigma_g[i]*_max_g[i]);
-      */
-      gest[i] = gmag * std::exp( std::complex<double>(0.0,1.0)*g[j+1] );
-    }
-
-    // Determinant of the covariance matrix, which is approximately the integral of the likelihood 
-    double detC = matrix_determinant(covar);
-
-    // Renormalize by the products of 1/_sigma_g^2
+      {
+	const double gmag = std::exp(_g[j]);
+	gest[i] = gmag * std::exp(std::complex<double>(0.0,1.0)*_g[j+1]);
+      }
+    
+    double detC = matrix_determinant(_covar);
     for (size_t a=0; a<_sigma_g.size(); ++a)
       detC *= 1.0/(_sigma_g[a]*_sigma_g[a]) * _opi2;
     
-    // Clean up
-    delete[] og;
-    delete[] g;
-    for (int i=1; i<=ma; ++i)
-    {
-      delete[] covar[i];
-      delete[] alpha[i];
-    }
-    delete[] covar;
-    delete[] alpha;
-    delete[] _ogc_is2;
-    delete[] _ogc_is1;
-    delete[] _ogc_yb;
-    delete[] _ogc_y;
-    delete[] sig;
-    
     chisq_opt = chisq;
-    
-    return std::sqrt(detC); // Success!
+    return std::sqrt(detC);
   }
-  
+
 
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::gain_optimization_likelihood(size_t i, const double g[], double *y, double dydg[]) const
   {
@@ -1764,7 +2193,6 @@ namespace Themis
   }
 
   
-
 #define SWAP(a,b) {swap=(a);(a)=(b);(b)=swap;}
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::covsrt(double **covar, int ma, int mfit)
   {
@@ -1783,456 +2211,725 @@ namespace Themis
       k--;
     }
   }
+  
 
   int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::gaussj(double **a, int n, double **b, int m)
   {
     int i,icol=0,irow=0,j,k,l,ll;
     double big,dum,pivinv,swap;
-
-    int *indxc = new int[n+1];
-    int *indxr = new int[n+1];
-    int *ipiv = new int[n+1];
-
-
-    /*
-    // DEBUG
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    double aorig[n+1][n+1];
-    double borig[n+1][m+1];
-    if (n>0) {
-      for (int i2=1; i2<=n; i2++)
-	for (int j2=1; j2<=n; j2++)
-	  aorig[i2][j2] = a[i2][j2];
-    }
-    if (m>0) {
-      for (int i2=1; i2<=n; i2++)
-	for (int j2=1; j2<=m; j2++)
-	  borig[i2][j2] = b[i2][j2];
-    }
-    */
-
     
-    for (j=1;j<=n;j++)
-      ipiv[j]=0;
-    for (i=1;i<=n;i++) {
-      big=0.0;
-      for (j=1;j<=n;j++)
-	if (ipiv[j] != 1)
-	  for (k=1;k<=n;k++) {
-	    if (ipiv[k] == 0) {
+    for (j=1; j<=n; ++j)
+      _ipiv[j] = 0;
+    
+    for (i=1; i<=n; ++i) {
+      big = 0.0;
+      for (j=1; j<=n; ++j)
+	if (_ipiv[j] != 1)
+	  for (k=1; k<=n; ++k) {
+	    if (_ipiv[k] == 0) {
 	      if (std::fabs(a[j][k]) >= big) {
-		big=std::fabs(a[j][k]);
-		irow=j;
-		icol=k;
+		big = std::fabs(a[j][k]);
+		irow = j;
+		icol = k;
 	      }
-	    } else if (ipiv[k] > 1) {
+	    } else if (_ipiv[k] > 1) {
 	      std::cerr << "gaussj: Singular Matrix-1\n";
-	      /*// DEBUG
-	      std::cerr << rank << " - aorig -----------------------------\n";
-	      for (int i2=1; i2<=n; i2++) {
-		for (int j2=1; j2<=n; j2++)
-		  std::cerr << std::setw(15) << aorig[i2][j2];
-		std::cerr << '\n';
-	      }
-	      std::cerr << rank << " - aorig -----------------------------\n";
-	      std::cerr << rank << " - borig -----------------------------\n";
-	      for (int i2=1; i2<=n; i2++) {
-		for (int j2=1; j2<=m; j2++)
-		  std::cerr << std::setw(15) << borig[i2][j2];
-		std::cerr << '\n';
-	      }
-	      std::cerr << rank << " - borig -----------------------------\n";
-	      std::cerr << rank << " - a -----------------------------\n";
-	      for (int i2=1; i2<=n; i2++) {
-		for (int j2=1; j2<=n; j2++)
-		  std::cerr << std::setw(15) << a[i2][j2];
-		std::cerr << '\n';
-	      }
-	      std::cerr << rank << " - a -----------------------------\n";
-	      std::cerr << rank << " - b -----------------------------\n";
-	      for (int i2=1; i2<=n; i2++) {
-		for (int j2=1; j2<=m; j2++)
-		  std::cerr << std::setw(15) << b[i2][j2];
-		std::cerr << '\n';
-	      }
-	      std::cerr << rank << " - b -----------------------------\n";
-	      */
-	      delete[] ipiv;
-	      delete[] indxr;
-	      delete[] indxc;
 	      return 1;
 	    }
 	  }
-      ++(ipiv[icol]);
+      ++(_ipiv[icol]);
       if (irow != icol) {
-	for (l=1;l<=n;l++)
-	  SWAP(a[irow][l],a[icol][l]);
-	for (l=1;l<=m;l++)
-	  SWAP(b[irow][l],b[icol][l]);
+	for (l=1; l<=n; ++l) SWAP(a[irow][l],a[icol][l]);
+	for (l=1; l<=m; ++l) SWAP(b[irow][l],b[icol][l]);
       }
-      indxr[i]=irow;
-      indxc[i]=icol;
+      _indxr[i] = irow;
+      _indxc[i] = icol;
       if (a[icol][icol] == 0.0) {
 	std::cerr << "gaussj: Singular Matrix-2\n";
-	/*
-	// DEBUG
-	std::cerr << rank << " - aorig -----------------------------\n";
-	for (int i2=1; i2<=n; i2++) {
-	  for (int j2=1; j2<=n; j2++)
-	    std::cerr << std::setw(15) << aorig[i2][j2];
-	  std::cerr << '\n';
-	}
-	std::cerr << rank << " - aorig -----------------------------\n";
-	std::cerr << rank << " - borig -----------------------------\n";
-	for (int i2=1; i2<=n; i2++) {
-	  for (int j2=1; j2<=m; j2++)
-	    std::cerr << std::setw(15) << borig[i2][j2];
-	  std::cerr << '\n';
-	}
-	std::cerr << rank << " - borig -----------------------------\n";
-	std::cerr << rank << " - a -----------------------------\n";
-	for (int i2=1; i2<=n; i2++) {
-	  for (int j2=1; j2<=n; j2++)
-	    std::cerr << std::setw(15) << a[i2][j2];
-	  std::cerr << '\n';
-	}
-	std::cerr << rank << " - a -----------------------------\n";
-	std::cerr << rank << " - b -----------------------------\n";
-	for (int i2=1; i2<=n; i2++) {
-	  for (int j2=1; j2<=m; j2++)
-	    std::cerr << std::setw(15) << b[i2][j2];
-	  std::cerr << '\n';
-	}
-	std::cerr << rank << " - b -----------------------------\n";
-	*/
-	delete[] ipiv;
-	delete[] indxr;
-	delete[] indxc;
 	return 2;
       }
-      pivinv=1.0/a[icol][icol];
-      a[icol][icol]=1.0;
-      for (l=1;l<=n;l++) a[icol][l] *= pivinv;
-      for (l=1;l<=m;l++) b[icol][l] *= pivinv;
-      for (ll=1;ll<=n;ll++)
+      pivinv = 1.0/a[icol][icol];
+      a[icol][icol] = 1.0;
+      for (l=1; l<=n; ++l) a[icol][l] *= pivinv;
+      for (l=1; l<=m; ++l) b[icol][l] *= pivinv;
+      for (ll=1; ll<=n; ++ll)
 	if (ll != icol) {
-	  dum=a[ll][icol];
-	  a[ll][icol]=0.0;
-	  for (l=1;l<=n;l++) a[ll][l] -= a[icol][l]*dum;
-	  for (l=1;l<=m;l++) b[ll][l] -= b[icol][l]*dum;
+	  dum = a[ll][icol];
+	  a[ll][icol] = 0.0;
+	  for (l=1; l<=n; ++l) a[ll][l] -= a[icol][l]*dum;
+	  for (l=1; l<=m; ++l) b[ll][l] -= b[icol][l]*dum;
 	}
     }
-    for (l=n;l>=1;l--) {
-      if (indxr[l] != indxc[l])
-	for (k=1;k<=n;k++)
-	  SWAP(a[k][indxr[l]],a[k][indxc[l]]);
+    
+    for (l=n; l>=1; --l) {
+      if (_indxr[l] != _indxc[l])
+	for (k=1; k<=n; ++k)
+	  SWAP(a[k][_indxr[l]],a[k][_indxc[l]]);
     }
-
-    delete[] ipiv;
-    delete[] indxr;
-    delete[] indxc;
-
+    
     return 0;
   }
-#undef SWAP
+
+
+  int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::cholesky_solve(double **a, int n, const double rhs[], double x[])
+  {
+    // In-place Cholesky factorization of symmetric positive definite matrix a:
+    // on exit, lower triangle contains L with a = L L^T.
+    //
+    // Uses _mrq_oneda[][1] as temporary storage for the forward-substitution vector.
+    //
+    // Returns 0 on success, nonzero on failure.
+    
+    for (int i=1; i<=n; ++i)
+      {
+	for (int j=i; j<=n; ++j)
+	  {
+	    double sum = a[j][i];
+	    for (int k=1; k<i; ++k)
+	      sum -= a[i][k] * a[j][k];
+	    
+	    if (j == i)
+	      {
+		if (!(sum > 0.0) || !std::isfinite(sum))
+		  return 1;
+		
+		a[i][i] = std::sqrt(sum);
+	      }
+	    else
+	      {
+		a[j][i] = sum / a[i][i];
+	      }
+	  }
+      }
+    
+    // Forward solve: L y = rhs
+    for (int i=1; i<=n; ++i)
+      {
+	double sum = rhs[i];
+	for (int k=1; k<i; ++k)
+	  sum -= a[i][k] * _mrq_oneda[k][1];
+	
+	_mrq_oneda[i][1] = sum / a[i][i];
+      }
+    
+    // Backward solve: L^T x = y
+    for (int i=n; i>=1; --i)
+      {
+	double sum = _mrq_oneda[i][1];
+	for (int k=i+1; k<=n; ++k)
+	  sum -= a[k][i] * x[k];
+	
+	x[i] = sum / a[i][i];
+      }
+    
+    return 0;
+  }
+
 
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqcof(double y[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq)
   {
     int i,j,k;
     double ymod,wt,dy;
-
-    double *dyda = new double[ma+1];
-
-    // Gain limiter to avoid NaNs  Restricts gains to exp(-1e2) to exp(1e2)
-    for (j=1;j<=ma; ++j)
+    
+    for (j=1; j<=ma; ++j)
+      {
+	beta[j] = 0.0;
+	for (k=1; k<=ma; ++k)
+	  alpha[j][k] = 0.0;
+      }
+    *chisq = 0.0;
+    
+    for (j=1; j<=ma; ++j)
       a[j] = std::min(std::max(a[j],-1.0e2),1.0e2);
     
-    for (j=1;j<=ma;j++) {
-      beta[j]=0.0;
-      for (k=1;k<=ma;k++)
-	alpha[j][k]=0.0;
-    }
-    *chisq=0.0;
-    for (i=1;i<=ndata;i++) {
-      gain_optimization_likelihood(i,a,&ymod,dyda);
-      dy=y[i]-ymod;
-      for (j=1;j<=ma;j++) {
-	wt=dyda[j];
-	for (k=1;k<=j;k++)
-	  alpha[j][k] += wt*dyda[k];
-	beta[j] += dy*wt;
-      }
-
-      /*
-      for (int j=1; j<=2*int(_sigma_g.size()); j++)
-	std::cerr << std::setw(15) << a[j];
-      std::cerr << "\n----\n";
-      std::cerr << std::setw(5) << i
-		<< std::setw(15) << y[i]
-		<< std::setw(15) << _ogc_is1[i]
-		<< std::setw(15) << _ogc_is2[i]
-		<< '\n';
-      for (int j=1; j<=2*int(_sigma_g.size()); j++)
-	std::cerr << std::setw(15) << y[j];
-      std::cerr << "\n----\n";      
-      std::cerr << "\n";
-      for (int j=1; j<=2*int(_sigma_g.size()); j++)
-	std::cerr << std::setw(15) << dyda[j];
-      std::cerr << "FOO ----------------------------------------------------------\n";    
-      for (int j=1; j<=2*int(_sigma_g.size()); j++)
-	std::cerr << std::setw(15) << y[j];
-      std::cerr << "\n----\n";
-      for (int i=1; i<=2*int(_sigma_g.size()); i++)
+    for (i=1; i<=ndata; ++i)
       {
-	for (int j=1; j<=2*int(_sigma_g.size()); j++)
-	  std::cerr << std::setw(15) << alpha[i][j];
-	std::cerr << '\n';
-      }
-      std::cerr << "OOF ----------------------------------------------------------\n";
-      */
-      *chisq += dy*dy;
-    }
-    for (j=2;j<=ma;j++)
-      for (k=1;k<j;k++)
-	alpha[k][j]=alpha[j][k];
-
-    // Add priors to alpha and beta
-    // In addition to the prior on g that is given, a weak prior on phi is provided to drive the solution toward G=1 in the absence of other information.
-    double oSigma2;
-    for (size_t i=0, j=1; i<_sigma_g.size(); i++, j+=2)
-    {
-      oSigma2 = 1.0/(_sigma_g[i]*_sigma_g[i]);
-
-      beta[j] -= a[j]*oSigma2; // g^2/2 Sigma^2
-      beta[j+1] -= a[j+1]*_opi2; // phi^2 / 2 varpi^2
-
-      alpha[j][j] += oSigma2;
-      alpha[j+1][j+1] += _opi2;
-      
-      //alpha[j][j] += std::max(1e-12*std::fabs(alpha[j][j]),oSigma2);
-      //alpha[j+1][j+1] += std::max(1e-12*std::fabs(alpha[j+1][j+1]),_opi2);
-
-      //alpha[j][j] += std::max(1e-12*std::fabs(alpha[j][j]),oSigma2);
-      //alpha[j+1][j+1] += std::max(1e-12*std::fabs(alpha[j][j]),_opi2);
-
-      (*chisq) += a[j]*a[j]*oSigma2 + a[j+1]*a[j+1]*_opi2;
-    }
-    double alpha_diag_max = 0.0;
-    for (int j=1; j<=2*int(_sigma_g.size()); j++)
-      alpha_diag_max = std::max(alpha[j][j],alpha_diag_max);
-    alpha_diag_max = std::max(alpha_diag_max,1.0);
-    for (int j=1; j<=2*int(_sigma_g.size()); j++)    
-      alpha[j][j] += 1.0e-12*alpha_diag_max;
-    //alpha[j][j] = std::max(alpha[j][j],1.0e-10*alpha_diag_max);
-    
-    delete[] dyda;
-  }
-
-  int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin(double y[], int ndata, double a[], int ma, double **covar, double **alpha, double *chisq, double *alamda)
-  {
-    int j,k,l;
-    int mfit = ma;
-    //int gaussj_err;
-    
-    if (*alamda < 0.0) {
-      *alamda=0.001;
-      mrqcof(y,ndata,a,ma,alpha,_mrq_beta,chisq);
-      _mrq_ochisq=(*chisq);
-      for (j=1;j<=ma;j++)
-	_mrq_atry[j]=a[j];
-    }
-    for (j=1;j<=mfit;j++) {
-      for (k=1;k<=mfit;k++)
-	covar[j][k]=alpha[j][k];
-      covar[j][j]=alpha[j][j]*(1.0+(*alamda));
-      _mrq_oneda[j][1]=_mrq_beta[j];
-    }
-    if (gaussj(covar,mfit,_mrq_oneda,1))
-      return 1;
-    /*
-    gaussj_err = gaussj(covar,mfit,_mrq_oneda,1);
-    // DEBUGGING OUTPUT FOR GAUSSJ ERRORS
-    if (gaussj_err>0) {
-      std::cerr << "alambda = " << (*alamda) << " ====================== \n";
-      for (j=1;j<=mfit;j++)
-	std::cerr << std::setw(15) << a[j];
-      std::cerr << '\n';
-      for (j=1;j<=mfit;j++)
-	std::cerr << std::setw(15) << _mrq_beta[j];
-      std::cerr << "\n ====================== \n";      
-      for (j=1;j<=mfit;j++) {
-	for (k=1;k<=mfit;k++)
-	  std::cerr << std::setw(15) << alpha[j][k];
-	std::cerr << '\n';
-      }
-      std::cerr << "\n ====================== \n";
-      mrqcof(y,ndata,a,ma,alpha,_mrq_beta,chisq);
-      for (j=1;j<=ndata;j++)
-	std::cerr << std::setw(15) << y[j];
-      std::cerr << '\n';      
-      for (j=1;j<=ndata;j++)
-	std::cerr << std::setw(15) << _station_codes[_ogc_is1[j]]+_station_codes[_ogc_is2[j]];
-      std::cerr << '\n';      
-      for (j=1;j<=mfit;j++)
-	std::cerr << std::setw(15) << a[j];
-      std::cerr << '\n';
-      for (j=1;j<=mfit;j++)
-	std::cerr << std::setw(15) << _mrq_beta[j];
-      std::cerr << "\n ---------------------- \n";            
-      for (j=1;j<=mfit;j++) {
-	for (k=1;k<=mfit;k++)
-	  std::cerr << std::setw(15) << alpha[j][k];
-	std::cerr << '\n';
-      }
-      std::cerr << "\n ====================== \n";
-      for (j=1;j<=mfit; ++j)
-	a[j] = std::min(std::max(a[j],-1e2),1e2);
-      int i,j,k;
-      double ymod,wt,dy;
-      double *dyda = new double[ma+1];
-      for (j=1;j<=ma;j++) {
-	_mrq_beta[j]=0.0;
-	for (k=1;k<=ma;k++)
-	  alpha[j][k]=0.0;
-      }
-      *chisq=0.0;
-      for (i=1;i<=ndata;i++) {
-	gain_optimization_likelihood(i,a,&ymod,dyda);
-	dy=y[i]-ymod;
-	for (j=1;j<=ma;j++) {
-	  wt=dyda[j];
-	  for (k=1;k<=j;k++)
-	    alpha[j][k] += wt*dyda[k];
-	  _mrq_beta[j] += dy*wt;
-      }
+	gain_optimization_likelihood(i, a, &ymod, _dyda);
+	dy = y[i] - ymod;
+	
+	int idx[4];
+	double val[4];
+	int nact = 0;
+	
+	const int cand[4] = {
+	  int(2*_ogc_is1[i] + 1),
+	  int(2*_ogc_is1[i] + 2),
+	  int(2*_ogc_is2[i] + 1),
+	  int(2*_ogc_is2[i] + 2)
+	};
+	
+	for (int t=0; t<4; ++t)
+	  {
+	    const int p = cand[t];
+	    const double v = _dyda[p];
+	    if (v == 0.0) continue;
+	    
+	    bool found = false;
+	    for (int q=0; q<nact; ++q)
+	      if (idx[q] == p) {
+		val[q] += v;
+		found = true;
+		break;
+	      }
+	    
+	    if (!found) {
+	      idx[nact] = p;
+	      val[nact] = v;
+	      ++nact;
+	    }
+	  }
+	
+	for (int q=0; q<nact; ++q)
+	  {
+	    wt = val[q];
+	    for (int r=0; r<=q; ++r)
+	      alpha[idx[q]][idx[r]] += wt * val[r];
+	    beta[idx[q]] += dy * wt;
+	  }
+	
 	*chisq += dy*dy;
       }
-      for (j=2;j<=ma;j++)
-	for (k=1;k<j;k++)
-	  alpha[k][j]=alpha[j][k];
-      // Add priors to alpha and beta
-      // In addition to the prior on g that is given, a weak prior on phi is provided to drive the solution toward G=1 in the absence of other information.
-      double oSigma2;
-      for (size_t i=0, j=1; i<_sigma_g.size(); i++, j+=2) {
-	oSigma2 = 1.0/(_sigma_g[i]*_sigma_g[i]);
+    
+    for (j=2; j<=ma; ++j)
+      for (k=1; k<j; ++k)
+	alpha[k][j] = alpha[j][k];
+    
+    double oSigma2;
+    for (size_t s=0, jj=1; s<_sigma_g.size(); ++s, jj+=2)
+      {
+	oSigma2 = 1.0/(_sigma_g[s]*_sigma_g[s]);
 	
-	_mrq_beta[j] -= a[j]*oSigma2; // g^2/2 Sigma^2
-	_mrq_beta[j+1] -= a[j+1]*_opi2; // phi^2 / 2 varpi^2
+	beta[jj]   -= a[jj]   * oSigma2;
+	beta[jj+1] -= a[jj+1] * _opi2;
 	
-	(*chisq) += a[j]*a[j]*oSigma2 + a[j+1]*a[j+1]*_opi2;
+	alpha[jj][jj]     += oSigma2;
+	alpha[jj+1][jj+1] += _opi2;
+	
+	*chisq += a[jj]*a[jj]*oSigma2 + a[jj+1]*a[jj+1]*_opi2;
       }
-      double alpha_diag_max = 0.0;
-      for (int j=1; j<=2*int(_sigma_g.size()); j++)
-	alpha_diag_max = std::max(alpha[j][j],alpha_diag_max);
-      alpha_diag_max = std::max(alpha_diag_max,1.0);
-      for (int j=1; j<=2*int(_sigma_g.size()); j++)    
-	alpha[j][j] += 1.0e-12*alpha_diag_max;
-      for (j=1;j<=ndata;j++)
-	std::cerr << std::setw(15) << y[j];
-      std::cerr << '\n';      
-      for (j=1;j<=ndata;j++)
-	std::cerr << std::setw(15) << _station_codes[_ogc_is1[j]]+_station_codes[_ogc_is2[j]];
-      std::cerr << '\n';      
-      for (j=1;j<=mfit;j++)
-	std::cerr << std::setw(15) << a[j];
-      std::cerr << '\n';
-      for (j=1;j<=mfit;j++)
-	std::cerr << std::setw(15) << _mrq_beta[j];
-      std::cerr << "\n ---------------------- \n";            
-      for (j=1;j<=mfit;j++) {
-	for (k=1;k<=mfit;k++)
-	  std::cerr << std::setw(15) << alpha[j][k];
-	std::cerr << '\n';
-      }      
-      std::exit(1);
-    }
-    // GUBED */
-    for (j=1;j<=mfit;j++)
-      _mrq_da[j]=_mrq_oneda[j][1];
-    if (*alamda == 0.0) {
-      covsrt(covar,ma,mfit);
-      return 0;
-    }
-    for (l=1;l<=ma;l++)
-      _mrq_atry[l]=a[l]+_mrq_da[l];
-    mrqcof(y,ndata,_mrq_atry,ma,covar,_mrq_da,chisq);
-    if (*chisq < _mrq_ochisq) {
-      *alamda *= 0.1;
-      _mrq_ochisq=(*chisq);
-      for (j=1;j<=mfit;j++) {
-	for (k=1;k<=mfit;k++)
-	  alpha[j][k]=covar[j][k];
-	_mrq_beta[j]=_mrq_da[j];
-      }
-      for (l=1;l<=ma;l++)
-	a[l]=_mrq_atry[l];
-    } else {
-      *alamda *= 10.0;
-      *chisq=_mrq_ochisq;
-    }
-    return 0;
+    
+    double alpha_diag_max = 0.0;
+    for (j=1; j<=ma; ++j)
+      alpha_diag_max = std::max(alpha[j][j], alpha_diag_max);
+    alpha_diag_max = std::max(alpha_diag_max, 1.0);
+    for (j=1; j<=ma; ++j)
+      alpha[j][j] += 1.0e-12 * alpha_diag_max;
   }
+
 
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqcof_log(double y[], double sig[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq)
   {
     int i,j,k;
     double ymod,wt,sig2i,dy;
-   
-    double *dyda = new double[ma+1];
-
-    // Gain limiter to avoid NaNs  Restricts gains to exp(-1e2) to exp(1e2)
-    for (j=1;j<=ma; ++j)
+    
+    for (j=1; j<=ma; ++j)
+      {
+	beta[j] = 0.0;
+	for (k=1; k<=ma; ++k)
+	  alpha[j][k] = 0.0;
+      }
+    *chisq = 0.0;
+    
+    for (j=1; j<=ma; ++j)
       a[j] = std::min(std::max(a[j],-1.0e2),1.0e2);
     
-    for (j=1;j<=ma;j++) {
-      beta[j]=0.0;
-      for (k=1;k<=ma;k++)
-	alpha[j][k]=0.0;
-    }
-    *chisq=0.0;
-    for (i=1;i<=ndata;i++) {
-      gain_optimization_log_likelihood(i,a,&ymod,dyda);
-      sig2i=1.0/(sig[i]*sig[i]);
-      dy=y[i]-ymod;
-      for (j=1;j<=ma;j++) {
-	wt=dyda[j]*sig2i;
-	for (k=1;k<=j;k++)
-	  alpha[j][k] += wt*dyda[k];
-	beta[j] += dy*wt;
+    for (i=1; i<=ndata; ++i)
+      {
+	gain_optimization_log_likelihood(i, a, &ymod, _dyda);
+	sig2i = 1.0/(sig[i]*sig[i]);
+	dy = y[i] - ymod;
+	
+	int idx[2];
+	double val[2];
+	int nact = 0;
+	
+	if (i%2==1)
+	  {
+	    idx[nact] = int(2*_ogc_is1[i] + 1);
+	    val[nact] = _dyda[idx[nact]];
+	    ++nact;
+	    
+	    const int p2 = int(2*_ogc_is2[i] + 1);
+	    const double v2 = _dyda[p2];
+	    if (p2 == idx[0])
+	      val[0] += v2;
+	    else {
+	      idx[nact] = p2;
+	      val[nact] = v2;
+	      ++nact;
+	    }
+	  }
+	else
+	  {
+	    idx[nact] = int(2*_ogc_is1[i] + 2);
+	    val[nact] = _dyda[idx[nact]];
+	    ++nact;
+	    
+	    const int p2 = int(2*_ogc_is2[i] + 2);
+	    const double v2 = _dyda[p2];
+	    if (p2 == idx[0])
+	      val[0] += v2;
+	    else {
+	      idx[nact] = p2;
+	      val[nact] = v2;
+	      ++nact;
+	    }
+	  }
+	
+	for (int q=0; q<nact; ++q)
+	  {
+	    wt = val[q] * sig2i;
+	    for (int r=0; r<=q; ++r)
+	      alpha[idx[q]][idx[r]] += wt * val[r];
+	    beta[idx[q]] += dy * wt;
+	  }
+	
+	*chisq += dy*dy*sig2i;
       }
-      *chisq += dy*dy*sig2i;
-    }
-    for (j=2;j<=ma;j++)
-      for (k=1;k<j;k++)
-	alpha[k][j]=alpha[j][k];
-
-    // Add priors to alpha and beta
-    // In addition to the prior on g that is given, a weak prior on phi is provided to drive the solution toward G=1 in the absence of other information.
-    double oSigma2;
-    for (size_t i=0, j=1; i<_sigma_g.size(); i++, j+=2)
-    {
-      oSigma2 = 1.0/(_sigma_g[i]*_sigma_g[i]);
-
-      beta[j] -= a[j]*oSigma2; // g^2/2 Sigma^2
-      beta[j+1] -= a[j+1]*_opi2; // phi^2 / 2 varpi^2
-
-      alpha[j][j] += oSigma2;
-      alpha[j+1][j+1] += _opi2;
-
-      (*chisq) += a[j]*a[j]*oSigma2 + a[j+1]*a[j+1]*_opi2;
-    }
-    double alpha_diag_max = 0.0;
-    for (int j=1; j<=2*int(_sigma_g.size()); j++)
-      alpha_diag_max = std::max(alpha[j][j],alpha_diag_max);
-    alpha_diag_max = std::max(alpha_diag_max,1.0);
-    for (int j=1; j<=2*int(_sigma_g.size()); j++)    
-      alpha[j][j] += 1.0e-12*alpha_diag_max;
-    //alpha[j][j] = std::max(alpha[j][j],1.0e-10*alpha_diag_max);
     
-    delete[] dyda;
+    for (j=2; j<=ma; ++j)
+      for (k=1; k<j; ++k)
+	alpha[k][j] = alpha[j][k];
+    
+    double oSigma2;
+    for (size_t s=0, jj=1; s<_sigma_g.size(); ++s, jj+=2)
+      {
+	oSigma2 = 1.0/(_sigma_g[s]*_sigma_g[s]);
+	
+	beta[jj]   -= a[jj]   * oSigma2;
+	beta[jj+1] -= a[jj+1] * _opi2;
+	
+	alpha[jj][jj]     += oSigma2;
+	alpha[jj+1][jj+1] += _opi2;
+	
+	*chisq += a[jj]*a[jj]*oSigma2 + a[jj+1]*a[jj+1]*_opi2;
+      }
+    
+    double alpha_diag_max = 0.0;
+    for (j=1; j<=ma; ++j)
+      alpha_diag_max = std::max(alpha[j][j], alpha_diag_max);
+    alpha_diag_max = std::max(alpha_diag_max, 1.0);
+    for (j=1; j<=ma; ++j)
+      alpha[j][j] += 1.0e-12 * alpha_diag_max;
   }
 
+
+  int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin(double y[], int ndata, double a[], int ma, double **covar, double **alpha, double *chisq, double *alamda)
+  {
+    int j,k,l;
+    int mfit = ma;
+    
+    if (*alamda < 0.0)
+      {
+	*alamda = 0.001;
+	mrqcof(y, ndata, a, ma, alpha, _mrq_beta, chisq);
+	_mrq_ochisq = (*chisq);
+	for (j=1; j<=ma; ++j)
+	  _mrq_atry[j] = a[j];
+      }
+    
+    for (j=1; j<=mfit; ++j)
+      {
+	for (k=1; k<=mfit; ++k)
+	  covar[j][k] = alpha[j][k];
+	covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+      }
+    
+    if (*alamda == 0.0)
+      {
+	for (j=1; j<=mfit; ++j)
+	  _mrq_oneda[j][1] = _mrq_beta[j];
+	
+	int gj = gaussj(covar, mfit, _mrq_oneda, 1);
+	
+	if (gj)
+	  {
+	    double diag_max = 0.0;
+	    for (j=1; j<=mfit; ++j)
+	      diag_max = std::max(diag_max, std::fabs(alpha[j][j]));
+	    diag_max = std::max(diag_max, 1.0);
+	    
+	    for (j=1; j<=mfit; ++j)
+	      {
+		for (k=1; k<=mfit; ++k)
+		  covar[j][k] = alpha[j][k];
+		covar[j][j] += 1.0e-10 * diag_max;
+		_mrq_oneda[j][1] = _mrq_beta[j];
+	      }
+	    
+	    gj = gaussj(covar, mfit, _mrq_oneda, 1);
+	  }
+	
+	if (gj)
+	  {
+	    std::cerr
+	      << "WARNING: constrained crosshand mrqmin final covariance solve is singular; "
+	      << "using diagonal surrogate covariance.\n";
+	    
+	    for (j=1; j<=mfit; ++j)
+	      {
+		for (k=1; k<=mfit; ++k)
+		  covar[j][k] = 0.0;
+		covar[j][j] = 1.0 / std::max(std::fabs(alpha[j][j]), 1.0e-12);
+		_mrq_da[j] = 0.0;
+	      }
+
+      covsrt(covar, ma, mfit);
+      return 0;
+	  }
+	
+	for (j=1; j<=mfit; ++j)
+	  _mrq_da[j] = _mrq_oneda[j][1];
+	
+	covsrt(covar, ma, mfit);
+	return 0;
+      }
+    
+    if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
+      {
+	for (j=1; j<=mfit; ++j)
+	  {
+	    for (k=1; k<=mfit; ++k)
+	      covar[j][k] = alpha[j][k];
+	    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+	    _mrq_oneda[j][1] = _mrq_beta[j];
+	  }
+	
+	if (gaussj(covar, mfit, _mrq_oneda, 1))
+	  return 1;
+	
+	for (j=1; j<=mfit; ++j)
+	  _mrq_da[j] = _mrq_oneda[j][1];
+      }
+    
+    for (l=1; l<=ma; ++l)
+      _mrq_atry[l] = a[l] + _mrq_da[l];
+    
+    mrqcof(y, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
+    
+    if (*chisq < _mrq_ochisq)
+      {
+	*alamda *= 0.1;
+	_mrq_ochisq = (*chisq);
+	for (j=1; j<=mfit; ++j)
+	  {
+	    for (k=1; k<=mfit; ++k)
+	      alpha[j][k] = covar[j][k];
+	    _mrq_beta[j] = _mrq_da[j];
+	  }
+	for (l=1; l<=ma; ++l)
+	  a[l] = _mrq_atry[l];
+      }
+    else
+      {
+	*alamda *= 10.0;
+	*chisq = _mrq_ochisq;
+      }
+    
+    return 0;
+  }
+  
+
+
+/*
+
+int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin(
+    double y[], int ndata, double a[], int ma,
+    double **covar, double **alpha, double *chisq, double *alamda)
+{
+  int j,k,l;
+  int mfit = ma;
+
+  if (*alamda < 0.0)
+  {
+    *alamda = 0.001;
+    mrqcof(y, ndata, a, ma, alpha, _mrq_beta, chisq);
+    _mrq_ochisq = (*chisq);
+    for (j=1; j<=ma; ++j)
+      _mrq_atry[j] = a[j];
+  }
+
+  for (j=1; j<=mfit; ++j)
+  {
+    for (k=1; k<=mfit; ++k)
+      covar[j][k] = alpha[j][k];
+    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+  }
+
+  if (*alamda == 0.0)
+  {
+    // Keep the old robust path for the final covariance/inverse.
+    for (j=1; j<=mfit; ++j)
+      _mrq_oneda[j][1] = _mrq_beta[j];
+
+    if (gaussj(covar, mfit, _mrq_oneda, 1))
+      return 1;
+
+    for (j=1; j<=mfit; ++j)
+      _mrq_da[j] = _mrq_oneda[j][1];
+
+    covsrt(covar, ma, mfit);
+    return 0;
+  }
+
+  // Hot path: use Cholesky solve for the damped LM step.
+  if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
+  {
+    // Fallback: rebuild the matrix and use the old Gauss-Jordan solver.
+    for (j=1; j<=mfit; ++j)
+    {
+      for (k=1; k<=mfit; ++k)
+        covar[j][k] = alpha[j][k];
+      covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+      _mrq_oneda[j][1] = _mrq_beta[j];
+    }
+
+    if (gaussj(covar, mfit, _mrq_oneda, 1))
+      return 1;
+
+    for (j=1; j<=mfit; ++j)
+      _mrq_da[j] = _mrq_oneda[j][1];
+  }
+
+  for (l=1; l<=ma; ++l)
+    _mrq_atry[l] = a[l] + _mrq_da[l];
+
+  mrqcof(y, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
+
+  if (*chisq < _mrq_ochisq)
+  {
+    *alamda *= 0.1;
+    _mrq_ochisq = (*chisq);
+    for (j=1; j<=mfit; ++j)
+    {
+      for (k=1; k<=mfit; ++k)
+        alpha[j][k] = covar[j][k];
+      _mrq_beta[j] = _mrq_da[j];
+    }
+    for (l=1; l<=ma; ++l)
+      a[l] = _mrq_atry[l];
+  }
+  else
+  {
+    *alamda *= 10.0;
+    *chisq = _mrq_ochisq;
+  }
+
+  return 0;
+}
+*/
+
+
+
+int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_log(
+    double y[], double sig[], int ndata, double a[], int ma,
+    double **covar, double **alpha, double *chisq, double *alamda)
+{
+  int j,k,l;
+  int mfit = ma;
+
+  if (*alamda < 0.0)
+  {
+    *alamda = 0.001;
+    mrqcof_log(y, sig, ndata, a, ma, alpha, _mrq_beta, chisq);
+    _mrq_ochisq = (*chisq);
+    for (j=1; j<=ma; ++j)
+      _mrq_atry[j] = a[j];
+  }
+
+  for (j=1; j<=mfit; ++j)
+  {
+    for (k=1; k<=mfit; ++k)
+      covar[j][k] = alpha[j][k];
+    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+  }
+
+  if (*alamda == 0.0)
+  {
+    for (j=1; j<=mfit; ++j)
+      _mrq_oneda[j][1] = _mrq_beta[j];
+
+    int gj = gaussj(covar, mfit, _mrq_oneda, 1);
+
+    if (gj)
+    {
+      double diag_max = 0.0;
+      for (j=1; j<=mfit; ++j)
+        diag_max = std::max(diag_max, std::fabs(alpha[j][j]));
+      diag_max = std::max(diag_max, 1.0);
+
+      for (j=1; j<=mfit; ++j)
+      {
+        for (k=1; k<=mfit; ++k)
+          covar[j][k] = alpha[j][k];
+        covar[j][j] += 1.0e-10 * diag_max;
+        _mrq_oneda[j][1] = _mrq_beta[j];
+      }
+
+      gj = gaussj(covar, mfit, _mrq_oneda, 1);
+    }
+
+    if (gj)
+    {
+      std::cerr
+        << "WARNING: constrained crosshand mrqmin_log final covariance solve is singular; "
+        << "using diagonal surrogate covariance.\n";
+
+      for (j=1; j<=mfit; ++j)
+      {
+        for (k=1; k<=mfit; ++k)
+          covar[j][k] = 0.0;
+        covar[j][j] = 1.0 / std::max(std::fabs(alpha[j][j]), 1.0e-12);
+        _mrq_da[j] = 0.0;
+      }
+
+      covsrt(covar, ma, mfit);
+      return 0;
+    }
+
+    for (j=1; j<=mfit; ++j)
+      _mrq_da[j] = _mrq_oneda[j][1];
+
+    covsrt(covar, ma, mfit);
+    return 0;
+  }
+
+  if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
+  {
+    for (j=1; j<=mfit; ++j)
+    {
+      for (k=1; k<=mfit; ++k)
+        covar[j][k] = alpha[j][k];
+      covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+      _mrq_oneda[j][1] = _mrq_beta[j];
+    }
+
+    if (gaussj(covar, mfit, _mrq_oneda, 1))
+      return 1;
+
+    for (j=1; j<=mfit; ++j)
+      _mrq_da[j] = _mrq_oneda[j][1];
+  }
+
+  for (l=1; l<=ma; ++l)
+    _mrq_atry[l] = a[l] + _mrq_da[l];
+
+  mrqcof_log(y, sig, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
+
+  if (*chisq < _mrq_ochisq)
+  {
+    *alamda *= 0.1;
+    _mrq_ochisq = (*chisq);
+    for (j=1; j<=mfit; ++j)
+    {
+      for (k=1; k<=mfit; ++k)
+        alpha[j][k] = covar[j][k];
+      _mrq_beta[j] = _mrq_da[j];
+    }
+    for (l=1; l<=ma; ++l)
+      a[l] = _mrq_atry[l];
+  }
+  else
+  {
+    *alamda *= 10.0;
+    *chisq = _mrq_ochisq;
+  }
+
+  return 0;
+}
+
+
+
+/*
+int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_log(
+    double y[], double sig[], int ndata, double a[], int ma,
+    double **covar, double **alpha, double *chisq, double *alamda)
+{
+  int j,k,l;
+  int mfit = ma;
+
+  if (*alamda < 0.0)
+  {
+    *alamda = 0.001;
+    mrqcof_log(y, sig, ndata, a, ma, alpha, _mrq_beta, chisq);
+    _mrq_ochisq = (*chisq);
+    for (j=1; j<=ma; ++j)
+      _mrq_atry[j] = a[j];
+  }
+
+  for (j=1; j<=mfit; ++j)
+  {
+    for (k=1; k<=mfit; ++k)
+      covar[j][k] = alpha[j][k];
+    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+  }
+
+  if (*alamda == 0.0)
+  {
+    // Keep the old robust path for the final covariance/inverse.
+    for (j=1; j<=mfit; ++j)
+      _mrq_oneda[j][1] = _mrq_beta[j];
+
+    if (gaussj(covar, mfit, _mrq_oneda, 1))
+      return 1;
+
+    for (j=1; j<=mfit; ++j)
+      _mrq_da[j] = _mrq_oneda[j][1];
+
+    covsrt(covar, ma, mfit);
+    return 0;
+  }
+
+  // Hot path: use Cholesky solve for the damped LM step.
+  if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
+  {
+    // Fallback: rebuild the matrix and use the old Gauss-Jordan solver.
+    for (j=1; j<=mfit; ++j)
+    {
+      for (k=1; k<=mfit; ++k)
+        covar[j][k] = alpha[j][k];
+      covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
+      _mrq_oneda[j][1] = _mrq_beta[j];
+    }
+
+    if (gaussj(covar, mfit, _mrq_oneda, 1))
+      return 1;
+
+    for (j=1; j<=mfit; ++j)
+      _mrq_da[j] = _mrq_oneda[j][1];
+  }
+
+  for (l=1; l<=ma; ++l)
+    _mrq_atry[l] = a[l] + _mrq_da[l];
+
+  mrqcof_log(y, sig, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
+
+  if (*chisq < _mrq_ochisq)
+  {
+    *alamda *= 0.1;
+    _mrq_ochisq = (*chisq);
+    for (j=1; j<=mfit; ++j)
+    {
+      for (k=1; k<=mfit; ++k)
+        alpha[j][k] = covar[j][k];
+      _mrq_beta[j] = _mrq_da[j];
+    }
+    for (l=1; l<=ma; ++l)
+      a[l] = _mrq_atry[l];
+  }
+  else
+  {
+    *alamda *= 10.0;
+    *chisq = _mrq_ochisq;
+  }
+
+  return 0;
+}
+*/
+
+
+
+/*
   int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_log(double y[], double sig[], int ndata, double a[], int ma, double **covar, double **alpha, double *chisq, double *alamda)
   {
     int j,k,l;
@@ -2278,8 +2975,78 @@ namespace Themis
     }
     return 0;
   }
-  
+*/
+
+
+  void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::print_timing_summary(int mpi_rank) const
+{
+  static constexpr std::array<const char*, (size_t)Themis::utils::TimerID::COUNT> names = {{
+    "GenerateModel",
+    "GenerateImage",
+    "UpdatePhaseCache",
+    "VisibilitySingle",
+    "VisibilityCached",
+    "VisibilityCached_Rotation",
+    "VisibilityCached_Loop",
+    "VisibilityCached_Kernel",
+    "VisibilityCached_Scale",
+    "VisibilityNumerical",
+    "ClosurePhase",
+    "ClosureAmplitude",
+    "GradientTotal",
+    "GradientEnsureGains",
+    "GradientAnalytic",
+    "GradientFiniteDiff",
+    "GainsDistributeTotal",
+    "GainsMPIAllreduce",
+    "GainsSolveTotal",
+    "GainsSolveTrial",
+    "GainsSolveLogTrial",
+    "matrix_determinant",
+    "gaussj",
+    "mrqcof",
+    "LikelihoodEpochTotal",
+    "LikelihoodMultiprocTotal",
+    "LikelihoodModelVisBuild",
+    "LikelihoodVectorPack",
+    "LikelihoodDirectTerm",
+    "LikelihoodScalarAllreduce",
+    "GradientBatchedBarrier",
+    "GradientBatchedAllreduce"
+  }};
+  static_assert(names.size() == (size_t)Themis::utils::TimerID::COUNT);
+
+  if (mpi_rank < 0) {
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+  }
+
+  std::cout << "\n===== Constrained crosshand gain likelihood timing summary (rank "
+            << mpi_rank << ") =====\n";
+
+  for (size_t i = 0; i < (size_t)Themis::utils::TimerID::COUNT; ++i) {
+    const double ms = timer_ns_[i] / 1.0e6;
+    const std::uint64_t n = timer_calls_[i];
+    const double avg = (n > 0) ? ms / n : 0.0;
+
+    if (n == 0) continue;
+
+    std::cout << std::setw(24) << names[i]
+              << " : total = " << ms << " ms"
+              << ", calls = " << n
+              << ", avg = " << avg << " ms/call\n";
+  }
+
+  {
+    const double ms = dterm_ns_ / 1.0e6;
+    const double avg = (dterm_calls_ > 0) ? ms / double(dterm_calls_) : 0.0;
+    std::cout << std::setw(24) << "DtermTotal"
+              << " : total = " << ms << " ms"
+              << ", calls = " << dterm_calls_
+              << ", avg = " << avg << " ms/call\n";
+  }
+
+  std::cout << "===============================================================\n\n";
+}
+
   
 };
-
-

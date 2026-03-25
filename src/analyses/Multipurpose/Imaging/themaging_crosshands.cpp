@@ -2143,7 +2143,7 @@ int main(int argc, char* argv[])
       	image_pulse.print_timing_summary(world_rank); // only print for one sub image for now
 
 	if (Reconstruct_gains) {
-	  // lxg[0]->print_timing_summary(world_rank);
+	  lxg[0]->print_timing_summary(world_rank);
 	}
 	else {
 	  lx[0]->print_timing_summary(world_rank);

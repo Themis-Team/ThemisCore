@@ -144,8 +144,6 @@ namespace Themis{
 
   std::vector<double> likelihood_visibility::gradient_dispatch_(std::vector<double>& x, prior& Pr)
   {
-    static bool once=false;
-    if (_L_rank==0 && !once) std::cerr << "gradient_mode=" << int(gradient_mode()) << "\n";
     switch (gradient_mode())
       {
       case GradientMode::FD_ALL:
