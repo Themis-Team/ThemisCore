@@ -2537,46 +2537,12 @@ namespace Themis
     
     if (*alamda == 0.0)
       {
+	// Keep the old robust path for the final covariance/inverse.
 	for (j=1; j<=mfit; ++j)
 	  _mrq_oneda[j][1] = _mrq_beta[j];
 	
-	int gj = gaussj(covar, mfit, _mrq_oneda, 1);
-	
-	if (gj)
-	  {
-	    double diag_max = 0.0;
-	    for (j=1; j<=mfit; ++j)
-	      diag_max = std::max(diag_max, std::fabs(alpha[j][j]));
-	    diag_max = std::max(diag_max, 1.0);
-	    
-	    for (j=1; j<=mfit; ++j)
-	      {
-		for (k=1; k<=mfit; ++k)
-		  covar[j][k] = alpha[j][k];
-		covar[j][j] += 1.0e-10 * diag_max;
-		_mrq_oneda[j][1] = _mrq_beta[j];
-	      }
-	    
-	    gj = gaussj(covar, mfit, _mrq_oneda, 1);
-	  }
-	
-	if (gj)
-	  {
-	    std::cerr
-	      << "WARNING: constrained crosshand mrqmin final covariance solve is singular; "
-	      << "using diagonal surrogate covariance.\n";
-	    
-	    for (j=1; j<=mfit; ++j)
-	      {
-		for (k=1; k<=mfit; ++k)
-		  covar[j][k] = 0.0;
-		covar[j][j] = 1.0 / std::max(std::fabs(alpha[j][j]), 1.0e-12);
-		_mrq_da[j] = 0.0;
-	      }
-
-      covsrt(covar, ma, mfit);
-      return 0;
-	  }
+	if (gaussj(covar, mfit, _mrq_oneda, 1))
+	  return 1;
 	
 	for (j=1; j<=mfit; ++j)
 	  _mrq_da[j] = _mrq_oneda[j][1];
@@ -2585,8 +2551,10 @@ namespace Themis
 	return 0;
       }
     
+    // Hot path: use Cholesky solve for the damped LM step.
     if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
       {
+	// Fallback: rebuild the matrix and use the old Gauss-Jordan solver.
 	for (j=1; j<=mfit; ++j)
 	  {
 	    for (k=1; k<=mfit; ++k)
@@ -2628,219 +2596,8 @@ namespace Themis
     
     return 0;
   }
-  
 
 
-/*
-
-int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin(
-    double y[], int ndata, double a[], int ma,
-    double **covar, double **alpha, double *chisq, double *alamda)
-{
-  int j,k,l;
-  int mfit = ma;
-
-  if (*alamda < 0.0)
-  {
-    *alamda = 0.001;
-    mrqcof(y, ndata, a, ma, alpha, _mrq_beta, chisq);
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=ma; ++j)
-      _mrq_atry[j] = a[j];
-  }
-
-  for (j=1; j<=mfit; ++j)
-  {
-    for (k=1; k<=mfit; ++k)
-      covar[j][k] = alpha[j][k];
-    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-  }
-
-  if (*alamda == 0.0)
-  {
-    // Keep the old robust path for the final covariance/inverse.
-    for (j=1; j<=mfit; ++j)
-      _mrq_oneda[j][1] = _mrq_beta[j];
-
-    if (gaussj(covar, mfit, _mrq_oneda, 1))
-      return 1;
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-
-    covsrt(covar, ma, mfit);
-    return 0;
-  }
-
-  // Hot path: use Cholesky solve for the damped LM step.
-  if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
-  {
-    // Fallback: rebuild the matrix and use the old Gauss-Jordan solver.
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        covar[j][k] = alpha[j][k];
-      covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-      _mrq_oneda[j][1] = _mrq_beta[j];
-    }
-
-    if (gaussj(covar, mfit, _mrq_oneda, 1))
-      return 1;
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-  }
-
-  for (l=1; l<=ma; ++l)
-    _mrq_atry[l] = a[l] + _mrq_da[l];
-
-  mrqcof(y, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
-
-  if (*chisq < _mrq_ochisq)
-  {
-    *alamda *= 0.1;
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        alpha[j][k] = covar[j][k];
-      _mrq_beta[j] = _mrq_da[j];
-    }
-    for (l=1; l<=ma; ++l)
-      a[l] = _mrq_atry[l];
-  }
-  else
-  {
-    *alamda *= 10.0;
-    *chisq = _mrq_ochisq;
-  }
-
-  return 0;
-}
-*/
-
-
-
-int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_log(
-    double y[], double sig[], int ndata, double a[], int ma,
-    double **covar, double **alpha, double *chisq, double *alamda)
-{
-  int j,k,l;
-  int mfit = ma;
-
-  if (*alamda < 0.0)
-  {
-    *alamda = 0.001;
-    mrqcof_log(y, sig, ndata, a, ma, alpha, _mrq_beta, chisq);
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=ma; ++j)
-      _mrq_atry[j] = a[j];
-  }
-
-  for (j=1; j<=mfit; ++j)
-  {
-    for (k=1; k<=mfit; ++k)
-      covar[j][k] = alpha[j][k];
-    covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-  }
-
-  if (*alamda == 0.0)
-  {
-    for (j=1; j<=mfit; ++j)
-      _mrq_oneda[j][1] = _mrq_beta[j];
-
-    int gj = gaussj(covar, mfit, _mrq_oneda, 1);
-
-    if (gj)
-    {
-      double diag_max = 0.0;
-      for (j=1; j<=mfit; ++j)
-        diag_max = std::max(diag_max, std::fabs(alpha[j][j]));
-      diag_max = std::max(diag_max, 1.0);
-
-      for (j=1; j<=mfit; ++j)
-      {
-        for (k=1; k<=mfit; ++k)
-          covar[j][k] = alpha[j][k];
-        covar[j][j] += 1.0e-10 * diag_max;
-        _mrq_oneda[j][1] = _mrq_beta[j];
-      }
-
-      gj = gaussj(covar, mfit, _mrq_oneda, 1);
-    }
-
-    if (gj)
-    {
-      std::cerr
-        << "WARNING: constrained crosshand mrqmin_log final covariance solve is singular; "
-        << "using diagonal surrogate covariance.\n";
-
-      for (j=1; j<=mfit; ++j)
-      {
-        for (k=1; k<=mfit; ++k)
-          covar[j][k] = 0.0;
-        covar[j][j] = 1.0 / std::max(std::fabs(alpha[j][j]), 1.0e-12);
-        _mrq_da[j] = 0.0;
-      }
-
-      covsrt(covar, ma, mfit);
-      return 0;
-    }
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-
-    covsrt(covar, ma, mfit);
-    return 0;
-  }
-
-  if (cholesky_solve(covar, mfit, _mrq_beta, _mrq_da))
-  {
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        covar[j][k] = alpha[j][k];
-      covar[j][j] = alpha[j][j] * (1.0 + (*alamda));
-      _mrq_oneda[j][1] = _mrq_beta[j];
-    }
-
-    if (gaussj(covar, mfit, _mrq_oneda, 1))
-      return 1;
-
-    for (j=1; j<=mfit; ++j)
-      _mrq_da[j] = _mrq_oneda[j][1];
-  }
-
-  for (l=1; l<=ma; ++l)
-    _mrq_atry[l] = a[l] + _mrq_da[l];
-
-  mrqcof_log(y, sig, ndata, _mrq_atry, ma, covar, _mrq_da, chisq);
-
-  if (*chisq < _mrq_ochisq)
-  {
-    *alamda *= 0.1;
-    _mrq_ochisq = (*chisq);
-    for (j=1; j<=mfit; ++j)
-    {
-      for (k=1; k<=mfit; ++k)
-        alpha[j][k] = covar[j][k];
-      _mrq_beta[j] = _mrq_da[j];
-    }
-    for (l=1; l<=ma; ++l)
-      a[l] = _mrq_atry[l];
-  }
-  else
-  {
-    *alamda *= 10.0;
-    *chisq = _mrq_ochisq;
-  }
-
-  return 0;
-}
-
-
-
-/*
 int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_log(
     double y[], double sig[], int ndata, double a[], int ma,
     double **covar, double **alpha, double *chisq, double *alamda)
@@ -2925,128 +2682,76 @@ int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_l
 
   return 0;
 }
-*/
-
-
-
-/*
-  int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_log(double y[], double sig[], int ndata, double a[], int ma, double **covar, double **alpha, double *chisq, double *alamda)
-  {
-    int j,k,l;
-    int mfit = ma;
-
-    if (*alamda < 0.0) {
-      *alamda=0.001;
-      mrqcof_log(y,sig,ndata,a,ma,alpha,_mrq_beta,chisq);
-      _mrq_ochisq=(*chisq);
-      for (j=1;j<=ma;j++)
-	_mrq_atry[j]=a[j];
-    }
-    for (j=1;j<=mfit;j++) {
-      for (k=1;k<=mfit;k++)
-	covar[j][k]=alpha[j][k];
-      covar[j][j]=alpha[j][j]*(1.0+(*alamda));
-      _mrq_oneda[j][1]=_mrq_beta[j];
-    }
-    if (gaussj(covar,mfit,_mrq_oneda,1))
-      return 1;
-    for (j=1;j<=mfit;j++)
-      _mrq_da[j]=_mrq_oneda[j][1];
-    if (*alamda == 0.0) {
-      covsrt(covar,ma,mfit);
-      return 0;
-    }
-    for (l=1;l<=ma;l++)
-      _mrq_atry[l]=a[l]+_mrq_da[l];
-    mrqcof_log(y,sig,ndata,_mrq_atry,ma,covar,_mrq_da,chisq);
-    if (*chisq < _mrq_ochisq) {
-      *alamda *= 0.1;
-      _mrq_ochisq=(*chisq);
-      for (j=1;j<=mfit;j++) {
-	for (k=1;k<=mfit;k++)
-	  alpha[j][k]=covar[j][k];
-	_mrq_beta[j]=_mrq_da[j];
-      }
-      for (l=1;l<=ma;l++)
-	a[l]=_mrq_atry[l];
-    } else {
-      *alamda *= 10.0;
-      *chisq=_mrq_ochisq;
-    }
-    return 0;
-  }
-*/
-
 
   void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::print_timing_summary(int mpi_rank) const
-{
-  static constexpr std::array<const char*, (size_t)Themis::utils::TimerID::COUNT> names = {{
-    "GenerateModel",
-    "GenerateImage",
-    "UpdatePhaseCache",
-    "VisibilitySingle",
-    "VisibilityCached",
-    "VisibilityCached_Rotation",
-    "VisibilityCached_Loop",
-    "VisibilityCached_Kernel",
-    "VisibilityCached_Scale",
-    "VisibilityNumerical",
-    "ClosurePhase",
-    "ClosureAmplitude",
-    "GradientTotal",
-    "GradientEnsureGains",
-    "GradientAnalytic",
-    "GradientFiniteDiff",
-    "GainsDistributeTotal",
-    "GainsMPIAllreduce",
-    "GainsSolveTotal",
-    "GainsSolveTrial",
-    "GainsSolveLogTrial",
-    "matrix_determinant",
-    "gaussj",
-    "mrqcof",
-    "LikelihoodEpochTotal",
-    "LikelihoodMultiprocTotal",
-    "LikelihoodModelVisBuild",
-    "LikelihoodVectorPack",
-    "LikelihoodDirectTerm",
-    "LikelihoodScalarAllreduce",
-    "GradientBatchedBarrier",
-    "GradientBatchedAllreduce"
-  }};
-  static_assert(names.size() == (size_t)Themis::utils::TimerID::COUNT);
-
-  if (mpi_rank < 0) {
-    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
-  }
-
-  std::cout << "\n===== Constrained crosshand gain likelihood timing summary (rank "
-            << mpi_rank << ") =====\n";
-
-  for (size_t i = 0; i < (size_t)Themis::utils::TimerID::COUNT; ++i) {
-    const double ms = timer_ns_[i] / 1.0e6;
-    const std::uint64_t n = timer_calls_[i];
-    const double avg = (n > 0) ? ms / n : 0.0;
-
-    if (n == 0) continue;
-
-    std::cout << std::setw(24) << names[i]
-              << " : total = " << ms << " ms"
-              << ", calls = " << n
-              << ", avg = " << avg << " ms/call\n";
-  }
-
   {
-    const double ms = dterm_ns_ / 1.0e6;
-    const double avg = (dterm_calls_ > 0) ? ms / double(dterm_calls_) : 0.0;
-    std::cout << std::setw(24) << "DtermTotal"
-              << " : total = " << ms << " ms"
-              << ", calls = " << dterm_calls_
-              << ", avg = " << avg << " ms/call\n";
+    static constexpr std::array<const char*, (size_t)Themis::utils::TimerID::COUNT> names = {{
+	"GenerateModel",
+	"GenerateImage",
+	"UpdatePhaseCache",
+	"VisibilitySingle",
+	"VisibilityCached",
+	"VisibilityCached_Rotation",
+	"VisibilityCached_Loop",
+	"VisibilityCached_Kernel",
+	"VisibilityCached_Scale",
+	"VisibilityNumerical",
+	"ClosurePhase",
+	"ClosureAmplitude",
+	"GradientTotal",
+	"GradientEnsureGains",
+	"GradientAnalytic",
+	"GradientFiniteDiff",
+	"GainsDistributeTotal",
+	"GainsMPIAllreduce",
+	"GainsSolveTotal",
+	"GainsSolveTrial",
+	"GainsSolveLogTrial",
+	"matrix_determinant",
+	"gaussj",
+	"mrqcof",
+	"LikelihoodEpochTotal",
+	"LikelihoodMultiprocTotal",
+	"LikelihoodModelVisBuild",
+	"LikelihoodVectorPack",
+	"LikelihoodDirectTerm",
+	"LikelihoodScalarAllreduce",
+	"GradientBatchedBarrier",
+	"GradientBatchedAllreduce"
+      }};
+    static_assert(names.size() == (size_t)Themis::utils::TimerID::COUNT);
+    
+    if (mpi_rank < 0) {
+      MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+    }
+    
+    std::cout << "\n===== Constrained crosshand gain likelihood timing summary (rank "
+	      << mpi_rank << ") =====\n";
+    
+    for (size_t i = 0; i < (size_t)Themis::utils::TimerID::COUNT; ++i) {
+      const double ms = timer_ns_[i] / 1.0e6;
+      const std::uint64_t n = timer_calls_[i];
+      const double avg = (n > 0) ? ms / n : 0.0;
+      
+      if (n == 0) continue;
+      
+      std::cout << std::setw(24) << names[i]
+		<< " : total = " << ms << " ms"
+		<< ", calls = " << n
+		<< ", avg = " << avg << " ms/call\n";
+    }
+    
+    {
+      const double ms = dterm_ns_ / 1.0e6;
+      const double avg = (dterm_calls_ > 0) ? ms / double(dterm_calls_) : 0.0;
+      std::cout << std::setw(24) << "DtermTotal"
+		<< " : total = " << ms << " ms"
+		<< ", calls = " << dterm_calls_
+		<< ", avg = " << avg << " ms/call\n";
+    }
+    
+    std::cout << "===============================================================\n\n";
   }
-
-  std::cout << "===============================================================\n\n";
-}
 
   
 };
