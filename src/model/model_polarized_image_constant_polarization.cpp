@@ -7,6 +7,7 @@
 */
 
 #include "model_polarized_image_constant_polarization.h"
+#include "model_image_asymmetric_gaussian.h"
 #include <cmath>
 #include <valarray>
 #include <iostream>
@@ -73,6 +74,103 @@ namespace Themis {
     // Make intensity model
     _intensity_model.generate_model(parameters);
   }
+
+
+
+bool model_polarized_image_constant_polarization::analytic_asym_gaussian_supported() const
+{
+  return (dynamic_cast<const model_image_asymmetric_gaussian*>(&_intensity_model) != nullptr);
+}
+
+void model_polarized_image_constant_polarization::visibility_and_derivatives(
+    datum_crosshand_visibilities& d,
+    std::complex<double>* out,
+    std::complex<double> deriv[7][4]) const
+{
+  for (int q = 0; q < 7; ++q)
+    for (int h = 0; h < 4; ++h)
+      deriv[q][h] = std::complex<double>(0.0, 0.0);
+
+  const model_image_asymmetric_gaussian* ag =
+    dynamic_cast<const model_image_asymmetric_gaussian*>(&_intensity_model);
+
+  if (!ag)
+  {
+    out[0] = out[1] = out[2] = out[3] = std::complex<double>(0.0,0.0);
+    return;
+  }
+
+  datum_visibility dI(d.u, d.v, 0.0, 1.0, d.frequency, d.tJ2000, d.Station1, d.Station2, d.Source);
+
+  std::complex<double> VI;
+  std::complex<double> dVI[4];
+  ag->visibility_and_derivatives(dI, VI, dVI);
+
+  const double pf  = _polarization_fraction;
+  const double ev  = _polarization_EVPA;
+  const double mu  = _polarization_mu;
+
+  const double omm = std::max(1.0e-300, 1.0 - mu*mu);
+  const double smu = std::sqrt(omm);
+
+  const double c2 = std::cos(2.0*ev);
+  const double s2 = std::sin(2.0*ev);
+
+  const double qfac = pf * c2 * smu;
+  const double ufac = pf * s2 * smu;
+  const double vfac = pf * mu;
+
+  out[0] = VI + vfac*VI;                                   // RR
+  out[1] = VI - vfac*VI;                                   // LL
+  out[2] = qfac*VI + std::complex<double>(0.0,1.0)*ufac*VI; // RL
+  out[3] = qfac*VI - std::complex<double>(0.0,1.0)*ufac*VI; // LR
+
+  // intensity-model params 0..3
+  for (int k = 0; k < 4; ++k)
+  {
+    deriv[k][0] = (1.0 + vfac) * dVI[k];
+    deriv[k][1] = (1.0 - vfac) * dVI[k];
+    deriv[k][2] = (qfac + std::complex<double>(0.0,1.0)*ufac) * dVI[k];
+    deriv[k][3] = (qfac - std::complex<double>(0.0,1.0)*ufac) * dVI[k];
+  }
+
+  // p4 = polarization fraction
+  {
+    const double dq = c2 * smu;
+    const double du = s2 * smu;
+    const double dv = mu;
+
+    deriv[4][0] = dv * VI;
+    deriv[4][1] = -dv * VI;
+    deriv[4][2] = (dq + std::complex<double>(0.0,1.0)*du) * VI;
+    deriv[4][3] = (dq - std::complex<double>(0.0,1.0)*du) * VI;
+  }
+
+  // p5 = EVPA
+  {
+    const double dq = pf * (-2.0*s2) * smu;
+    const double du = pf * ( 2.0*c2) * smu;
+
+    deriv[5][0] = std::complex<double>(0.0,0.0);
+    deriv[5][1] = std::complex<double>(0.0,0.0);
+    deriv[5][2] = (dq + std::complex<double>(0.0,1.0)*du) * VI;
+    deriv[5][3] = (dq - std::complex<double>(0.0,1.0)*du) * VI;
+  }
+
+  // p6 = mu
+  {
+    const double dq = -(mu/omm) * qfac;
+    const double du = -(mu/omm) * ufac;
+    const double dv = pf;
+
+    deriv[6][0] = dv * VI;
+    deriv[6][1] = -dv * VI;
+    deriv[6][2] = (dq + std::complex<double>(0.0,1.0)*du) * VI;
+    deriv[6][3] = (dq - std::complex<double>(0.0,1.0)*du) * VI;
+  }
+}
+
+  
 
   std::string model_polarized_image_constant_polarization::model_tag() const
   {

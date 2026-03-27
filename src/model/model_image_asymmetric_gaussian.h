@@ -56,6 +56,8 @@ namespace Themis {
   //! Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this can be redefined in child classes.
   virtual std::complex<double> visibility(datum_visibility& d, double accuracy);
 
+  void visibility_and_derivatives(datum_visibility& d, std::complex<double>& V, std::complex<double> dV[4]) const;
+    
     //! Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this is redefined to accomodate the possibility of using the analytical computation.
     virtual double visibility_amplitude(datum_visibility_amplitude& d, double acc);
 
@@ -76,6 +78,12 @@ namespace Themis {
     double _sigma_alpha; //!< Std. dev. in fiducial horizontal direction.
     double _sigma_beta; //!< Std. dev. in fiducial vertical direction.
 
+    double _sigma_param;     //!< Positive sigma after abs()
+    double _A_param;         //!< Clamped asymmetry A
+    double _dItotal_dp0;     //!< d|p0|/dp0
+    double _dsigma_dp1;      //!< d|p1|/dp1
+    double _dA_dp2;          //!< d clamp(p2,0,0.99) / dp2
+    
     bool _use_analytical_visibilities; //!< If true uses analytical visibility computation, if false use numerical visibilities.
     
   };

@@ -42,6 +42,11 @@ namespace Themis {
     model_polarized_image_constant_polarization(model_image& intensity_model);
     virtual ~model_polarized_image_constant_polarization();
 
+    bool analytic_asym_gaussian_supported() const;
+
+    void visibility_and_derivatives(datum_crosshand_visibilities& d,
+                                    std::complex<double>* out,
+                                    std::complex<double> deriv[7][4]) const;
     
   private:
 

@@ -11,6 +11,8 @@
 #include "likelihood_optimal_complex_gain_constrained_crosshand_visibilities.h"
 #include "model_polarized_image_adaptive_splined_raster.h"
 #include "model_polarized_image_sum.h"
+#include "model_polarized_image_constant_polarization.h"
+#include "model_image_asymmetric_gaussian.h"
 #include <limits>
 #include <algorithm>
 #include <cmath>
@@ -1032,32 +1034,40 @@ namespace Themis
     
     model_polarized_image_sum* sum_top = dynamic_cast<model_polarized_image_sum*>(&_model);
 
-    struct CompInfo {
+
+
+    enum class Kind { Raster, ConstPolAsymGauss, Unsupported };
+
+
+        struct CompInfo {
       model_polarized_image* img = nullptr;
       model_polarized_image_adaptive_splined_raster* r = nullptr;
+      model_polarized_image_constant_polarization* cp = nullptr;
+
       bool analytic = false;
       bool analytic_requires_cache = false;
       bool use_analytic_now = false;
-      
+
       size_t p0 = 0;
       size_t pend = 0;
-      
+
       double xoff = 0.0;
       double yoff = 0.0;
-      
+
       size_t Nx = 0;
       size_t Ny = 0;
       size_t Npix = 0;
-      
+
       size_t idx_fovx = 0;
       size_t idx_fovy = 0;
       size_t idx_pa   = 0;
       size_t idx_xoff = 0;
       size_t idx_yoff = 0;
-      
+
       std::vector<double> xfrac;
       std::vector<double> yfrac;
     };
+	
     
     std::vector<CompInfo> comps;
     const size_t Npar = x.size();
@@ -1067,6 +1077,7 @@ namespace Themis
 	CompInfo c;
 	c.img = direct_top;
 	c.r = direct_top;
+	c.cp = nullptr;
 	c.analytic = true;
 	c.analytic_requires_cache = true;
 	c.use_analytic_now = true;
@@ -1109,46 +1120,56 @@ namespace Themis
 	for (size_t j = 0; j < imgs.size(); ++j)
 	  {
 	    CompInfo c;
-	    c.img = imgs[j];
-	    c.r = dynamic_cast<model_polarized_image_adaptive_splined_raster*>(imgs[j]);
-	    c.analytic = (c.r != nullptr);
-	    c.analytic_requires_cache = c.analytic;
-	    c.use_analytic_now = c.analytic;
+	    c.img  = imgs[j];
+            c.p0   = p;
+            c.pend = p + imgs[j]->size();
+            c.idx_xoff = c.pend;
+            c.idx_yoff = c.pend + 1;
+            c.xoff = xs[j];
+            c.yoff = ys[j];
 	    
-	    c.p0 = p;
-	    c.pend = p + imgs[j]->size();
-	    
-	    c.idx_xoff = c.pend;
-	    c.idx_yoff = c.pend + 1;
-	    
-	    c.xoff = xs[j];
-	    c.yoff = ys[j];
-	    
-	    if (c.analytic)
-	      {
-		c.Nx = c.r->Nx();
-		c.Ny = c.r->Ny();
-		c.Npix = c.Nx * c.Ny;
-		
-		c.idx_fovx = c.p0 + 4*c.Npix;
-		c.idx_fovy = c.p0 + 4*c.Npix + 1;
-		c.idx_pa   = c.p0 + 4*c.Npix + 2;
-		
-		c.xfrac.resize(c.Npix);
-		c.yfrac.resize(c.Npix);
-		for (size_t ix = 0; ix < c.Nx; ++ix) {
-		  const double xf = (c.Nx > 1) ? (double(ix)/double(c.Nx-1) - 0.5) : 0.0;
-		  for (size_t iy = 0; iy < c.Ny; ++iy) {
-		    const double yf = (c.Ny > 1) ? (double(iy)/double(c.Ny-1) - 0.5) : 0.0;
-		    const size_t k = ix*c.Ny + iy;
-		    c.xfrac[k] = xf;
-		    c.yfrac[k] = yf;
-		  }
-		}
-	      }
-	    
-	    comps.push_back(c);
-	    p += imgs[j]->size() + 2;
+            c.r  = dynamic_cast<model_polarized_image_adaptive_splined_raster*>(imgs[j]);
+            c.cp = dynamic_cast<model_polarized_image_constant_polarization*>(imgs[j]);
+
+            if (c.r != nullptr)
+            {
+              c.analytic = true;
+              c.analytic_requires_cache = true;
+              c.use_analytic_now = true;
+
+              c.Nx = c.r->Nx();
+              c.Ny = c.r->Ny();
+              c.Npix = c.Nx * c.Ny;
+              c.idx_fovx = c.p0 + 4*c.Npix;
+              c.idx_fovy = c.p0 + 4*c.Npix + 1;
+              c.idx_pa   = c.p0 + 4*c.Npix + 2;
+
+              c.xfrac.resize(c.Npix);
+              c.yfrac.resize(c.Npix);
+              for (size_t ix = 0; ix < c.Nx; ++ix) {
+                const double xf = (c.Nx > 1) ? (double(ix)/double(c.Nx-1) - 0.5) : 0.0;
+                for (size_t iy = 0; iy < c.Ny; ++iy) {
+                  const double yf = (c.Ny > 1) ? (double(iy)/double(c.Ny-1) - 0.5) : 0.0;
+                  const size_t k = ix*c.Ny + iy;
+                  c.xfrac[k] = xf;
+                  c.yfrac[k] = yf;
+                }
+              }
+            }
+            else if (c.cp != nullptr && c.cp->analytic_asym_gaussian_supported())
+            {
+              c.analytic = true;
+              c.analytic_requires_cache = false;
+              c.use_analytic_now = true;
+            }
+            else
+            {
+              c.analytic = false;
+              c.analytic_requires_cache = false;
+              c.use_analytic_now = false;
+            }
+            comps.push_back(c);
+            p += imgs[j]->size() + 2;
 	  }
       }
     else
@@ -1160,81 +1181,34 @@ namespace Themis
       }
 
 
-    /*
-    int local_ok = 1;
-    for (const auto& c : comps)
+    for (auto& c : comps)
       {
-	if (!c.analytic)
+	if (!c.use_analytic_now)
+	  continue;
+	
+	if (!c.analytic_requires_cache)
 	  continue;
 	
 	const model_polarized_image_adaptive_splined_raster* rc = c.r;
 	
-	if (!rc->use_cached_exp()) local_ok = 0;
-	if (!rc->phase_cache_valid()) local_ok = 0;
-	if (rc->cached_Nd() < _data.size()) local_ok = 0;
+	if (!rc->use_cached_exp()) c.use_analytic_now = false;
+	if (!rc->phase_cache_valid()) c.use_analytic_now = false;
+	if (rc->cached_Nd() < _data.size()) c.use_analytic_now = false;
 	
-	if (rc->phase_cache().size() < _data.size() * c.Npix) local_ok = 0;
-	if (rc->spline_kernel_cache().size() < _data.size()) local_ok = 0;
+	if (rc->phase_cache().size() < _data.size() * c.Npix) c.use_analytic_now = false;
+	if (rc->spline_kernel_cache().size() < _data.size()) c.use_analytic_now = false;
 	
-	if (rc->I_flat().size() < c.Npix) local_ok = 0;
-	if (rc->Q_flat().size() < c.Npix) local_ok = 0;
-	if (rc->U_flat().size() < c.Npix) local_ok = 0;
-	if (rc->V_flat().size() < c.Npix) local_ok = 0;
+	if (rc->I_flat().size() < c.Npix) c.use_analytic_now = false;
+	if (rc->Q_flat().size() < c.Npix) c.use_analytic_now = false;
+	if (rc->U_flat().size() < c.Npix) c.use_analytic_now = false;
+	if (rc->V_flat().size() < c.Npix) c.use_analytic_now = false;
 	
 	if (do_geom) {
-	  if (rc->spline_kernel_dfovx_cache().size() < _data.size()) local_ok = 0;
-	  if (rc->spline_kernel_dfovy_cache().size() < _data.size()) local_ok = 0;
-	  if (rc->spline_kernel_dpa_cache().size()   < _data.size()) local_ok = 0;
+	  if (rc->spline_kernel_dfovx_cache().size() < _data.size()) c.use_analytic_now = false;
+	  if (rc->spline_kernel_dfovy_cache().size() < _data.size()) c.use_analytic_now = false;
+	  if (rc->spline_kernel_dpa_cache().size()   < _data.size()) c.use_analytic_now = false;
 	}
       }
-    
-    int global_ok = 0;
-    MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
-    
-    
-
-    
-    if (!global_ok)
-      {
-	std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
-	restore_basepoint();
-	if (!_solve_for_gains_during_gradient && solving_for_gains_prev) solve_for_gains();
-	return g;
-      }
-    */
-
-
-
-    for (auto& c : comps)
-{
-  if (!c.use_analytic_now)
-    continue;
-
-  if (!c.analytic_requires_cache)
-    continue;
-
-  const model_polarized_image_adaptive_splined_raster* rc = c.r;
-
-  if (!rc->use_cached_exp()) c.use_analytic_now = false;
-  if (!rc->phase_cache_valid()) c.use_analytic_now = false;
-  if (rc->cached_Nd() < _data.size()) c.use_analytic_now = false;
-
-  if (rc->phase_cache().size() < _data.size() * c.Npix) c.use_analytic_now = false;
-  if (rc->spline_kernel_cache().size() < _data.size()) c.use_analytic_now = false;
-
-  if (rc->I_flat().size() < c.Npix) c.use_analytic_now = false;
-  if (rc->Q_flat().size() < c.Npix) c.use_analytic_now = false;
-  if (rc->U_flat().size() < c.Npix) c.use_analytic_now = false;
-  if (rc->V_flat().size() < c.Npix) c.use_analytic_now = false;
-
-  if (do_geom) {
-    if (rc->spline_kernel_dfovx_cache().size() < _data.size()) c.use_analytic_now = false;
-    if (rc->spline_kernel_dfovy_cache().size() < _data.size()) c.use_analytic_now = false;
-    if (rc->spline_kernel_dpa_cache().size()   < _data.size()) c.use_analytic_now = false;
-  }
-}
-
-
     
     auto apply_top_dterms = [&](datum_crosshand_visibilities& d, std::complex<double>* io)
     {
@@ -1266,8 +1240,6 @@ namespace Themis
     std::vector<double> grad_local(Npar, 0.0);
     std::vector<char> analytic_mask(Npar, 0);
 
-
-
     for (const auto& c : comps)
       {
         if (!c.use_analytic_now)
@@ -1286,6 +1258,22 @@ namespace Themis
           analytic_mask[c.idx_xoff] = 1;
           analytic_mask[c.idx_yoff] = 1;
         }
+
+        if (c.cp != nullptr)
+	  {
+	    analytic_mask[c.p0 + 0] = 1; // Itotal
+	    analytic_mask[c.p0 + 1] = 1; // sigma
+	    analytic_mask[c.p0 + 2] = 1; // A
+	    analytic_mask[c.p0 + 3] = 1; // PA
+	    analytic_mask[c.p0 + 4] = 1; // pfrac
+	    analytic_mask[c.p0 + 5] = 1; // EVPA
+	    analytic_mask[c.p0 + 6] = 1; // mu
+	    
+	      if (sum_top) {
+		analytic_mask[c.idx_xoff] = 1;
+		analytic_mask[c.idx_yoff] = 1;
+	      }
+	  }
       }
         
     if (have_model_dterms)
@@ -1403,6 +1391,77 @@ namespace Themis
 			  
 			  for (int h = 0; h < 4; ++h)
 			    base0_total[h] += shift_phase * tmp[h];
+			}
+		      
+		      continue;
+		    }
+		  
+		  if (c.cp != nullptr)
+		    {
+		      const std::complex<double> shift_phase =
+			std::exp(-2.0*M_PI*Iunit * (c.xoff*(-u) + c.yoff*v));
+		      
+		      std::complex<double> raw[4];
+		      std::complex<double> draw[7][4];
+		      c.cp->visibility_and_derivatives(d, raw, draw);
+		      
+		      std::complex<double> compvec[4];
+		      for (int h = 0; h < 4; ++h) {
+			compvec[h] = shift_phase * raw[h];
+			base0_total[h] += compvec[h];
+		      }
+		      
+		      auto add_comp_deriv = [&](size_t pidx, const std::complex<double>* d0)
+		      {
+			std::complex<double> dvec[4];
+			for (int h = 0; h < 4; ++h)
+			  dvec[h] = shift_phase * d0[h];
+			
+			apply_Dmat(dvec);
+			for (int h = 0; h < 4; ++h)
+			  dvec[h] *= G12;
+			
+			double contrib = 0.0;
+			for (int h = 0; h < 4; ++h) {
+			  contrib += rr[h] * (dvec[h].real()/err[h].real()) + ri[h] * (dvec[h].imag()/err[h].imag());
+			}
+			grad_local[pidx] += contrib;
+		      };
+		      
+		      add_comp_deriv(c.p0 + 0, draw[0]);  // Itotal
+		      add_comp_deriv(c.p0 + 4, draw[4]);  // pfrac
+		      add_comp_deriv(c.p0 + 5, draw[5]);  // EVPA
+		      add_comp_deriv(c.p0 + 6, draw[6]);  // mu
+		      
+		      if (do_geom) {
+			add_comp_deriv(c.p0 + 1, draw[1]); // sigma
+			add_comp_deriv(c.p0 + 2, draw[2]); // A
+			add_comp_deriv(c.p0 + 3, draw[3]); // PA
+		      }
+		      
+		      if (sum_top && do_geom)
+			{
+			  auto add_offset = [&](size_t pidx, const std::complex<double>& fac)
+			  {
+			    std::complex<double> dvec[4];
+			    dvec[0] = fac * compvec[0];
+			    dvec[1] = fac * compvec[1];
+			    dvec[2] = fac * compvec[2];
+			    dvec[3] = fac * compvec[3];
+			    
+			    apply_Dmat(dvec);
+			    for (int h = 0; h < 4; ++h)
+			      dvec[h] *= G12;
+			    
+			    double contrib = 0.0;
+			    for (int h = 0; h < 4; ++h) {
+			      contrib += rr[h] * (dvec[h].real()/err[h].real())	+ ri[h] * (dvec[h].imag()/err[h].imag());
+			    }
+			    grad_local[pidx] += contrib;
+			  };
+			  
+			  add_offset(c.idx_xoff, (+two_pi * Iunit * u));
+			  add_offset(c.idx_yoff, (-two_pi * Iunit * v));
 			}
 		      
 		      continue;
@@ -1538,8 +1597,7 @@ namespace Themis
 			
 			double contrib = 0.0;
 			for (int h = 0; h < 4; ++h) {
-			  contrib += rr[h] * (dvec[h].real()/err[h].real())
-			    +  ri[h] * (dvec[h].imag()/err[h].imag());
+			  contrib += rr[h] * (dvec[h].real()/err[h].real())	+ ri[h] * (dvec[h].imag()/err[h].imag());
 			}
 			grad_local[pidx] += contrib;
 		      };
@@ -1573,7 +1631,7 @@ namespace Themis
 			apply_Dmat(dvec);
 			for (int h = 0; h < 4; ++h)
 			  dvec[h] *= G12;
-			
+	    
 			double contrib = 0.0;
 			for (int h = 0; h < 4; ++h) {
 			  contrib += rr[h] * (dvec[h].real()/err[h].real()) + ri[h] * (dvec[h].imag()/err[h].imag());
@@ -1596,7 +1654,7 @@ namespace Themis
 		      add_pixel(pMuV, 0.0, dQdmu, dUdmu, dVdmu);
 		    }
 		}
-
+	      
 	      if (have_model_dterms)
 		{
 		  const size_t s1 = station_index(d.Station1);
