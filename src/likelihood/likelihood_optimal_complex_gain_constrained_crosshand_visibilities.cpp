@@ -1849,6 +1849,8 @@ namespace Themis
 
   double likelihood_optimal_complex_gain_constrained_crosshand_visibilities::matrix_determinant(double **a)
   {
+    Themis::utils::ScopedTimer T(Themis::utils::TimerID::matrix_determinant, timer_ns_, timer_calls_);
+    
     const int n = int(_sigma_g.size());
     double d;
     
@@ -2111,7 +2113,8 @@ namespace Themis
     int ndata = int( 2*(y[0].size()+y[1].size()+y[2].size()+y[3].size()) );
     if (ndata==0)
       return 1.0;
-    
+
+    const auto t_pack0 = std::chrono::steady_clock::now(); // timing ogc
     for (size_t i=0, j=1; i<y[0].size(); ++i)
       {
 	_ogc_y[j]   = y[0][i].real();   _ogc_yb[j]   = yb[0][i].real();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
@@ -2123,6 +2126,9 @@ namespace Themis
 	_ogc_y[j]   = y[3][i].real();   _ogc_yb[j]   = yb[3][i].real();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
 	_ogc_y[j]   = y[3][i].imag();   _ogc_yb[j]   = yb[3][i].imag();   _ogc_is1[j] = is1[i]; _ogc_is2[j] = is2[i]; ++j;
       }
+    const auto t_pack1 = std::chrono::steady_clock::now(); // timing ogc
+    ogc_pack_trial_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(t_pack1 - t_pack0).count(); // timing ogc
+    ++ogc_pack_trial_calls_; // timing ogc
     
     const int ma = 2*_sigma_g.size();
     
@@ -2187,6 +2193,8 @@ namespace Themis
       return 1.0;
     
     std::complex<double> tmp;
+
+    const auto t_pack0 = std::chrono::steady_clock::now(); // timing ogc stuff
     for (size_t i=0, j=1; i<y[0].size(); ++i)
       {
 	tmp = y[0][i]/yb[0][i]; if (std::abs(tmp)<1e-6) tmp = 1e-6;
@@ -2205,6 +2213,9 @@ namespace Themis
 	_ogc_y[j] = std::log(tmp).real(); _sig[j] = 1.0/std::abs(y[3][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
 	_ogc_y[j] = std::log(tmp).imag(); _sig[j] = 1.0/std::abs(y[3][i]); _ogc_yb[j]=0.0; _ogc_is1[j]=is1[i]; _ogc_is2[j]=is2[i]; ++j;
       }
+    const auto t_pack1 = std::chrono::steady_clock::now(); // timing ogc stuff
+    ogc_pack_log_ns_ += std::chrono::duration_cast<std::chrono::nanoseconds>(t_pack1 - t_pack0).count(); // timing ogc stuff
+    ++ogc_pack_log_calls_; // timing ogc stuff
     
     const int ma = 2*_sigma_g.size();
     
@@ -2362,6 +2373,8 @@ namespace Themis
 
   int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::gaussj(double **a, int n, double **b, int m)
   {
+    Themis::utils::ScopedTimer T(Themis::utils::TimerID::gaussj, timer_ns_, timer_calls_);
+    
     int i,icol=0,irow=0,j,k,l,ll;
     double big,dum,pivinv,swap;
     
@@ -2473,192 +2486,230 @@ namespace Themis
   }
 
 
-  void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqcof(double y[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq)
+
+void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqcof(
+    double y[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq)
+{
+  Themis::utils::ScopedTimer T(Themis::utils::TimerID::mrqcof, timer_ns_, timer_calls_);
+
+  int j,k;
+
+  for (j=1; j<=ma; ++j)
   {
-    int i,j,k;
-    double ymod,wt,dy;
-    
-    for (j=1; j<=ma; ++j)
+    beta[j] = 0.0;
+    for (k=1; k<=ma; ++k)
+      alpha[j][k] = 0.0;
+  }
+  *chisq = 0.0;
+
+  for (j=1; j<=ma; ++j)
+    a[j] = std::min(std::max(a[j],-1.0e2),1.0e2);
+
+  for (int i=1; i<=ndata; ++i)
+  {
+    const int ig1 = int(_ogc_is1[i]);
+    const int ig2 = int(_ogc_is2[i]);
+
+    const int pg1 = 2*ig1 + 1;
+    const int pp1 = 2*ig1 + 2;
+    const int pg2 = 2*ig2 + 1;
+    const int pp2 = 2*ig2 + 2;
+
+    const double lgamp = a[pg1] + a[pg2];
+    const double ph    = a[pp1] - a[pp2];
+
+    const double amp = std::exp(lgamp);
+    const double cph = std::cos(ph);
+    const double sph = std::sin(ph);
+
+    const double ybr = (i%2==1 ? _ogc_yb[i]   : _ogc_yb[i-1]);
+    const double ybi = (i%2==1 ? _ogc_yb[i+1] : _ogc_yb[i]);
+
+    const double yr = amp * ( cph*ybr - sph*ybi );
+    const double yi = amp * ( sph*ybr + cph*ybi );
+
+    const double ymod = (i%2==1 ? yr : yi);
+    const double dy   = y[i] - ymod;
+
+    int idx[4];
+    double val[4];
+    int nact = 0;
+
+    auto push_term = [&](int p, double v)
+    {
+      if (v == 0.0) return;
+
+      for (int q=0; q<nact; ++q)
       {
-	beta[j] = 0.0;
-	for (k=1; k<=ma; ++k)
-	  alpha[j][k] = 0.0;
+        if (idx[q] == p)
+        {
+          val[q] += v;
+          return;
+        }
       }
-    *chisq = 0.0;
-    
-    for (j=1; j<=ma; ++j)
-      a[j] = std::min(std::max(a[j],-1.0e2),1.0e2);
-    
-    for (i=1; i<=ndata; ++i)
-      {
-	gain_optimization_likelihood(i, a, &ymod, _dyda);
-	dy = y[i] - ymod;
-	
-	int idx[4];
-	double val[4];
-	int nact = 0;
-	
-	const int cand[4] = {
-	  int(2*_ogc_is1[i] + 1),
-	  int(2*_ogc_is1[i] + 2),
-	  int(2*_ogc_is2[i] + 1),
-	  int(2*_ogc_is2[i] + 2)
-	};
-	
-	for (int t=0; t<4; ++t)
-	  {
-	    const int p = cand[t];
-	    const double v = _dyda[p];
-	    if (v == 0.0) continue;
-	    
-	    bool found = false;
-	    for (int q=0; q<nact; ++q)
-	      if (idx[q] == p) {
-		val[q] += v;
-		found = true;
-		break;
-	      }
-	    
-	    if (!found) {
-	      idx[nact] = p;
-	      val[nact] = v;
-	      ++nact;
-	    }
-	  }
-	
-	for (int q=0; q<nact; ++q)
-	  {
-	    wt = val[q];
-	    for (int r=0; r<=q; ++r)
-	      alpha[idx[q]][idx[r]] += wt * val[r];
-	    beta[idx[q]] += dy * wt;
-	  }
-	
-	*chisq += dy*dy;
-      }
-    
-    for (j=2; j<=ma; ++j)
-      for (k=1; k<j; ++k)
-	alpha[k][j] = alpha[j][k];
-    
-    double oSigma2;
-    for (size_t s=0, jj=1; s<_sigma_g.size(); ++s, jj+=2)
-      {
-	oSigma2 = 1.0/(_sigma_g[s]*_sigma_g[s]);
-	
-	beta[jj]   -= a[jj]   * oSigma2;
-	beta[jj+1] -= a[jj+1] * _opi2;
-	
-	alpha[jj][jj]     += oSigma2;
-	alpha[jj+1][jj+1] += _opi2;
-	
-	*chisq += a[jj]*a[jj]*oSigma2 + a[jj+1]*a[jj+1]*_opi2;
-      }
-    
-    double alpha_diag_max = 0.0;
-    for (j=1; j<=ma; ++j)
-      alpha_diag_max = std::max(alpha[j][j], alpha_diag_max);
-    alpha_diag_max = std::max(alpha_diag_max, 1.0);
-    for (j=1; j<=ma; ++j)
-      alpha[j][j] += 1.0e-12 * alpha_diag_max;
+
+      idx[nact] = p;
+      val[nact] = v;
+      ++nact;
+    };
+
+    if (i%2==1) // real row
+    {
+      push_term(pg1,  yr);
+      push_term(pp1, -yi);
+      push_term(pg2,  yr);
+      push_term(pp2,  yi);
+    }
+    else // imag row
+    {
+      push_term(pg1,  yi);
+      push_term(pp1,  yr);
+      push_term(pg2,  yi);
+      push_term(pp2, -yr);
+    }
+
+    for (int q=0; q<nact; ++q)
+    {
+      const double wq = val[q];
+      for (int r=0; r<=q; ++r)
+        alpha[idx[q]][idx[r]] += wq * val[r];
+      beta[idx[q]] += dy * wq;
+    }
+
+    *chisq += dy*dy;
   }
 
+  for (j=2; j<=ma; ++j)
+    for (k=1; k<j; ++k)
+      alpha[k][j] = alpha[j][k];
 
-  void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqcof_log(double y[], double sig[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq)
+  double oSigma2;
+  for (size_t s=0, jj=1; s<_sigma_g.size(); ++s, jj+=2)
   {
-    int i,j,k;
-    double ymod,wt,sig2i,dy;
-    
-    for (j=1; j<=ma; ++j)
-      {
-	beta[j] = 0.0;
-	for (k=1; k<=ma; ++k)
-	  alpha[j][k] = 0.0;
-      }
-    *chisq = 0.0;
-    
-    for (j=1; j<=ma; ++j)
-      a[j] = std::min(std::max(a[j],-1.0e2),1.0e2);
-    
-    for (i=1; i<=ndata; ++i)
-      {
-	gain_optimization_log_likelihood(i, a, &ymod, _dyda);
-	sig2i = 1.0/(sig[i]*sig[i]);
-	dy = y[i] - ymod;
-	
-	int idx[2];
-	double val[2];
-	int nact = 0;
-	
-	if (i%2==1)
-	  {
-	    idx[nact] = int(2*_ogc_is1[i] + 1);
-	    val[nact] = _dyda[idx[nact]];
-	    ++nact;
-	    
-	    const int p2 = int(2*_ogc_is2[i] + 1);
-	    const double v2 = _dyda[p2];
-	    if (p2 == idx[0])
-	      val[0] += v2;
-	    else {
-	      idx[nact] = p2;
-	      val[nact] = v2;
-	      ++nact;
-	    }
-	  }
-	else
-	  {
-	    idx[nact] = int(2*_ogc_is1[i] + 2);
-	    val[nact] = _dyda[idx[nact]];
-	    ++nact;
-	    
-	    const int p2 = int(2*_ogc_is2[i] + 2);
-	    const double v2 = _dyda[p2];
-	    if (p2 == idx[0])
-	      val[0] += v2;
-	    else {
-	      idx[nact] = p2;
-	      val[nact] = v2;
-	      ++nact;
-	    }
-	  }
-	
-	for (int q=0; q<nact; ++q)
-	  {
-	    wt = val[q] * sig2i;
-	    for (int r=0; r<=q; ++r)
-	      alpha[idx[q]][idx[r]] += wt * val[r];
-	    beta[idx[q]] += dy * wt;
-	  }
-	
-	*chisq += dy*dy*sig2i;
-      }
-    
-    for (j=2; j<=ma; ++j)
-      for (k=1; k<j; ++k)
-	alpha[k][j] = alpha[j][k];
-    
-    double oSigma2;
-    for (size_t s=0, jj=1; s<_sigma_g.size(); ++s, jj+=2)
-      {
-	oSigma2 = 1.0/(_sigma_g[s]*_sigma_g[s]);
-	
-	beta[jj]   -= a[jj]   * oSigma2;
-	beta[jj+1] -= a[jj+1] * _opi2;
-	
-	alpha[jj][jj]     += oSigma2;
-	alpha[jj+1][jj+1] += _opi2;
-	
-	*chisq += a[jj]*a[jj]*oSigma2 + a[jj+1]*a[jj+1]*_opi2;
-      }
-    
-    double alpha_diag_max = 0.0;
-    for (j=1; j<=ma; ++j)
-      alpha_diag_max = std::max(alpha[j][j], alpha_diag_max);
-    alpha_diag_max = std::max(alpha_diag_max, 1.0);
-    for (j=1; j<=ma; ++j)
-      alpha[j][j] += 1.0e-12 * alpha_diag_max;
+    oSigma2 = 1.0/(_sigma_g[s]*_sigma_g[s]);
+
+    beta[jj]   -= a[jj]   * oSigma2;
+    beta[jj+1] -= a[jj+1] * _opi2;
+
+    alpha[jj][jj]     += oSigma2;
+    alpha[jj+1][jj+1] += _opi2;
+
+    *chisq += a[jj]*a[jj]*oSigma2 + a[jj+1]*a[jj+1]*_opi2;
   }
+
+  double alpha_diag_max = 0.0;
+  for (j=1; j<=ma; ++j)
+    alpha_diag_max = std::max(alpha[j][j], alpha_diag_max);
+  alpha_diag_max = std::max(alpha_diag_max, 1.0);
+  for (j=1; j<=ma; ++j)
+    alpha[j][j] += 1.0e-12 * alpha_diag_max;
+}
+  
+
+  void likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqcof_log(
+    double y[], double sig[], int ndata, double a[], int ma, double **alpha, double beta[], double *chisq)
+{
+  Themis::utils::ScopedTimer T(Themis::utils::TimerID::mrqcof, timer_ns_, timer_calls_);
+
+  int j,k;
+
+  for (j=1; j<=ma; ++j)
+  {
+    beta[j] = 0.0;
+    for (k=1; k<=ma; ++k)
+      alpha[j][k] = 0.0;
+  }
+  *chisq = 0.0;
+
+  for (j=1; j<=ma; ++j)
+    a[j] = std::min(std::max(a[j],-1.0e2),1.0e2);
+
+  for (int i=1; i<=ndata; ++i)
+  {
+    const int ig1 = int(_ogc_is1[i]);
+    const int ig2 = int(_ogc_is2[i]);
+
+    const int pg1 = 2*ig1 + 1;
+    const int pp1 = 2*ig1 + 2;
+    const int pg2 = 2*ig2 + 1;
+    const int pp2 = 2*ig2 + 2;
+
+    const double sig2i = 1.0 / (sig[i]*sig[i]);
+
+    double ymod;
+    int idx[2];
+    double val[2];
+    int nact = 0;
+
+    auto push_term = [&](int p, double v)
+    {
+      if (v == 0.0) return;
+
+      for (int q=0; q<nact; ++q)
+      {
+        if (idx[q] == p)
+        {
+          val[q] += v;
+          return;
+        }
+      }
+
+      idx[nact] = p;
+      val[nact] = v;
+      ++nact;
+    };
+
+    if (i%2==1) // log-amplitude row
+    {
+      ymod = a[pg1] + a[pg2];
+      push_term(pg1, 1.0);
+      push_term(pg2, 1.0);
+    }
+    else // phase row
+    {
+      ymod = a[pp1] - a[pp2];
+      push_term(pp1,  1.0);
+      push_term(pp2, -1.0);
+    }
+
+    const double dy = y[i] - ymod;
+
+    for (int q=0; q<nact; ++q)
+    {
+      const double wq = val[q] * sig2i;
+      for (int r=0; r<=q; ++r)
+        alpha[idx[q]][idx[r]] += wq * val[r];
+      beta[idx[q]] += dy * wq;
+    }
+
+    *chisq += dy*dy*sig2i;
+  }
+
+  for (j=2; j<=ma; ++j)
+    for (k=1; k<j; ++k)
+      alpha[k][j] = alpha[j][k];
+
+  double oSigma2;
+  for (size_t s=0, jj=1; s<_sigma_g.size(); ++s, jj+=2)
+  {
+    oSigma2 = 1.0/(_sigma_g[s]*_sigma_g[s]);
+
+    beta[jj]   -= a[jj]   * oSigma2;
+    beta[jj+1] -= a[jj+1] * _opi2;
+
+    alpha[jj][jj]     += oSigma2;
+    alpha[jj+1][jj+1] += _opi2;
+
+    *chisq += a[jj]*a[jj]*oSigma2 + a[jj+1]*a[jj+1]*_opi2;
+  }
+
+  double alpha_diag_max = 0.0;
+  for (j=1; j<=ma; ++j)
+    alpha_diag_max = std::max(alpha[j][j], alpha_diag_max);
+  alpha_diag_max = std::max(alpha_diag_max, 1.0);
+  for (j=1; j<=ma; ++j)
+    alpha[j][j] += 1.0e-12 * alpha_diag_max;
+}
 
 
   int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin(double y[], int ndata, double a[], int ma, double **covar, double **alpha, double *chisq, double *alamda)
@@ -2896,7 +2947,25 @@ int likelihood_optimal_complex_gain_constrained_crosshand_visibilities::mrqmin_l
 		<< ", calls = " << dterm_calls_
 		<< ", avg = " << avg << " ms/call\n";
     }
+
+    {
+      const double ms = ogc_pack_trial_ns_ / 1.0e6;
+      const double avg = (ogc_pack_trial_calls_ > 0) ? ms / double(ogc_pack_trial_calls_) : 0.0;
+      std::cout << std::setw(24) << "OGCPackTrial"
+		<< " : total = " << ms << " ms"
+		<< ", calls = " << ogc_pack_trial_calls_
+		<< ", avg = " << avg << " ms/call\n";
+    }
     
+    {
+      const double ms = ogc_pack_log_ns_ / 1.0e6;
+      const double avg = (ogc_pack_log_calls_ > 0) ? ms / double(ogc_pack_log_calls_) : 0.0;
+      std::cout << std::setw(24) << "OGCPackLog"
+		<< " : total = " << ms << " ms"
+		<< ", calls = " << ogc_pack_log_calls_
+		<< ", avg = " << avg << " ms/call\n";
+    }
+  
     std::cout << "===============================================================\n\n";
   }
 

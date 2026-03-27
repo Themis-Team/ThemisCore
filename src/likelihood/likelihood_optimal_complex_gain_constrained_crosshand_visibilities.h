@@ -99,6 +99,11 @@ namespace Themis
     virtual void set_mpi_communicator(MPI_Comm comm);
 
     void print_timing_summary(int mpi_rank = -1) const;
+
+    mutable std::uint64_t ogc_pack_trial_ns_ = 0;
+    mutable std::uint64_t ogc_pack_trial_calls_ = 0;
+    mutable std::uint64_t ogc_pack_log_ns_ = 0;
+    mutable std::uint64_t ogc_pack_log_calls_ = 0;
     
     //! Returns the number of independent gains, which is generally less than product of the number of stations and number of epochs.
     size_t number_of_independent_gains();
