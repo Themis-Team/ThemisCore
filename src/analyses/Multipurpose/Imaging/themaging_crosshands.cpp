@@ -26,6 +26,7 @@
 #include "likelihood.h"
 #include "likelihood_crosshand_visibilities.h"
 #include "likelihood_optimal_complex_gain_constrained_crosshand_visibilities.h"
+#include "likelihood_optimal_complex_gain_crosshand_visibilities.h"
 #include "sampler_stan_adapt_diag_e_nuts_MCMC.h"
 #include "sampler_deo_tempering_MCMC.h"
 #include "optimizer_kickout_powell.h"
@@ -42,6 +43,7 @@
 #include <fstream>
 #include <complex>
 #include <cstring>
+#include <cctype>
 
 /*
  * Reads in a config file and returns a vector with the parameters
@@ -83,6 +85,9 @@ int main(int argc, char* argv[])
   
   bool Reconstruct_gains = false;
   std::vector<std::string> gain_file_list;
+  
+  bool unconstrained_crosshand_gains = false;
+  std::string hand_gain_mode = "independent";
 
   size_t Number_of_pixels_x = 4;
   size_t Number_of_pixels_y = 4;
@@ -460,6 +465,31 @@ int main(int argc, char* argv[])
 	std::exit(1);
       }
     }
+    else if (opt=="--unconstrained-crosshand-gains" || opt=="--independent-hand-gains")
+      {
+	unconstrained_crosshand_gains = true;
+      }
+    else if (opt=="--hand-gain-mode")
+      {
+	if (k<argc)
+	  {
+	    hand_gain_mode = std::string(argv[k++]);
+	    for (auto& c : hand_gain_mode) c = std::tolower(c);
+	    if (hand_gain_mode!="independent" && hand_gain_mode!="ratio")
+	      {
+		if (world_rank==0)
+		  std::cerr << "ERROR: --hand-gain-mode must be 'independent' or 'ratio'.\n";
+		std::exit(1);
+	      }
+	    unconstrained_crosshand_gains = true;
+	  }
+	else
+	  {
+	    if (world_rank==0)
+	      std::cerr << "ERROR: A string argument must be provided after --hand-gain-mode.\n";
+	    std::exit(1);
+	  }
+      }
     else if (opt=="-fea" || opt=="--fast-exp-approx")
     {
       use_fast_exp_approx=true;
@@ -672,6 +702,11 @@ int main(int argc, char* argv[])
 		  << "\t\tReconstructs unknown station gains.  Default off.\n"
 		  << "\t-g, --gain-file <filename>\n"
 		  << "\t\tSets the gains to those in the specified file name.  These should be listed in the same order as data files in the file list past via -x.\n"
+		  << "\t--unconstrained-crosshand-gains\n"
+		  << "\t\tUses likelihood_optimal_complex_gain_crosshand_visibilities instead of the constrained\n"
+		  << "\t\tcrosshand gain likelihood that enforces identical R/L gains.\n"
+		  << "\t--hand-gain-mode <independent|ratio>\n"
+		  << "\t\tSelects the hand-gain parameterization for the unconstrained crosshand gain likelihood.\n"
 		  << "\t-A, --background-gaussian\n"
 		  << "\t\tAdds a large-scale background gaussian, constrained to have an isotropized standard\n"
 		  << "\t\tdeviation between 100 uas and 10 as.\n"
@@ -727,7 +762,6 @@ int main(int argc, char* argv[])
       std::exit(1);
     }
   }  
-
 
   if (x_file=="")
   {
@@ -888,9 +922,10 @@ int main(int argc, char* argv[])
   // Read in data files
   std::vector<Themis::data_crosshand_visibilities*> X_data;
   std::vector<Themis::likelihood_base*> L;
-  std::vector<Themis::likelihood_optimal_complex_gain_constrained_crosshand_visibilities*> lxg;
+  std::vector<Themis::likelihood_optimal_complex_gain_constrained_crosshand_visibilities*> lxg_constrained;
+  std::vector<Themis::likelihood_optimal_complex_gain_crosshand_visibilities*> lxg_unconstrained;
   std::vector<Themis::likelihood_crosshand_visibilities*> lx;
-
+ 
   std::vector<std::string> station_codes = Themis::utils::station_codes("uvfits 2017");
   // Specify the priors we will be assuming (to 20% by default)
   std::vector<double> station_gain_priors;
@@ -1091,66 +1126,100 @@ int main(int argc, char* argv[])
 
   //double variance_weighted_time_average=0.0, vwta_var_norm=0.0, minimum_time=0, maximum_time=1;
   for (size_t j=0; j<x_file_name_list.size(); ++j)
-  {
-    X_data.push_back( new Themis::data_crosshand_visibilities(x_file_name_list[j],"HH") );
-
-    /*
-    // Get time particulars for roving Gaussian
-    for (size_t k=0; k<V_data[j]->size(); ++k)
     {
-      variance_weighted_time_average += V_data[j]->datum(k).tJ2000 / std::pow(std::abs(V_data[j]->datum(k).err),2);
-      vwta_var_norm += 1.0 / std::pow(std::abs(V_data[j]->datum(k).err),2);
+      X_data.push_back( new Themis::data_crosshand_visibilities(x_file_name_list[j],"HH") );
+
+    // // Get time particulars for roving Gaussian
+    // for (size_t k=0; k<V_data[j]->size(); ++k)
+    // {
+    //   variance_weighted_time_average += V_data[j]->datum(k).tJ2000 / std::pow(std::abs(V_data[j]->datum(k).err),2);
+    //   vwta_var_norm += 1.0 / std::pow(std::abs(V_data[j]->datum(k).err),2);
 	  
-      if (j==0 && k==0)
-      {
-	minimum_time = maximum_time = V_data[0]->datum(0).tJ2000;
-      }
+    //   if (j==0 && k==0)
+    //   {
+    // 	minimum_time = maximum_time = V_data[0]->datum(0).tJ2000;
+    //   }
 
-      if (V_data[j]->datum(k).tJ2000<minimum_time)
-	minimum_time = V_data[j]->datum(k).tJ2000;
-      if (V_data[j]->datum(k).tJ2000>maximum_time)
-	maximum_time = V_data[j]->datum(k).tJ2000;
-    }
-    */
+    //   if (V_data[j]->datum(k).tJ2000<minimum_time)
+    // 	minimum_time = V_data[j]->datum(k).tJ2000;
+    //   if (V_data[j]->datum(k).tJ2000>maximum_time)
+    // 	maximum_time = V_data[j]->datum(k).tJ2000;
+    // }
 
-    if (Reconstruct_gains)
-    {
-      if (model_noise)
-      {
-	if (world_rank==0) 
-	  std::cout<<"Including uncertainty model in likelihood_optimal_complex_gain_visibility object"<<std::endl;      
-	lxg.push_back( new Themis::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(*X_data[j],image,uncertainty,station_codes,station_gain_priors) );
-      }
+      if (Reconstruct_gains)
+	{
+	  if (unconstrained_crosshand_gains)
+	    {
+	      if (model_noise)
+		{
+		  if (world_rank==0)
+		    std::cout << "Including uncertainty model in unconstrained crosshand gain likelihood" << std::endl;
+		  
+		  lxg_unconstrained.push_back(new Themis::likelihood_optimal_complex_gain_crosshand_visibilities(*X_data[j], image, uncertainty, station_codes, station_gain_priors));
+		}
+	      else
+		{
+		  lxg_unconstrained.push_back(new Themis::likelihood_optimal_complex_gain_crosshand_visibilities(*X_data[j], image, station_codes, station_gain_priors));
+		}
+	      
+	      if (hand_gain_mode == "ratio")
+		{
+		  lxg_unconstrained.back()->set_ratio_priors(0.10, 10.0*M_PI/180.0);
+		  lxg_unconstrained.back()->set_hand_gain_mode(Themis::likelihood_optimal_complex_gain_crosshand_visibilities::HandGainMode::Ratio);
+		}
+	      else
+		{
+		  lxg_unconstrained.back()->set_hand_gain_mode(Themis::likelihood_optimal_complex_gain_crosshand_visibilities::HandGainMode::Independent);
+		}
+	      
+	      L.push_back(lxg_unconstrained.back());
+	      
+	      if (j<gain_file_list.size() && gain_file_list[j]!="")
+		{
+		  lxg_unconstrained.back()->read_gain_file(gain_file_list[j]);
+		  lxg_unconstrained.back()->fix_gains();
+		}
+	    }
+	  else
+	    {
+	      if (model_noise)
+		{
+		  if (world_rank==0)
+		    std::cout << "Including uncertainty model in constrained crosshand gain likelihood" << std::endl;
+		  
+		  lxg_constrained.push_back(new Themis::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(*X_data[j], image, uncertainty, station_codes, station_gain_priors));
+		}
+	      else
+		{
+		  lxg_constrained.push_back(new Themis::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(*X_data[j], image, station_codes, station_gain_priors));
+		}
+	      
+	      L.push_back(lxg_constrained.back());
+	      
+	      if (j<gain_file_list.size() && gain_file_list[j]!="")
+		{
+		  lxg_constrained.back()->read_gain_file(gain_file_list[j]);
+		  lxg_constrained.back()->fix_gains();
+		}
+	    }
+	}
       else
-      {
-	lxg.push_back( new Themis::likelihood_optimal_complex_gain_constrained_crosshand_visibilities(*X_data[j],image,station_codes,station_gain_priors) );
-      }
+	{
+	  if (model_noise)
+	    {
+	      if (world_rank==0)
+		std::cout<<"Including uncertainty model in likelihood_visibility object"<<std::endl;
+	      lx.push_back( new Themis::likelihood_crosshand_visibilities(*X_data[j],image,uncertainty) );
+	    }
+	  else
+	    {
+	      lx.push_back( new Themis::likelihood_crosshand_visibilities(*X_data[j],image) );
+	    }
+	  L.push_back( lx[j] );
+	}
+      
+    }
 
-      // Add to list
-      L.push_back( lxg[j] );
-  
-      // Set gains if gain files are provided
-      if (j<gain_file_list.size() && gain_file_list[j]!="")
-      {
-	lxg[j]->read_gain_file(gain_file_list[j]);
-	lxg[j]->fix_gains();
-      }
-    }
-    else
-    {
-      if (model_noise)
-      {
-	if (world_rank==0) 
-	  std::cout<<"Including uncertainty model in likelihood_visibility object"<<std::endl;
-	lx.push_back( new Themis::likelihood_crosshand_visibilities(*X_data[j],image,uncertainty) );
-      }
-      else
-      {
-	lx.push_back( new Themis::likelihood_crosshand_visibilities(*X_data[j],image) );
-      }
-      L.push_back( lx[j] );
-    }
-  }
   /*
   // Finish variance weighted time average and set the reference time for the rover
   variance_weighted_time_average /= vwta_var_norm;
@@ -1864,14 +1933,30 @@ int main(int argc, char* argv[])
   int Nparam = image.size();
   if (add_ring) // Forced to be thin, no Gaussian
     Nparam -= 4;
+
   int Ngains = 0;
   std::vector<int> Ngains_list(L.size(),0);
+  
   if (Reconstruct_gains)
-    for (size_t j=0; j<lxg.size(); ++j)
     {
-      Ngains_list[j] = lxg[j]->number_of_independent_gains();
-      Ngains += Ngains_list[j];
+      if (unconstrained_crosshand_gains)
+	{
+	  for (size_t j=0; j<lxg_unconstrained.size(); ++j)
+	    {
+	      Ngains_list[j] = lxg_unconstrained[j]->number_of_independent_gains();
+	      Ngains += Ngains_list[j];
+	    }
+	}
+      else
+	{
+	  for (size_t j=0; j<lxg_constrained.size(); ++j)
+	    {
+	      Ngains_list[j] = lxg_constrained[j]->number_of_independent_gains();
+	      Ngains += Ngains_list[j];
+	    }
+	}
     }
+
   int NDoF = Ndata - Nparam - Ngains;
   
   // Setup MCMC sampler
@@ -1882,18 +1967,34 @@ int main(int argc, char* argv[])
   Themis::optimizer_kickout_powell opt_obj(seed+world_rank+10*world_size);
   if (preoptimize_flag)
   {
+
+
     if (Reconstruct_gains)
-      for (size_t j=0; j<lxg.size(); ++j)
-	lxg[j]->set_iteration_limit(20);
-      
+      {
+	if (unconstrained_crosshand_gains)
+	  for (size_t j=0; j<lxg_unconstrained.size(); ++j)
+	    lxg_unconstrained[j]->set_iteration_limit(20);
+	else
+	  for (size_t j=0; j<lxg_constrained.size(); ++j)
+	    lxg_constrained[j]->set_iteration_limit(20);
+      }
+    
     opt_obj.set_cpu_distribution(Number_of_procs_per_lklhd);
     opt_obj.set_kickout_parameters(opt_ko_llrf,opt_ko_itermax,opt_ko_rounds);
     means = opt_obj.run_optimizer(L_obj, Ndata, means, "PreOptimizeSummary.dat",opt_instances);
 
+
+
     if (Reconstruct_gains)
-      for (size_t j=0; j<lxg.size(); ++j)
-	lxg[j]->set_iteration_limit(50);
-    
+      {
+	if (unconstrained_crosshand_gains)
+	  for (size_t j=0; j<lxg_unconstrained.size(); ++j)
+	    lxg_unconstrained[j]->set_iteration_limit(50);
+	else
+	  for (size_t j=0; j<lxg_constrained.size(); ++j)
+	    lxg_constrained[j]->set_iteration_limit(50);
+      }
+
     pbest = means;
   }
 
@@ -2077,16 +2178,30 @@ int main(int argc, char* argv[])
     double Lval = L_obj(pbest);
 
     if (Reconstruct_gains)
-    {
-      for (size_t j=0; j<lxg.size(); ++j)
       {
-	std::stringstream gc_name, cgc_name;
-	gc_name << "round" << std::setfill('0') << std::setw(3) << rep << "_gain_corrections_" << std::setfill('0') << j << ".d";
-	cgc_name << "round" << std::setfill('0') << std::setw(3) << rep << "_complex_gains_" << std::setfill('0') << j << ".d";
-	lxg[j]->output_gain_corrections(gc_name.str());
-	lxg[j]->output_gains(cgc_name.str());
+	if (unconstrained_crosshand_gains)
+	  {
+	    for (size_t j=0; j<lxg_unconstrained.size(); ++j)
+	      {
+		std::stringstream gc_name, cgc_name;
+		gc_name  << "round" << std::setfill('0') << std::setw(3) << rep << "_gain_corrections_" << std::setfill('0') << j << ".d";
+		cgc_name << "round" << std::setfill('0') << std::setw(3) << rep << "_complex_gains_"    << std::setfill('0') << j << ".d";
+		lxg_unconstrained[j]->output_gain_corrections(gc_name.str());
+		lxg_unconstrained[j]->output_gains(cgc_name.str());
+	      }
+	  }
+	else
+	  {
+	    for (size_t j=0; j<lxg_constrained.size(); ++j)
+	      {
+		std::stringstream gc_name, cgc_name;
+		gc_name  << "round" << std::setfill('0') << std::setw(3) << rep << "_gain_corrections_" << std::setfill('0') << j << ".d";
+		cgc_name << "round" << std::setfill('0') << std::setw(3) << rep << "_complex_gains_"    << std::setfill('0') << j << ".d";
+		lxg_constrained[j]->output_gain_corrections(gc_name.str());
+		lxg_constrained[j]->output_gains(cgc_name.str());
+	      }
+	  }
       }
-    }
 
     // Generate summary and ancillary output
     //   Summary file parameter location:
@@ -2143,11 +2258,15 @@ int main(int argc, char* argv[])
       	image_pulse.print_timing_summary(world_rank); // only print for one sub image for now
 
 	if (Reconstruct_gains) {
-	  lxg[0]->print_timing_summary(world_rank);
+	  if (unconstrained_crosshand_gains)
+	    lxg_unconstrained[0]->print_timing_summary(world_rank);
+	  else
+	    lxg_constrained[0]->print_timing_summary(world_rank);
 	}
 	else {
 	  lx[0]->print_timing_summary(world_rank);
 	}
+	
       }
     }
     
@@ -2158,7 +2277,7 @@ int main(int argc, char* argv[])
   //Finalize MPI
   MPI_Finalize();
   return 0;
-}
+  }
 
 
 
