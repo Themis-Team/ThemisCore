@@ -7,6 +7,9 @@
 
 
 #include "likelihood_visibility.h"
+#include "model_image_adaptive_splined_raster.h"
+#include "model_image_sum.h"
+#include <limits>
 #include <iostream>
 #include <iomanip>
 
@@ -16,6 +19,7 @@ namespace Themis{
 					       model_visibility& model)
     : _data(data), _model(model), _uncertainty(_local_uncertainty)
   {
+    _use_cached_exp = _model.use_cached_exp();
   }
 
   likelihood_visibility::likelihood_visibility(data_visibility& data,
@@ -23,6 +27,7 @@ namespace Themis{
 					       uncertainty_visibility& uncertainty)
     : _data(data), _model(model), _uncertainty(uncertainty)
   {
+    _use_cached_exp = _model.use_cached_exp();
   }
 
   likelihood_visibility::likelihood_visibility(size_t d_idx,
@@ -30,6 +35,7 @@ namespace Themis{
 					       model_visibility& model)
     : _data(data), _model(model), _uncertainty(_local_uncertainty), _use_cached_exp(false)
   {
+    _use_cached_exp = _model.use_cached_exp();
   }
 
   likelihood_visibility::~likelihood_visibility()
@@ -64,7 +70,14 @@ namespace Themis{
       std::complex<double> err = _uncertainty.error(d); // RG: revisit race condition with noise modeling ... no mutable in uncertainty ...
       double acc = 0.25 * std::abs(err);
 
-      std::complex<double> Vm = _model.visibility(i, d, acc);  // technically should guard that with _use_exp_cache ...
+
+      std::complex<double> Vm;
+      if (_use_cached_exp) {
+	Vm = _model.visibility(i, d, acc);
+      } else {
+	Vm = _model.visibility(d, acc);
+      }
+      // std::complex<double> Vm = _model.visibility(i, d, acc);  // technically should guard that with _use_exp_cache ...
       
       sum += - 0.5*( std::pow( (V.real()-Vm.real())/err.real(), 2)
 		     +
@@ -163,114 +176,179 @@ namespace Themis{
       }
   }
 
+  
   std::vector<double> likelihood_visibility::gradient_hybrid(std::vector<double>& x, prior& Pr)
   {
     const GradientMode mode = gradient_mode();
     const bool do_geom = (mode == GradientMode::HYBRID_INTENSITY_GEOM);
     
-    // Basepoint once (puts model+uncertainty at x)
+    // Put model + uncertainty at basepoint x exactly once
     const double Lx = this->operator()(x);
     (void)Lx;
     
-    // ---- cache availability checks ----
+    auto restore_basepoint = [&]() {
+      std::vector<double> mx(_model.size()), ux(_uncertainty.size());
+      size_t ii = 0;
+      for (size_t j = 0; j < _model.size(); ++j)       mx[j] = x[ii++];
+      for (size_t j = 0; j < _uncertainty.size(); ++j) ux[j] = x[ii++];
+      _model.generate_model(mx);
+      _uncertainty.generate_uncertainty(ux);
+    };
+    
+    model_image_adaptive_splined_raster* direct_top = dynamic_cast<model_image_adaptive_splined_raster*>(&_model);
+    
+    model_image_sum* sum_top = dynamic_cast<model_image_sum*>(&_model);
+    
+    struct CompInfo {
+      model_image_adaptive_splined_raster* r = nullptr;
+      size_t p0 = 0;          // start of this component in the MODEL parameter block
+      double xoff = 0.0;
+      double yoff = 0.0;
+      size_t Nx = 0;
+      size_t Ny = 0;
+      size_t Npix = 0;
+      size_t idx_fovx = 0;
+      size_t idx_fovy = 0;
+      size_t idx_pa   = 0;
+      size_t idx_xoff = 0;    // only valid for sum_top components
+      size_t idx_yoff = 0;    // only valid for sum_top components
+      std::vector<double> xfrac;
+      std::vector<double> yfrac;
+    };
+    
+    std::vector<CompInfo> comps;
+    const size_t Npar = x.size();
+    
+    auto fill_pixel_fracs = [](CompInfo& c) {
+      c.xfrac.resize(c.Npix);
+      c.yfrac.resize(c.Npix);
+      for (size_t ix = 0; ix < c.Nx; ++ix) {
+	const double xf = (c.Nx > 1) ? (double(ix) / double(c.Nx - 1) - 0.5) : 0.0;
+	for (size_t iy = 0; iy < c.Ny; ++iy) {
+	  const double yf = (c.Ny > 1) ? (double(iy) / double(c.Ny - 1) - 0.5) : 0.0;
+	  const size_t k = ix * c.Ny + iy;
+	  c.xfrac[k] = xf;
+	  c.yfrac[k] = yf;
+	}
+      }
+    };
+    
+    if (direct_top)
+      {
+	CompInfo c;
+	c.r = direct_top;
+	c.p0 = 0;
+	c.xoff = 0.0;
+	c.yoff = 0.0;
+	c.Nx = direct_top->Nx();
+	c.Ny = direct_top->Ny();
+	c.Npix = c.Nx * c.Ny;
+	c.idx_fovx = c.p0 + c.Npix;
+	c.idx_fovy = c.p0 + c.Npix + 1;
+	c.idx_pa   = c.p0 + c.Npix + 2;
+	fill_pixel_fracs(c);
+	comps.push_back(c);
+      }
+    else if (sum_top)
+      {
+	size_t p = 0;
+	const auto& imgs = sum_top->components();
+	const auto& xs   = sum_top->x_offsets();
+	const auto& ys   = sum_top->y_offsets();
+	
+	for (size_t j = 0; j < imgs.size(); ++j)
+	  {
+	    if (auto* r = dynamic_cast<model_image_adaptive_splined_raster*>(imgs[j]))
+	      {
+		CompInfo c;
+		c.r = r;
+		c.p0 = p;
+		c.xoff = xs[j];
+		c.yoff = ys[j];
+		c.Nx = r->Nx();
+		c.Ny = r->Ny();
+		c.Npix = c.Nx * c.Ny;
+		c.idx_fovx = c.p0 + c.Npix;
+		c.idx_fovy = c.p0 + c.Npix + 1;
+		c.idx_pa   = c.p0 + c.Npix + 2;
+		c.idx_xoff = c.p0 + r->size();
+		c.idx_yoff = c.p0 + r->size() + 1;
+		fill_pixel_fracs(c);
+		comps.push_back(c);
+	      }
+	    
+	    // advance through this component's full block, raster or not
+	    p += imgs[j]->size();
+	    p += 2; // x/y offsets in model_image_sum
+	  }
+      }
+    else
+      {
+	std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+	restore_basepoint();
+	return g;
+      }
+    
+    // No raster components found -> no analytic path available
+    if (comps.empty())
+      {
+	std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+	restore_basepoint();
+	return g;
+      }
+    
+    // ---- cache availability checks, per raster component ----
     int local_ok = 1;
+    for (const auto& c : comps)
+      {
+	const model_image_adaptive_splined_raster* rc = c.r;
+	
+	if (!rc->use_cached_exp()) local_ok = 0;
+	if (!rc->phase_cache_valid()) local_ok = 0;
+	if (rc->cached_Nd() < _data.size()) local_ok = 0;
+	
+	if (rc->phase_cache().size() < _data.size() * c.Npix) local_ok = 0;
+	if (rc->spline_kernel_cache().size() < _data.size()) local_ok = 0;
+	if (rc->I_flat().size() < c.Npix) local_ok = 0;
+	
+	if (do_geom) {
+	  if (rc->spline_kernel_dfovx_cache().size() < _data.size()) local_ok = 0;
+	  if (rc->spline_kernel_dfovy_cache().size() < _data.size()) local_ok = 0;
+	  if (rc->spline_kernel_dpa_cache().size()   < _data.size()) local_ok = 0;
+	}
+      }
     
-    const size_t Nx   = _model.Nx();
-    const size_t Ny   = _model.Ny();
-    const size_t Npix = Nx * Ny;
-    
-    if (!_model.use_cached_exp())    local_ok = 0;
-    if (!_model.phase_cache_valid()) local_ok = 0;
-    if (Npix == 0)                   local_ok = 0;
-    
-    const auto& phase = _model.phase_cache();
-    const auto& K     = _model.spline_kernel_cache();
-    const auto& Iflat = _model.I_flat();
-    
-    if (phase.size() < _data.size() * Npix) local_ok = 0;
-    if (K.size()     < _data.size())        local_ok = 0;
-    if (Iflat.size() < Npix)                local_ok = 0;
-    
-    // If mode2: require dK caches
-    const auto& dK_fovx = _model.spline_kernel_dfovx_cache();
-    const auto& dK_fovy = _model.spline_kernel_dfovy_cache();
-    const auto& dK_pa   = _model.spline_kernel_dpa_cache();
-    
-    if (do_geom) {
-      if (dK_fovx.size() < _data.size()) local_ok = 0;
-      if (dK_fovy.size() < _data.size()) local_ok = 0;
-      if (dK_pa.size()   < _data.size()) local_ok = 0;
-    }
-
     int global_ok = 0;
     MPI_Allreduce(&local_ok, &global_ok, 1, MPI_INT, MPI_MIN, _Lcomm);
     
-    if (!global_ok) {
-      // FD fallback (and restore basepoint)
-      std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);      
-      restore_basepoint(x); // Restore basepoint model/uncertainty (NB: FD loop perturbed x state)
-      return g;
-    }
+    if (!global_ok)
+      {
+	std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
+	restore_basepoint();
+	return g;
+      }
     
-    // ---- index layout ----
-    const size_t Nm = _model.size();
-
-    // ---- Infer parameter layout in the MODEL block ----
-    const size_t extra = (Nm >= Npix) ? (Nm - Npix) : 0;
+    std::vector<double> grad_local(Npar, 0.0);
+    std::vector<char> analytic_mask(Npar, 0);
     
-    bool has_shift = false;
-    size_t idx_shiftx = 0, idx_shifty = 0, idx_fovx = 0, idx_fovy = 0, idx_pa = 0;
-    
-    if (extra == 3) {
-      idx_fovx = Npix + 0;
-      idx_fovy = Npix + 1;
-      idx_pa   = Npix + 2;
-    } else if (extra == 5) {
-      has_shift = true;
-      idx_shiftx = Npix + 0;
-      idx_shifty = Npix + 1;
-      idx_fovx   = Npix + 2;
-      idx_fovy   = Npix + 3;
-      idx_pa     = Npix + 4;
-    } else {
-      // Unknown layout → be conservative.
-      std::vector<double> g = likelihood_base::gradient_uniproc(x, Pr);
-      restore_basepoint(x);
-      return g;
-    }
-
-    const double fovx = x[idx_fovx];
-    const double fovy = x[idx_fovy];
-    const double pa   = x[idx_pa];
-    
-    const double cpa = std::cos(pa);
-    const double spa = std::sin(pa);
-    
-    // ---- analytic accumulators ----
-    std::vector<double> grad_I_local(Npix, 0.0);
-    double grad_fovx_local = 0.0;
-    double grad_fovy_local = 0.0;
-    double grad_pa_local   = 0.0;
-    
-    // Precompute xfrac/yfrac per pixel index
-    static std::vector<double> xfrac, yfrac;
-    static size_t lastNx = 0, lastNy = 0;
-    if (lastNx != Nx || lastNy != Ny || xfrac.size() != Npix) {
-      lastNx = Nx;
-      lastNy = Ny;
-      xfrac.resize(Npix);
-      yfrac.resize(Npix);
-      for (size_t ix = 0; ix < Nx; ++ix) {
-	const double xf = (Nx > 1) ? (double(ix) / double(Nx - 1) - 0.5) : 0.0;
-	for (size_t iy = 0; iy < Ny; ++iy) {
-	  const double yf = (Ny > 1) ? (double(iy) / double(Ny - 1) - 0.5) : 0.0;
-	  const size_t k = ix * Ny + iy;
-	  xfrac[k] = xf;
-	  yfrac[k] = yf;
+    for (const auto& c : comps)
+      {
+	for (size_t k = 0; k < c.Npix; ++k)
+	  analytic_mask[c.p0 + k] = 1;
+	
+	if (do_geom) {
+	  analytic_mask[c.idx_fovx] = 1;
+	  analytic_mask[c.idx_fovy] = 1;
+	  analytic_mask[c.idx_pa]   = 1;
+	}
+	
+	if (sum_top) {
+	  analytic_mask[c.idx_xoff] = 1;
+	  analytic_mask[c.idx_yoff] = 1;
 	}
       }
-    }
     
+    const std::complex<double> Iunit(0.0, 1.0);
     const std::complex<double> minus_i(0.0, -1.0);
     const double two_pi = 2.0 * M_PI;
     
@@ -280,96 +358,140 @@ namespace Themis{
 	  continue;
 	
 	datum_visibility& d = _data.datum(i);
-	
-	const double u = d.u;
-	const double v = d.v;
-	
-	const double ur =  cpa * u + spa * v;
-	const double vr = -spa * u + cpa * v;
-	
 	const std::complex<double> err = _uncertainty.error(d);
 	const double er = err.real();
 	const double ei = err.imag();
 	if (er == 0.0 || ei == 0.0)
 	  continue;
 	
-	const size_t off = i * Npix;
-	const double Ki  = K[i];
+	const double u = d.u;
+	const double v = d.v;
 	
-	// S0  = Σ Ik * phase
-	// Sx  = Σ Ik * phase * xfrac
-	// Sy  = Σ Ik * phase * yfrac
-	std::complex<double> S0(0.0, 0.0);
-	std::complex<double> Sx(0.0, 0.0);
-	std::complex<double> Sy(0.0, 0.0);
+	struct DatumCompScratch {
+	  const CompInfo* c = nullptr;
+	  std::complex<double> E{0.0, 0.0};
+	  double Ki = 0.0;
+	  std::complex<double> S0{0.0, 0.0};
+	  std::complex<double> Sx{0.0, 0.0};
+	  std::complex<double> Sy{0.0, 0.0};
+	  std::complex<double> Vc{0.0, 0.0};
+	  double ur = 0.0;
+	  double vr = 0.0;
+	};
 	
-	for (size_t k = 0; k < Npix; ++k) {
-	  const std::complex<double> ph = phase[off + k];
-	  const double Ik = Iflat[k];
-	  const std::complex<double> Ikph = Ik * ph;
-	  S0 += Ikph;
-	  if (do_geom) {
-	    Sx += Ikph * xfrac[k];
-	    Sy += Ikph * yfrac[k];
+	std::vector<DatumCompScratch> scratch;
+	scratch.reserve(comps.size());
+	
+	std::complex<double> Vtot(0.0, 0.0);
+	
+	for (const auto& c : comps)
+	  {
+	    DatumCompScratch s;
+	    s.c = &c;
+	    
+	    const auto& phase = c.r->phase_cache();
+	    const auto& K     = c.r->spline_kernel_cache();
+	    const auto& Iflat = c.r->I_flat();
+	    
+	    const double pa   = x[c.idx_pa];
+	    const double cpa  = std::cos(pa);
+	    const double spa  = std::sin(pa);
+	    const double fovx = x[c.idx_fovx];
+	    const double fovy = x[c.idx_fovy];
+	    (void)fovx;
+	    (void)fovy;
+	    
+	    s.ur =  cpa * u + spa * v;
+	    s.vr = -spa * u + cpa * v;
+	    
+	    const size_t off = i * c.Npix;
+	    s.Ki = K[i];
+	    
+	    for (size_t k = 0; k < c.Npix; ++k)
+	      {
+		const std::complex<double> ph = phase[off + k];
+		const double Ik = Iflat[k];
+		const std::complex<double> Ikph = Ik * ph;
+		s.S0 += Ikph;
+		if (do_geom) {
+		  s.Sx += Ikph * c.xfrac[k];
+		  s.Sy += Ikph * c.yfrac[k];
+		}
+	      }
+	    
+	    if (sum_top) {
+	      const double shift_phase = -2.0 * M_PI * (u * c.xoff + v * c.yoff);
+	      s.E = std::exp(Iunit * shift_phase);
+	    } else {
+	      s.E = std::complex<double>(1.0, 0.0);
+	    }
+	    
+	    s.Vc = s.E * (s.Ki * s.S0);
+	    Vtot += s.Vc;
+	    scratch.push_back(s);
 	  }
-	}
 	
-	const std::complex<double> Vm = Ki * S0;
-	
-	const double dr = d.V.real() - Vm.real();
-	const double di = d.V.imag() - Vm.imag();
+	const double dr = d.V.real() - Vtot.real();
+	const double di = d.V.imag() - Vtot.imag();
 	
 	const double coeff_r = dr / (er * er);
 	const double coeff_i = di / (ei * ei);
 	
-	// Pixel grads: dVm/dIk = Ki * phase
-	for (size_t k = 0; k < Npix; ++k) {
-	  const std::complex<double> z = Ki * phase[off + k];
-	  grad_I_local[k] += coeff_r * z.real() + coeff_i * z.imag();
-	}
-	
-	if (do_geom) {
-	  const std::complex<double> dS0_dfovx = (minus_i * (two_pi * ur)) * Sx;
-	  const std::complex<double> dS0_dfovy = (minus_i * (two_pi * vr)) * Sy;
-	  const std::complex<double> dS0_dpa   =
-	    (minus_i * two_pi) * ((vr * fovx) * Sx - (ur * fovy) * Sy);
-	  
-	  const std::complex<double> dVm_dfovx = dK_fovx[i] * S0 + Ki * dS0_dfovx;
-	  const std::complex<double> dVm_dfovy = dK_fovy[i] * S0 + Ki * dS0_dfovy;
-	  const std::complex<double> dVm_dpa   = dK_pa[i]   * S0 + Ki * dS0_dpa;
-	  
-	  grad_fovx_local += coeff_r * dVm_dfovx.real() + coeff_i * dVm_dfovx.imag();
-	  grad_fovy_local += coeff_r * dVm_dfovy.real() + coeff_i * dVm_dfovy.imag();
-	  grad_pa_local   += coeff_r * dVm_dpa.real()   + coeff_i * dVm_dpa.imag();
-	}
+	for (const auto& s : scratch)
+	  {
+	    const CompInfo& c = *s.c;
+	    const auto& phase = c.r->phase_cache();
+	    const auto& Iflat = c.r->I_flat();
+	    
+	    const size_t off = i * c.Npix;
+	    
+	    // pixel grads: dV/dIk = E * Ki * phase
+	    for (size_t k = 0; k < c.Npix; ++k)
+	      {
+		const std::complex<double> z = s.E * (s.Ki * phase[off + k]);
+		grad_local[c.p0 + k] += Iflat[k] * (coeff_r * z.real() + coeff_i * z.imag());
+	      }
+	    
+	    if (do_geom)
+	      {
+		const auto& dK_fovx = c.r->spline_kernel_dfovx_cache();
+		const auto& dK_fovy = c.r->spline_kernel_dfovy_cache();
+		const auto& dK_pa   = c.r->spline_kernel_dpa_cache();
+		
+		const double fovx = x[c.idx_fovx];
+		const double fovy = x[c.idx_fovy];
+		
+		const std::complex<double> dS0_dfovx =  (minus_i * (two_pi * s.ur)) * s.Sx;
+		const std::complex<double> dS0_dfovy =  (minus_i * (two_pi * s.vr)) * s.Sy;
+		const std::complex<double> dS0_dpa = (minus_i * two_pi) * ((s.vr * fovx) * s.Sx - (s.ur * fovy) * s.Sy);
+		
+		const std::complex<double> dV_dfovx = s.E * (dK_fovx[i] * s.S0 + s.Ki * dS0_dfovx);
+		const std::complex<double> dV_dfovy = s.E * (dK_fovy[i] * s.S0 + s.Ki * dS0_dfovy);
+		const std::complex<double> dV_dpa = s.E * (dK_pa[i] * s.S0 + s.Ki * dS0_dpa);
+		
+		grad_local[c.idx_fovx] += coeff_r * dV_dfovx.real() + coeff_i * dV_dfovx.imag();
+		grad_local[c.idx_fovy] += coeff_r * dV_dfovy.real() + coeff_i * dV_dfovy.imag();
+		grad_local[c.idx_pa]   += coeff_r * dV_dpa.real()   + coeff_i * dV_dpa.imag();
+	      }
+	    
+	    if (sum_top)
+	      {
+		const std::complex<double> dV_dx = (minus_i * two_pi * u) * s.Vc;
+		const std::complex<double> dV_dy = (minus_i * two_pi * v) * s.Vc;
+		
+		grad_local[c.idx_xoff] += coeff_r * dV_dx.real() + coeff_i * dV_dx.imag();
+		grad_local[c.idx_yoff] += coeff_r * dV_dy.real() + coeff_i * dV_dy.imag();
+	      }
+	  }
       }
     
-    // Reduce across ranks
-    MPI_Allreduce(MPI_IN_PLACE, grad_I_local.data(), (int)Npix, MPI_DOUBLE, MPI_SUM, _Lcomm);
+    MPI_Allreduce(MPI_IN_PLACE, grad_local.data(), int(Npar), MPI_DOUBLE, MPI_SUM, _Lcomm);
     
-    double geom_local[3]  = {grad_fovx_local, grad_fovy_local, grad_pa_local};
-    double geom_global[3] = {0.0, 0.0, 0.0};
-    MPI_Allreduce(geom_local, geom_global, 3, MPI_DOUBLE, MPI_SUM, _Lcomm);
-    
-    // Assemble full gradient
-    const size_t Npar = x.size();
-    std::vector<double> grad(Npar, 0.0);
-    
-    // dL/d(log I) = I * dL/dI
-    for (size_t k = 0; k < Npix && k < Npar; ++k)
-      grad[k] = Iflat[k] * grad_I_local[k];
-        
-    if (do_geom) {
-      grad[idx_fovx] = geom_global[0];
-      grad[idx_fovy] = geom_global[1];
-      grad[idx_pa]   = geom_global[2];
-    }
-    
-    // FD everything else
+    // FD only for the parameters not handled analytically
     std::vector<double> y = x;
-    for (size_t p = Npix; p < Npar; ++p)
+    for (size_t p = 0; p < Npar; ++p)
       {
-	if (do_geom && (p == idx_fovx || p == idx_fovy || p == idx_pa))
+	if (analytic_mask[p])
 	  continue;
 	
 	double h = step_size(std::fabs(Pr.upper_bound(p) - Pr.lower_bound(p)));
@@ -380,16 +502,16 @@ namespace Themis{
 	const double Lp = std::isfinite(Pr(y)) ? this->operator()(y) : -std::numeric_limits<double>::infinity();
 	
 	y[p] = x[p] - h;
-	const double Lm = std::isfinite(Pr(y)) ? this->operator()(y) :  std::numeric_limits<double>::infinity();
+	const double Lm = std::isfinite(Pr(y)) ? this->operator()(y) : std::numeric_limits<double>::infinity();
 	
 	y[p] = x[p];
-	grad[p] = (Lp - Lm) / (2.0 * h);
+	grad_local[p] = (Lp - Lm) / (2.0 * h);
       }
     
-    restore_basepoint(x); // Restore basepoint model/uncertainty (NB: FD loop perturbed x state)
-    
-    return grad;
-  }  
+    restore_basepoint();
+    return grad_local;
+  }
+
 
   void likelihood_visibility::output(std::ostream& out)
   {

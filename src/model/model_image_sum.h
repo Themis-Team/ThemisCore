@@ -51,6 +51,10 @@ class model_image_sum : public model_image
   //! Constructor.  Makes empty sum object, models can be added with add_model_image.
   model_image_sum(std::string offset_coordinates="Cartesian");
 
+  const std::vector<model_image*>& components() const { return _images; }
+  const std::vector<double>& x_offsets() const { return _x; }
+  const std::vector<double>& y_offsets() const { return _y; }
+  
   //! Constructor.  Takes a pair of model_image objects.
   //model_image_sum(model_image& image1, model_image& image2);
   virtual ~model_image_sum() {};
@@ -67,7 +71,13 @@ class model_image_sum : public model_image
 
   
   //! Returns complex visibility in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this is redefined to accomodate the possibility of using the analytical computation.
-  virtual std::complex<double> visibility(datum_visibility& d, double acc);
+  // virtual std::complex<double> visibility(datum_visibility& d, double acc);
+
+  virtual std::complex<double> visibility(size_t d_idx, datum_visibility& d, double acc) override;
+  
+  virtual std::complex<double> visibility(datum_visibility& d, double acc) override;
+  
+  virtual bool use_cached_exp() const override;
   
   //! Returns visibility ampitudes in Jy computed from the image given a datum_visibility_amplitude object, containing all of the accoutrements.  While this provides access to the actual data value, the two could be separated if necessary.  Also takes an accuracy parameter with the same units as the data, indicating the accuracy with which the model must generate a comparison value.  Note that this is redefined to accomodate the possibility of using the analytical computation.
   virtual double visibility_amplitude(datum_visibility_amplitude& d, double acc);

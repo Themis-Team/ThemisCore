@@ -7,6 +7,7 @@
 */
 
 #include "model_image_sum.h"
+#include "model_image_adaptive_splined_raster.h"
 #include "data_visibility.h"
 #include <iostream>
 #include <iomanip>
@@ -122,26 +123,64 @@ namespace Themis {
     std::exit(1);
   } 
 
-void model_image_sum::set_mpi_communicator(MPI_Comm comm)
-{
-  for (size_t i = 0; i < _images.size(); ++i)
-    _images[i]->set_mpi_communicator(comm);
-}
-
-
-std::complex<double> model_image_sum::visibility(datum_visibility& d, double acc)
+  void model_image_sum::set_mpi_communicator(MPI_Comm comm)
   {
-    const std::complex<double> i(0.0,1.0);
-    std::complex<double> exponent;
-    std::complex<double> V(0.,0.);
-      
-    for (size_t j=0; j<_images.size(); ++j)
-    {
-      exponent =  - 2.0*M_PI* i * (_x[j]*(-d.u) + _y[j]*d.v);
-      V +=  std::exp(exponent) * _images[j]->visibility(d,acc);
-    }
+    for (size_t i = 0; i < _images.size(); ++i)
+      _images[i]->set_mpi_communicator(comm);
+  }
 
-    return ( V );
+  bool model_image_sum::use_cached_exp() const
+  {
+    for (size_t j = 0; j < _images.size(); ++j)
+      {
+	if (auto const* r =
+	    dynamic_cast<const Themis::model_image_adaptive_splined_raster*>(_images[j]))
+	  {
+	    if (r->use_cached_exp_getter())
+	      return true;
+	  }
+      }
+    return false;
+  }
+
+  std::complex<double> model_image_sum::visibility(size_t d_idx, datum_visibility& d, double acc)
+  {
+    const std::complex<double> I(0.0,1.0);
+    std::complex<double> Vsum(0.0,0.0);
+    
+    for (size_t j = 0; j < _images.size(); ++j)
+      {
+	std::complex<double> Vj;
+	
+	if (auto* r = dynamic_cast<Themis::model_image_adaptive_splined_raster*>(_images[j]))
+	  {
+	    Vj = r->visibility(d_idx, d, acc);
+	  }
+	else
+	  {
+	      Vj = _images[j]->visibility(d, acc);
+	  }
+	
+	const double phase = -2.0*M_PI*(d.u*_x[j] + d.v*_y[j]);
+	Vsum += std::exp(I*phase) * Vj;
+      }
+    
+    return Vsum;
+  }
+  
+  std::complex<double> model_image_sum::visibility(datum_visibility& d, double acc)
+  {
+    const std::complex<double> I(0.0,1.0);
+    std::complex<double> Vsum(0.0,0.0);
+    
+    for (size_t j = 0; j < _images.size(); ++j)
+      {
+	std::complex<double> Vj = _images[j]->visibility(d, acc);
+	const double phase = -2.0*M_PI*(d.u*_x[j] + d.v*_y[j]);
+	Vsum += std::exp(I*phase) * Vj;
+      }
+    
+    return Vsum;
   }
 
   double model_image_sum::visibility_amplitude(datum_visibility_amplitude& d, double acc)

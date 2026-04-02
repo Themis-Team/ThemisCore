@@ -118,7 +118,6 @@ namespace Themis {
 
   void model_image_adaptive_splined_raster::generate_model(std::vector<double> parameters)
   {
-    // profiling
     ScopedTimer T(TimerID::GenerateModel, timer_ns_, timer_calls_);
 
     if (_generated_model && parameters==_current_parameters)
@@ -256,7 +255,7 @@ namespace Themis {
   void model_image_adaptive_splined_raster::update_phase_cache_all_data(const std::vector<datum_visibility>& data)
   {
     ScopedTimer T(TimerID::UpdatePhaseCache, timer_ns_, timer_calls_);
-    
+ 
     cache_mode_ = VisibilityCacheMode::Global;
     
     const size_t Npix = _Nx * _Ny;
@@ -295,7 +294,7 @@ namespace Themis {
     const double dtpdy_dfovy = 2.0 * M_PI * inv_ny1;
     
     for (size_t d = 0; d < Nd; ++d)
-      {
+      {	
 	const double u = data[d].u;
 	const double v = data[d].v;
 	
@@ -303,7 +302,7 @@ namespace Themis {
 	const double ur =  _cpa*u + _spa*v;
 	const double vr = -_spa*u + _cpa*v;
 	
-	// Kernel arguments: ku = ur*tpdx, kv = vr*tpdy  (NOT divide!)
+	// Kernel arguments: ku = ur*tpdx, kv = vr*tpdy
 	const double ku = ur * _tpdx;
 	const double kv = vr * _tpdy;
 	
@@ -479,15 +478,6 @@ namespace Themis {
 	const double vr = -_spa*data[d].u + _cpa*data[d].v;
 	
 	// Cache spline kernel for THIS datum index
-
-	/*
-	spline_kernel_cache_[d] =
-	  cubic_spline_kernel(ur, vr)
-	  * (_alpha[1][1] - _alpha[0][0])
-	  * (_beta [1][1] - _beta [0][0]);
-	  */
-
-
 	const double ku = ur * _tpdx;
 	const double kv = vr * _tpdy;
 	
@@ -522,31 +512,7 @@ namespace Themis {
 	// dur/dpa = vr ; dvr/dpa = -ur
 	// dKu/dpa = Kup * dku/dpa = Kup * (tpdx * dur/dpa) = Kup * (tpdx * vr)
 	// dKv/dpa = Kvp * dkv/dpa = Kvp * (tpdy * dvr/dpa) = Kvp * (tpdy * (-ur))
-	spline_kernel_dpa_cache_[d] =
-	  dxdy * ( (Kup * (_tpdx * vr)) * Kv
-		   + Ku * (Kvp * (_tpdy * (-ur))) );
-	
-	/*
-	
-	// partials of kernel wrt u,v and tpdx,tpdy
-	const double dk_du    = (Kup / _tpdx) * Kv;
-	const double dk_dv    = Ku * (Kvp / _tpdy);
-	
-	const double dk_dtpdx = Kup * (-ur / (_tpdx * _tpdx)) * Kv;
-	const double dk_dtpdy = Ku * (Kvp * (-vr / (_tpdy * _tpdy)));
-	
-	// K = dxdy * kernel
-	// dK/dfovx = d(dxdy)/dfovx * kernel + dxdy * (dk/dtpdx) * d(tpdx)/dfovx
-	spline_kernel_dfovx_cache_[d] = d_dxdy_dfovx * kernel + dxdy * (dk_dtpdx * dtpdx_dfovx);
-	
-	// dK/dfovy similarly
-	spline_kernel_dfovy_cache_[d] = d_dxdy_dfovy * kernel + dxdy * (dk_dtpdy * dtpdy_dfovy);
-	
-	// dK/dpa: dxdy * (dk/du * du/dpa + dk/dv * dv/dpa)
-	// with du/dpa = vr and dv/dpa = -ur in your rotation convention:
-	spline_kernel_dpa_cache_[d] = dxdy * (dk_du * vr - dk_dv * ur);
-
-	*/
+	spline_kernel_dpa_cache_[d] = dxdy * ( (Kup * (_tpdx * vr)) * Kv + Ku * (Kvp * (_tpdy * (-ur))) );
 	
 	size_t k = 0;
 	const double twopi=2.0*M_PI;
@@ -571,11 +537,6 @@ namespace Themis {
   
   std::complex<double> model_image_adaptive_splined_raster::visibility(datum_visibility& d, double acc)
   {
-    static bool once = false;
-    if (!once) {
-      std::cerr << "[CACHE DEBUG] ENTERED SINGLE visibility(datum, ...)\n";
-      once = true;
-    }
     ScopedTimer T_total(TimerID::VisibilitySingle, timer_ns_, timer_calls_);
 
     if (_use_analytical_visibilities)
