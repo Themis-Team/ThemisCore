@@ -1056,7 +1056,7 @@ int main(int argc, char* argv[])
     //std::cerr << "Rank " << world_rank << " has " << V_data[j]->size() << " data\n";
 
 
-    Themis::model_visibility& model = image_pulse; // attempt to strip model_image_sum modifications for exp cache
+    // Themis::model_visibility& model = image_pulse; // attempt to strip model_image_sum modifications for exp cache
     
 
     // Get time particulars for roving Gaussian
@@ -1082,7 +1082,7 @@ int main(int argc, char* argv[])
     
     if (Reconstruct_gains && (!model_noise) )
     {
-      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],model,station_codes,station_gain_priors) );
+      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],image,station_codes,station_gain_priors) );
       L.push_back( lvg[j] );
       
       // Set gains if gain files are provided
@@ -1097,7 +1097,7 @@ int main(int argc, char* argv[])
       if (world_rank==0) 
 	  std::cout<<"Including uncertainty model in likelihood_optimal_complex_gain_visibility object"<<std::endl;
       //std::cerr << "Rank " << world_rank << " pushed back " << V_data[j]->size() << " data\n";
-      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],model,uncertainty,station_codes,station_gain_priors) );
+      lvg.push_back( new Themis::likelihood_optimal_complex_gain_visibility(*V_data[j],image,uncertainty,station_codes,station_gain_priors) );
       L.push_back( lvg[j] );
 
       // Set gains if gain files are provided
@@ -1111,18 +1111,21 @@ int main(int argc, char* argv[])
     {
       if (model_noise) {
 	std::cout<<"Including uncertainty model in likelihood_visibility object"<<std::endl;
-	lv.push_back( new Themis::likelihood_visibility(*V_data[j],model,uncertainty) );
+	lv.push_back( new Themis::likelihood_visibility(*V_data[j],image,uncertainty) );
       }
       else {
-	lv.push_back( new Themis::likelihood_visibility(*V_data[j],model) );
+	lv.push_back( new Themis::likelihood_visibility(*V_data[j],image) );
       }
       L.push_back( lv[j] );
     }
   }
 
+  // Not needed anymore with the new set_data calls in the likelihood constructors
   if (use_cached_exp) { // if we cache/precompute the exp(phi) term in visibility()
     image_pulse.set_data(vis_datum_cache); // store data in flat 1d array for fast access
+    // image_pulse.set_data(V_data);
   }
+  
   // Finish variance weighted time average and set the reference time for the rover
   variance_weighted_time_average /= vwta_var_norm;
   int coutprecorig = std::cout.precision();
@@ -1996,6 +1999,8 @@ int main(int argc, char* argv[])
 	if (Reconstruct_gains) {
 	  lvg[0]->print_timing_summary(world_rank);
 	}
+	// else
+	//   lv[0]->print_timing_summary(world_rank);
       }
     }
     

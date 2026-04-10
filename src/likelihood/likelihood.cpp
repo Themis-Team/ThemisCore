@@ -180,21 +180,9 @@ namespace Themis
 	  }
       }
 
-      /*
-      // Likelihood contributions: loop over likelihoods and sum the gradients
-      std::vector<double> grad_sub;
-      for(size_t i=0 ; i<_W.size(); ++i)
-      {
-	grad_sub = _L[i]->gradient(_X,Pr);
-	for (size_t j=0; j<x.size(); ++j)
-	  grad[j] += _W[i] * grad_sub[j];
-      }
-    }
-      
     // Multiply by the transform Jacobian
     for (size_t j=0; j<x.size(); ++j)
       grad[j] *= jacobian[j];
-      */
 
     // Return
     return grad;
