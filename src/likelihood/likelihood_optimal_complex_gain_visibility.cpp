@@ -12,6 +12,7 @@
 #include "model_image_adaptive_splined_raster.h"
 #include "model_image_sum.h"
 #include "model_image_asymmetric_gaussian.h"
+#include "model_image_xsringauss.h"
 
 #include <cmath>
 #include <typeinfo>
@@ -1149,6 +1150,9 @@ namespace Themis
     model_image_asymmetric_gaussian* direct_ag_top =
       dynamic_cast<model_image_asymmetric_gaussian*>(&_model);
 
+    model_image_xsringauss* direct_xs_top =
+      dynamic_cast<model_image_xsringauss*>(&_model);
+
     model_image_sum* sum_top =
       dynamic_cast<model_image_sum*>(&_model);
 
@@ -1180,8 +1184,26 @@ namespace Themis
       size_t idx_yoff  = 0;
     };
 
+    struct XSInfo {
+      model_image_xsringauss* xg = nullptr;
+      size_t p0 = 0;
+      bool has_shift = false;
+      size_t idx_flux = 0;
+      size_t idx_R    = 0;
+      size_t idx_psi  = 0;
+      size_t idx_eps  = 0;
+      size_t idx_f    = 0;
+      size_t idx_gax  = 0;
+      size_t idx_aq   = 0;
+      size_t idx_gq   = 0;
+      size_t idx_pa   = 0;
+      size_t idx_xoff = 0;
+      size_t idx_yoff = 0;
+    };
+
     std::vector<CompInfo> comps;
     std::vector<AGInfo> ags;
+    std::vector<XSInfo> xss;
     const size_t Npar = x.size();
 
     auto fill_pixel_fracs = [](CompInfo& c)
@@ -1229,6 +1251,23 @@ namespace Themis
       a.idx_pa    = 3;
       ags.push_back(a);
     }
+    else if (direct_xs_top)
+    {
+      XSInfo xs;
+      xs.xg = direct_xs_top;
+      xs.p0 = 0;
+      xs.has_shift = false;
+      xs.idx_flux = 0;
+      xs.idx_R    = 1;
+      xs.idx_psi  = 2;
+      xs.idx_eps  = 3;
+      xs.idx_f    = 4;
+      xs.idx_gax  = 5;
+      xs.idx_aq   = 6;
+      xs.idx_gq   = 7;
+      xs.idx_pa   = 8;
+      xss.push_back(xs);
+    }
     else if (sum_top)
     {
       size_t p = 0;
@@ -1267,6 +1306,25 @@ namespace Themis
           a.idx_yoff  = p + g->size() + 1;
           ags.push_back(a);
         }
+        else if (auto* xs = dynamic_cast<model_image_xsringauss*>(imgs[j]))
+        {
+          XSInfo xsi;
+          xsi.xg = xs;
+          xsi.p0 = p;
+          xsi.has_shift = true;
+          xsi.idx_flux = p + 0;
+          xsi.idx_R    = p + 1;
+          xsi.idx_psi  = p + 2;
+          xsi.idx_eps  = p + 3;
+          xsi.idx_f    = p + 4;
+          xsi.idx_gax  = p + 5;
+          xsi.idx_aq   = p + 6;
+          xsi.idx_gq   = p + 7;
+          xsi.idx_pa   = p + 8;
+          xsi.idx_xoff = p + xs->size();
+          xsi.idx_yoff = p + xs->size() + 1;
+          xss.push_back(xsi);
+        }
 
         p += imgs[j]->size();
         p += 2;
@@ -1285,7 +1343,7 @@ namespace Themis
       return g;
     }
 
-    if (comps.empty() && ags.empty())
+    if (comps.empty() && ags.empty() && xss.empty())
     {
       std::vector<double> g;
       {
@@ -1374,8 +1432,185 @@ namespace Themis
       }
     }
 
+    for (const auto& xs : xss)
+    {
+      analytic_mask[xs.idx_flux] = 1;
+
+      if (xs.has_shift)
+      {
+        analytic_mask[xs.idx_xoff] = 1;
+        analytic_mask[xs.idx_yoff] = 1;
+      }
+
+      if (do_geom)
+      {
+        analytic_mask[xs.idx_R]   = 1;
+        analytic_mask[xs.idx_psi] = 1;
+        analytic_mask[xs.idx_eps] = 1;
+        analytic_mask[xs.idx_f]   = 1;
+        analytic_mask[xs.idx_gax] = 1;
+        analytic_mask[xs.idx_aq]  = 1;
+        analytic_mask[xs.idx_gq]  = 1;
+        analytic_mask[xs.idx_pa]  = 1;
+      }
+    }
+
     const std::complex<double> minus_i(0.0, -1.0);
     const double two_pi = 2.0 * M_PI;
+
+    auto BesselJ0 = [](double x) -> double
+    {
+      double ax, z;
+      double xx, y, ans, ans1, ans2;
+
+      if ((ax = std::fabs(x)) < 8.0) {
+        y = x*x;
+        ans1 = 57568490574.0 + y*(-13362590354.0 + y*(651619640.7
+             + y*(-11214424.18 + y*(77392.33017 + y*(-184.9052456)))));
+        ans2 = 57568490411.0 + y*(1029532985.0 + y*(9494680.718
+             + y*(59272.64853 + y*(267.8532712 + y*1.0))));
+        ans = ans1 / ans2;
+      }
+      else {
+        z = 8.0 / ax;
+        y = z*z;
+        xx = ax - 0.785398164;
+        ans1 = 1.0 + y*(-0.1098628627e-2 + y*(0.2734510407e-4
+             + y*(-0.2073370639e-5 + y*0.2093887211e-6)));
+        ans2 = -0.1562499995e-1 + y*(0.1430488765e-3
+             + y*(-0.6911147651e-5 + y*(0.7621095161e-6
+             - y*0.934945152e-7)));
+        ans = std::sqrt(0.636619772 / ax) * (std::cos(xx) * ans1 - z * std::sin(xx) * ans2);
+      }
+      return ans;
+    };
+
+    auto BesselJ1 = [](double x) -> double
+    {
+      double ax, z;
+      double xx, y, ans, ans1, ans2;
+
+      if ((ax = std::fabs(x)) < 8.0) {
+        y = x*x;
+        ans1 = x*(72362614232.0 + y*(-7895059235.0 + y*(242396853.1
+             + y*(-2972611.439 + y*(15704.48260 + y*(-30.16036606))))));
+        ans2 = 144725228442.0 + y*(2300535178.0 + y*(18583304.74
+             + y*(99447.43394 + y*(376.9991397 + y*1.0))));
+        ans = ans1 / ans2;
+      } else {
+        z = 8.0 / ax;
+        y = z*z;
+        xx = ax - 2.356194491;
+        ans1 = 1.0 + y*(0.183105e-2 + y*(-0.3516396496e-4
+             + y*(0.2457520174e-5 + y*(-0.240337019e-6))));
+        ans2 = 0.04687499995 + y*(-0.2002690873e-3
+             + y*(0.8449199096e-5 + y*(-0.88228987e-6
+             + y*0.105787412e-6)));
+        ans = std::sqrt(0.636619772 / ax) * (std::cos(xx) * ans1 - z * std::sin(xx) * ans2);
+        if (x < 0.0) ans = -ans;
+      }
+      return ans;
+    };
+
+    auto BesselJ2 = [&](double x) -> double
+    {
+      if (std::fabs(x) < 1.0e-14)
+        return 0.0;
+      return (2.0 * BesselJ1(x) / x - BesselJ0(x));
+    };
+
+    auto xsring_component_visibility = [&](const double p[11], double u, double v) -> std::complex<double>
+    {
+      const double raw_V0  = p[0];
+      const double raw_R   = p[1];
+      const double raw_psi = p[2];
+      const double raw_eps = p[3];
+      const double raw_f   = p[4];
+      const double raw_gax = p[5];
+      const double raw_aq  = p[6];
+      const double raw_gq  = p[7];
+      const double pa      = p[8];
+      const double xoff    = p[9];
+      const double yoff    = p[10];
+
+      const double V0    = std::max(1e-8,  raw_V0);
+      const double Rext  = std::max(1e-20, raw_R);
+      const double qpsi  = std::min(std::max(1.0 - raw_psi, 1e-4), 0.9999);
+      const double Rint  = qpsi * Rext;
+      const double epsc  = std::min(std::max(raw_eps, 1e-4), 0.9999);
+      const double dcen  = epsc * (Rext - Rint);
+      const double fc    = std::min(std::max(raw_f, 1e-4), 0.9999);
+      const double gaxc  = std::max(raw_gax, 1e-4);
+      const double sa    = gaxc * Rext;
+      const double aqc   = std::max(raw_aq, 1e-4);
+      const double sb    = aqc * sa;
+      const double gqc   = std::min(std::max(raw_gq, 1e-4), 0.9999);
+
+      const double cpa = std::cos(pa);
+      const double spa = std::sin(pa);
+
+      double ru = u*cpa + v*spa;
+      double rv = -u*spa + v*cpa;
+
+      ru *= -1.0;
+
+      const double k = two_pi * std::sqrt(ru*ru + rv*rv);
+      const std::complex<double> I(0.0, 1.0);
+
+      std::complex<double> Vring(1.0, 0.0);
+      std::complex<double> Vgauss(1.0, 0.0);
+
+      if (k > 1.0e-14)
+      {
+        const double H = (2.0 / M_PI) /
+          ((1.0 + fc) * (Rext*Rext - Rint*Rint) - (1.0 - fc) * dcen * Rint*Rint / Rext);
+
+        const std::complex<double> exponent = -two_pi * I * dcen * ru;
+
+        const double J0e = BesselJ0(k*Rext);
+        const double J1e = BesselJ1(k*Rext);
+        const double J2e = BesselJ2(k*Rext);
+
+        const double J0i = BesselJ0(k*Rint);
+        const double J1i = BesselJ1(k*Rint);
+        const double J2i = BesselJ2(k*Rint);
+
+        const std::complex<double> term1 =
+          (M_PI * H / k) * (1.0 + fc) * Rext * J1e;
+
+        const std::complex<double> term2 =
+          -(M_PI * H / k) * ((1.0 + fc) - (1.0 - fc) * dcen / Rext) * std::exp(exponent) * Rint * J1i;
+
+        const std::complex<double> term3 =
+          -(I * M_PI * H / (2.0 * k * k)) * two_pi * ru * (1.0 - fc) *
+          (Rext * J0e - Rext * J2e - 2.0 * J1e / k);
+
+        const std::complex<double> term4 =
+          +(I * M_PI * H / (2.0 * k * k)) * two_pi * ru * (1.0 - fc) *
+          (Rint * J0i - Rint * J2i - 2.0 * J1i / k) *
+          (Rint / Rext) * std::exp(exponent);
+
+        Vring = term1 + term2 + term3 + term4;
+
+        const double exponent_gauss_arg =
+          -2.0 * M_PI * M_PI * (ru*ru*(sa*sa) + rv*rv*(sb*sb));
+        const std::complex<double> exponent_gauss =
+          -two_pi * I * (dcen - Rint) * ru;
+
+        Vgauss = (exponent_gauss_arg < -200.0)
+          ? std::complex<double>(0.0, 0.0)
+          : std::exp(exponent_gauss + exponent_gauss_arg);
+      }
+
+      const std::complex<double> V0comp = V0 * ((1.0 - gqc) * Vring + gqc * Vgauss);
+
+      if (xoff == 0.0 && yoff == 0.0)
+        return V0comp;
+
+      const double psi_shift = -two_pi * (u * xoff + v * yoff);
+      const std::complex<double> Eshift = std::exp(std::complex<double>(0.0, psi_shift));
+      return Eshift * V0comp;
+    };
 
     {
       utils::ScopedTimer Tana(utils::TimerID::GradientAnalytic, timer_ns_, timer_calls_);
@@ -1425,6 +1660,16 @@ namespace Themis
 
           const double u = d.u;
           const double v = d.v;
+
+          auto accum_from_dVm = [&](size_t idx, const std::complex<double>& dVm)
+          {
+            const std::complex<double> dyb(dVm.real() * inv_er, dVm.imag() * inv_ei);
+            const std::complex<double> dp(
+              g.real() * dyb.real() - g.imag() * dyb.imag(),
+              g.real() * dyb.imag() + g.imag() * dyb.real()
+            );
+            grad_local[idx] += rr * dp.real() + ri * dp.imag();
+          };
 
           for (const auto& c : comps)
           {
@@ -1581,16 +1826,6 @@ namespace Themis
 
             const std::complex<double> Vag = E * (flux * amp0);
 
-            auto accum_from_dVm = [&](size_t idx, const std::complex<double>& dVm)
-            {
-              const std::complex<double> dyb(dVm.real() * inv_er, dVm.imag() * inv_ei);
-              const std::complex<double> dp(
-                g.real() * dyb.real() - g.imag() * dyb.imag(),
-                g.real() * dyb.imag() + g.imag() * dyb.real()
-              );
-              grad_local[idx] += rr * dp.real() + ri * dp.imag();
-            };
-
             if (amp0 > 0.0)
             {
               const std::complex<double> dVm_dflux = E * (s_flux * amp0);
@@ -1624,6 +1859,60 @@ namespace Themis
               const double dF_dpa = ru * rv * (sa2 - sb2);
               const std::complex<double> dVm_dpa = Vag * dF_dpa;
               accum_from_dVm(a.idx_pa, dVm_dpa);
+            }
+          }
+
+          for (const auto& xs : xss)
+          {
+            double p[11];
+            p[0]  = x[xs.idx_flux];
+            p[1]  = x[xs.idx_R];
+            p[2]  = x[xs.idx_psi];
+            p[3]  = x[xs.idx_eps];
+            p[4]  = x[xs.idx_f];
+            p[5]  = x[xs.idx_gax];
+            p[6]  = x[xs.idx_aq];
+            p[7]  = x[xs.idx_gq];
+            p[8]  = x[xs.idx_pa];
+            p[9]  = xs.has_shift ? x[xs.idx_xoff] : 0.0;
+            p[10] = xs.has_shift ? x[xs.idx_yoff] : 0.0;
+
+            auto fd_xs_component = [&](int slot, size_t global_idx) -> std::complex<double>
+            {
+              double h = step_size(std::fabs(Pr.upper_bound(global_idx) - Pr.lower_bound(global_idx)));
+              if (!(h > 0.0))
+                h = 1e-6 * std::max(1.0, std::fabs(x[global_idx]));
+
+              double pp[11], pm[11];
+              std::memcpy(pp, p, 11 * sizeof(double));
+              std::memcpy(pm, p, 11 * sizeof(double));
+
+              pp[slot] += h;
+              pm[slot] -= h;
+
+              const std::complex<double> Vp = xsring_component_visibility(pp, u, v);
+              const std::complex<double> Vm = xsring_component_visibility(pm, u, v);
+              return (Vp - Vm) / (2.0 * h);
+            };
+
+            accum_from_dVm(xs.idx_flux, fd_xs_component(0, xs.idx_flux));
+
+            if (xs.has_shift)
+            {
+              accum_from_dVm(xs.idx_xoff, fd_xs_component(9, xs.idx_xoff));
+              accum_from_dVm(xs.idx_yoff, fd_xs_component(10, xs.idx_yoff));
+            }
+
+            if (do_geom)
+            {
+              accum_from_dVm(xs.idx_R,   fd_xs_component(1, xs.idx_R));
+              accum_from_dVm(xs.idx_psi, fd_xs_component(2, xs.idx_psi));
+              accum_from_dVm(xs.idx_eps, fd_xs_component(3, xs.idx_eps));
+              accum_from_dVm(xs.idx_f,   fd_xs_component(4, xs.idx_f));
+              accum_from_dVm(xs.idx_gax, fd_xs_component(5, xs.idx_gax));
+              accum_from_dVm(xs.idx_aq,  fd_xs_component(6, xs.idx_aq));
+              accum_from_dVm(xs.idx_gq,  fd_xs_component(7, xs.idx_gq));
+              accum_from_dVm(xs.idx_pa,  fd_xs_component(8, xs.idx_pa));
             }
           }
         }
@@ -1665,8 +1954,8 @@ namespace Themis
 
     return grad;
   }
-
   
+
   double likelihood_optimal_complex_gain_visibility::chi_squared(std::vector<double>& x)
   {
     distribute_gains();
