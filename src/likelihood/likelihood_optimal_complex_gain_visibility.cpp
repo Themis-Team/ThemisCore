@@ -11,6 +11,7 @@
 #include "likelihood_optimal_complex_gain_visibility.h"
 #include "model_image_adaptive_splined_raster.h"
 #include "model_image_sum.h"
+#include "model_image_asymmetric_gaussian.h"
 
 #include <cmath>
 #include <typeinfo>
@@ -1105,6 +1106,7 @@ namespace Themis
   }
 
 
+
   std::vector<double> likelihood_optimal_complex_gain_visibility::gradient_hybrid(std::vector<double>& x, prior& Pr, bool do_geom)
   {
     const double Lx = ((_x_last.empty() || x != _x_last) ? this->operator()(x) : _L_last);
@@ -1144,6 +1146,9 @@ namespace Themis
     model_image_adaptive_splined_raster* direct_top =
       dynamic_cast<model_image_adaptive_splined_raster*>(&_model);
 
+    model_image_asymmetric_gaussian* direct_ag_top =
+      dynamic_cast<model_image_asymmetric_gaussian*>(&_model);
+
     model_image_sum* sum_top =
       dynamic_cast<model_image_sum*>(&_model);
 
@@ -1163,7 +1168,20 @@ namespace Themis
       std::vector<double> yfrac;
     };
 
+    struct AGInfo {
+      model_image_asymmetric_gaussian* g = nullptr;
+      size_t p0 = 0;
+      bool has_shift = false;
+      size_t idx_flux  = 0;
+      size_t idx_sigma = 0;
+      size_t idx_A     = 0;
+      size_t idx_pa    = 0;
+      size_t idx_xoff  = 0;
+      size_t idx_yoff  = 0;
+    };
+
     std::vector<CompInfo> comps;
+    std::vector<AGInfo> ags;
     const size_t Npar = x.size();
 
     auto fill_pixel_fracs = [](CompInfo& c)
@@ -1199,6 +1217,18 @@ namespace Themis
       fill_pixel_fracs(c);
       comps.push_back(c);
     }
+    else if (direct_ag_top)
+    {
+      AGInfo a;
+      a.g = direct_ag_top;
+      a.p0 = 0;
+      a.has_shift = false;
+      a.idx_flux  = 0;
+      a.idx_sigma = 1;
+      a.idx_A     = 2;
+      a.idx_pa    = 3;
+      ags.push_back(a);
+    }
     else if (sum_top)
     {
       size_t p = 0;
@@ -1223,6 +1253,20 @@ namespace Themis
           fill_pixel_fracs(c);
           comps.push_back(c);
         }
+        else if (auto* g = dynamic_cast<model_image_asymmetric_gaussian*>(imgs[j]))
+        {
+          AGInfo a;
+          a.g = g;
+          a.p0 = p;
+          a.has_shift = true;
+          a.idx_flux  = p + 0;
+          a.idx_sigma = p + 1;
+          a.idx_A     = p + 2;
+          a.idx_pa    = p + 3;
+          a.idx_xoff  = p + g->size();
+          a.idx_yoff  = p + g->size() + 1;
+          ags.push_back(a);
+        }
 
         p += imgs[j]->size();
         p += 2;
@@ -1241,7 +1285,7 @@ namespace Themis
       return g;
     }
 
-    if (comps.empty())
+    if (comps.empty() && ags.empty())
     {
       std::vector<double> g;
       {
@@ -1309,6 +1353,24 @@ namespace Themis
         analytic_mask[c.idx_fovx] = 1;
         analytic_mask[c.idx_fovy] = 1;
         analytic_mask[c.idx_pa]   = 1;
+      }
+    }
+
+    for (const auto& a : ags)
+    {
+      analytic_mask[a.idx_flux] = 1;
+
+      if (a.has_shift)
+      {
+        analytic_mask[a.idx_xoff] = 1;
+        analytic_mask[a.idx_yoff] = 1;
+      }
+
+      if (do_geom)
+      {
+        analytic_mask[a.idx_sigma] = 1;
+        analytic_mask[a.idx_A]     = 1;
+        analytic_mask[a.idx_pa]    = 1;
       }
     }
 
@@ -1479,6 +1541,89 @@ namespace Themis
               );
 
               grad_local[c.p0 + k] += Iflat[k] * (rr * dp.real() + ri * dp.imag());
+            }
+          }
+
+          for (const auto& a : ags)
+          {
+            const double raw_flux  = x[a.idx_flux];
+            const double raw_sigma = x[a.idx_sigma];
+            const double raw_A     = x[a.idx_A];
+            const double pa        = x[a.idx_pa];
+
+            const double flux  = std::fabs(raw_flux);
+            const double sigma = std::fabs(raw_sigma);
+            const double Acl   = std::min(std::max(raw_A, 0.0), 0.99);
+
+            const double s_flux  = (raw_flux >= 0.0 ? 1.0 : -1.0);
+            const double s_sigma = (raw_sigma >= 0.0 ? 1.0 : -1.0);
+            const bool   A_active = (raw_A > 0.0 && raw_A < 0.99);
+
+            const double cpa = std::cos(pa);
+            const double spa = std::sin(pa);
+
+            const double shiftx = a.has_shift ? x[a.idx_xoff] : 0.0;
+            const double shifty = a.has_shift ? x[a.idx_yoff] : 0.0;
+
+            const double ru = -two_pi * (u * cpa + v * spa);
+            const double rv =  two_pi * (-u * spa + v * cpa);
+
+            const double sa2 = sigma * sigma / (1.0 + Acl);
+            const double sb2 = sigma * sigma / (1.0 - Acl);
+
+            const double expo = -0.5 * (ru * ru * sa2 + rv * rv * sb2);
+            const double amp0 = (expo < -200.0 ? 0.0 : std::exp(expo));
+
+            const double psi = -two_pi * (u * shiftx + v * shifty);
+            const std::complex<double> E =
+              a.has_shift ? std::exp(std::complex<double>(0.0, psi))
+                          : std::complex<double>(1.0, 0.0);
+
+            const std::complex<double> Vag = E * (flux * amp0);
+
+            auto accum_from_dVm = [&](size_t idx, const std::complex<double>& dVm)
+            {
+              const std::complex<double> dyb(dVm.real() * inv_er, dVm.imag() * inv_ei);
+              const std::complex<double> dp(
+                g.real() * dyb.real() - g.imag() * dyb.imag(),
+                g.real() * dyb.imag() + g.imag() * dyb.real()
+              );
+              grad_local[idx] += rr * dp.real() + ri * dp.imag();
+            };
+
+            if (amp0 > 0.0)
+            {
+              const std::complex<double> dVm_dflux = E * (s_flux * amp0);
+              accum_from_dVm(a.idx_flux, dVm_dflux);
+            }
+
+            if (a.has_shift)
+            {
+              const std::complex<double> dVm_dshiftx = (minus_i * (two_pi * u)) * Vag;
+              const std::complex<double> dVm_dshifty = (minus_i * (two_pi * v)) * Vag;
+              accum_from_dVm(a.idx_xoff, dVm_dshiftx);
+              accum_from_dVm(a.idx_yoff, dVm_dshifty);
+            }
+
+            if (do_geom && amp0 > 0.0)
+            {
+              const double dF_dsigma =
+                s_sigma * ( -sigma * (ru * ru / (1.0 + Acl) + rv * rv / (1.0 - Acl)) );
+              const std::complex<double> dVm_dsigma = Vag * dF_dsigma;
+              accum_from_dVm(a.idx_sigma, dVm_dsigma);
+
+              const double dF_dA =
+                A_active
+                ? 0.5 * sigma * sigma *
+                    ( ru * ru / ((1.0 + Acl) * (1.0 + Acl))
+                    - rv * rv / ((1.0 - Acl) * (1.0 - Acl)) )
+                : 0.0;
+              const std::complex<double> dVm_dA = Vag * dF_dA;
+              accum_from_dVm(a.idx_A, dVm_dA);
+
+              const double dF_dpa = ru * rv * (sa2 - sb2);
+              const std::complex<double> dVm_dpa = Vag * dF_dpa;
+              accum_from_dVm(a.idx_pa, dVm_dpa);
             }
           }
         }
