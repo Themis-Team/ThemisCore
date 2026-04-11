@@ -123,6 +123,21 @@ namespace Themis {
     std::exit(1);
   } 
 
+  void model_image_sum::set_data(const std::vector<datum_visibility>& data)
+  {
+    for (size_t j = 0; j < _images.size(); ++j)
+      {
+	if (auto* r = dynamic_cast<Themis::model_image_adaptive_splined_raster*>(_images[j]))
+	  {
+	    r->set_data(data);
+	  }
+	else if (auto* s = dynamic_cast<Themis::model_image_sum*>(_images[j]))
+	  {
+	    s->set_data(data);
+	  }
+      }
+  }
+  
   void model_image_sum::set_mpi_communicator(MPI_Comm comm)
   {
     for (size_t i = 0; i < _images.size(); ++i)

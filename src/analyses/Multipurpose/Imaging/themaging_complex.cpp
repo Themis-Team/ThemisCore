@@ -1999,8 +1999,8 @@ int main(int argc, char* argv[])
 	if (Reconstruct_gains) {
 	  lvg[0]->print_timing_summary(world_rank);
 	}
-	// else
-	//   lv[0]->print_timing_summary(world_rank);
+	else
+	  lv[0]->print_timing_summary(world_rank);
       }
     }
     

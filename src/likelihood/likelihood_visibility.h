@@ -16,6 +16,9 @@
 #include "model_image_adaptive_splined_raster.h"
 
 #include <mpi.h>
+#include <array>
+#include <cstdint>
+#include "utils.h"
 
 namespace Themis{
 
@@ -49,7 +52,10 @@ namespace Themis{
     
       //! Defines a set of processors provided to the model for parallel computation via an MPI communicator.  Only facilates code parallelization if the model computation is parallelized via MPI.
       virtual void set_mpi_communicator(MPI_Comm comm);
-      
+      void print_timing_summary(int mpi_rank = -1) const;
+
+      mutable std::array<std::uint64_t,(size_t)Themis::utils::TimerID::COUNT> timer_ns_{};
+      mutable std::array<std::uint64_t,(size_t)Themis::utils::TimerID::COUNT> timer_calls_{};      
     protected:
 
       //! Outputs the data and model, as modified by the likelihood appropriately,
@@ -62,6 +68,8 @@ namespace Themis{
       uncertainty_visibility _local_uncertainty; // Default if none is passed
       uncertainty_visibility& _uncertainty;
       bool _use_cached_exp = false;
+      std::vector<datum_visibility> _datum_cache;
+      void bind_model_data_();
       std::vector<double> gradient_hybrid(std::vector<double>& x, prior& Pr); // for analytic diff
       std::vector<double> gradient_dispatch_(std::vector<double>& x, prior& Pr);
       void restore_basepoint(const std::vector<double>& x);
